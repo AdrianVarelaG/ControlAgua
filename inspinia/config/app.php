@@ -172,7 +172,12 @@ return [
         /*
          * Provider para DomPDF
          */
-        Barryvdh\DomPDF\ServiceProvider::class
+        Barryvdh\DomPDF\ServiceProvider::class,
+
+        /*
+         * Provider para DataTables Side Server
+         */
+        Yajra\Datatables\DatatablesServiceProvider::class
     
 
     ],
@@ -233,7 +238,12 @@ return [
         /*
          * DomPDF Image Aliases...
          */
-        'PDF' => Barryvdh\DomPDF\Facade::class
+        'PDF' => Barryvdh\DomPDF\Facade::class,
+
+        /*
+         * DataTable Sisde Server Aliases...
+         */
+        'Datatables' => Yajra\Datatables\Facades\Datatables::class
     
     ],
 

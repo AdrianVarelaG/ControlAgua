@@ -31,7 +31,7 @@ class ContractController extends Controller
         return view('contracts.index')->with('contracts', $contracts)
                                     ->with('company', $company);  
     }
-
+    
     /**
      * Display a listing of the resource.
      *
@@ -87,6 +87,7 @@ class ContractController extends Controller
         $contract->number_ext= $request->input('number_ext');
         $contract->number_int= $request->input('number_int');
         $contract->postal_code= $request->input('postal_code');
+        $contract->status= 'A';
         $contract->save();
         return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'create');
     }
@@ -161,8 +162,7 @@ class ContractController extends Controller
         * Se chequea si hay condominios asociados con el pais
         */        
         $contract = Contract::find($id);
-        if (true){
-        //if ($contract->invoices->count() == 0){            
+        if ($contract->invoices->count() == 0){            
             $contract->delete();
             return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'delete');        
         }else{            
@@ -170,4 +170,26 @@ class ContractController extends Controller
         }
     }
 
+    /**
+     * Update the status to specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function status($id)
+    {
+        $contract = Contract::find(Crypt::decrypt($id));
+        if($contract->status == "A"){
+            if($contract->balance > 0){
+                return redirect()->route('contracts.index')->withErrors('Para deshabilitar un contrato no debe tener deuda pendiente.');                 
+            }else{
+                $contract->status="D";                
+            }        
+        }else{
+            $contract->status= "A"; 
+        }
+        $contract->save();
+        return redirect()->route('contracts.index');
+    }
 }

@@ -11,7 +11,7 @@
     <!-- Bootstrap -->
     <link href="{{ asset("css/bootstrap.min.css") }}" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="{{ asset("fonts/font-awesome.min.css") }}" rel="stylesheet">
+    <link href="{{ asset("fonts/css/font-awesome.min.css") }}" rel="stylesheet">
     <!-- Animate -->
     <link href="{{ asset("css/animate.css") }}" rel="stylesheet">
     <!-- Custom Style -->
@@ -28,12 +28,9 @@
                 <h1 class="logo-name">IN+</h1>
 
             </div>
-            <h3>Welcome to IN+</h3>
-            <p>Perfectly designed and precisely prepared admin theme with over 50 pages with extra new web app views.
-                <!--Continually expanded and constantly improved Inspinia Admin Them (IN+)-->
-            </p>
-            <p>Login in. To see it in action.</p>
-            
+            <h3>Bienvenido</h3>
+            <p>Ssistema de Gestión de Servicio de Agua.</p>
+
                     <!-- show erros -->
                     @if (count($errors) > 0)
                       <div class="alert alert-danger fade in">
@@ -57,12 +54,19 @@
                     <input type="password" name="password" class="form-control" placeholder="Contraseña" required="">
                 </div>
                 <button type="submit" id="btn_submit" class="btn btn-primary block full-width m-b">Ingresar</button>
-
+                
+                <!-- 
                 <a href="{{  url('/password/reset') }}"><small>Olvidaste tu contraseña?</small></a>
                 <p class="text-muted text-center"><small>No tienes una cuenta?</small></p>
                 <a class="btn btn-sm btn-white btn-block" href="{{  url('/register') }}">Crear una cuenta</a>
+                -->
+            
             </form>
-            <p class="m-t"> <small>Inspinia we app framework base on Bootstrap 3 &copy; 2014</small> </p>
+            
+            <p class="m-t">
+                <small>Copyright &copy; 2017 Producto desarrollado por<br/> 
+                <strong><i class="fa fa-coffee" aria-hidden="true"></i> Guayoyo Software, C.A</strong></small> 
+            </p>
         </div>
     </div>
 

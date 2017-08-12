@@ -8,4 +8,10 @@ class Inspector extends Model
 {
     protected $table = 'inspectors';
 
+	//*** Relations ***
+    public function readings()
+    {        
+        return $this->hasMany('App\Models\Reading');
+    }
+
 }

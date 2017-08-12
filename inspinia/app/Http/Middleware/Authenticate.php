@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Company;
 use App\Models\Setting;
+use App\User;
 use Session;
 
 
@@ -38,6 +39,8 @@ class Authenticate
                 //Seteo de variables de sesion
                 $company = Company::first();
                 $setting = Setting::first();
+                $user = User::find(Auth::user()->id);
+                Session::put('user_role', $user->role);
                 Session::put('company_name', $company->name);
                 Session::put('app_name', $setting->app_name);
                 Session::put('coin', $setting->coin);

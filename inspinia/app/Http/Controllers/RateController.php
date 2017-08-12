@@ -24,7 +24,7 @@ class RateController extends Controller
     public function index()
     {
         $company = Company::first();                  
-        $rates = Rate::all();  
+        $rates = Rate::where('id','>', 1)->get();  
         return view('rates.index')->with('rates', $rates)
                                             ->with('company', $company);  
     }
@@ -68,6 +68,18 @@ class RateController extends Controller
         //
     }
 
+    
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function flat_rate()
+    {
+        $rate = Rate::find(1);
+        return view('rates.save')->with('rate', $rate);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -91,12 +103,17 @@ class RateController extends Controller
     {
         $rate = Rate::find($id);        
         $rate->name= $request->input('name');
+        $rate->movement_type= 'CT';
         $rate->amount= $request->input('amount');
         $rate->observation= $request->input('observation');
         $rate->created_by= Auth::user()->name;
         $rate->status= 'A';
         $rate->save();
-        return redirect()->route('rates.index')->with('notity', 'update');
+        if($rate->id == 1){
+            return view('home');
+        }else{
+            return redirect()->route('rates.index')->with('notity', 'update');
+        }
     }
 
     /**

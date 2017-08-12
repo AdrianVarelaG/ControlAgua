@@ -12,11 +12,11 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 	<div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-12">  
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-globe" aria-hidden="true"></i> Medidores</h5>
+                    <h5><i class="fa fa-tachometer" aria-hidden="true"></i> Contratos</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -34,42 +34,41 @@
                     </div>
                 </div>
                 <!-- /ibox-title -->
-                    
-            <!-- ibox-content- -->
-            <div class="ibox-content">
+                                
+          <!-- ibox-content- -->
+          <div class="ibox-content">
 
-              @include('partials.errors')
-              
-              <a href="{{ route('meters.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Registrar</a><br/><br/>
-
-            @if($meters->count())
+            @if($contracts->count())
                 <div class="table-responsive">
+                    
+                    @include('partials.errors')
+
                     <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
                         <th></th>
-                        <th>ID Medidor</th>
                         <th>Nro Contrato</th>
-                        <th>Tarifa</th>
-                        <th>Administración</th>
+                        <th>Ciudadano</th>
+                        <th>Deuda {{ Session::get('coin') }}</th>
+                        <th>Estado</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($meters as $meter)
+                    @foreach($contracts as $contract)
                     <tr class="gradeX">
                         <td class="text-center">                            
                         <!-- Split button -->
-                          @if($meter->status == "A")
+                          @if($contract->status == "A")
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{{ route('meters.edit', Crypt::encrypt($meter->id)) }}"><i class="fa fa-pencil"></i> Editar</a></li>
-                                    <li><a href="{{ route('meters.status', Crypt::encrypt($meter->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
+                                    <li><a href="{{ route('contracts.edit', Crypt::encrypt($contract->id)) }}"><i class="fa fa-pencil"></i> Editar</a></li>
+                                    <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
                                     <li class="divider"></li>
                                     <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('meters.destroy', $meter->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Estado?')) { return true } else {return false };">
+                                        <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Contrato '.{{ $contract->number }}.' ?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
@@ -83,25 +82,27 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-danger dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="{{ route('meters.status', Crypt::encrypt($meter->id)) }}"><i class="fa fa-check"></i> Habilitar</a></li>
+                                        <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-check"></i> Habilitar</a></li>
                                     </ul>
                             </div>
                           @endif
-                        <!-- /Split button -->                          
-                        </td>                          
-                        <td>{{ $meter->state->name }}</td>
-                        <td>{{ $meter->name }}</td>
-                        <td></td>
+                        <!-- /Split button -->                        </td>                          
+                        <td><strong>{{ $contract->number }}</strong></td>
+                        <td>{{ $contract->citizen->name }}</td>
+                        <td>{{ money_fmt($contract->balance) }}</td>
+                        <td>
+                        <p><span class="label {{ $contract->label_status }}">{{ $contract->status_description }}</span></p>
+                        </td>
                     </tr>
                     @endforeach
                     </tbody>
                     <tfoot>
                     <tr>
                         <th></th>
-                        <th>ID Medidor</th>
                         <th>Nro Contrato</th>
-                        <th>Tarifa</th>
-                        <th>Administración</th>
+                        <th>Ciudadano</th>
+                        <th>Deuda {{ Session::get('coin') }}</th>
+                        <th>Estado</th>
                     </tr>
                     </tfoot>
                     </table>
@@ -120,7 +121,7 @@
                 @endif
                 </div>
                 <!-- /ibox-content- -->
-            </div>
+          </div>
         </div>
     </div>
 </div>
@@ -139,9 +140,10 @@
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
-                { "sWidth": "35%" }, // 2nd column width
-                { "sWidth": "35%" }, // 3nd column width
-                { "sWidth": "25%" }  // 4nd column width                
+                { "sWidth": "25%" }, // 2nd column width
+                { "sWidth": "25%" }, // 3nd column width
+                { "sWidth": "25%" }, // 4nd column width 
+                { "sWidth": "20%" }  // 5nd column width                
               ],              
               responsive: false,              
               dom: '<"html5buttons"B>lTfgitp',
@@ -151,7 +153,7 @@
                   text: '<i class="fa fa-file-excel-o"></i>',
                   titleAttr: 'Exportar a Excel',
                   //Titulo
-                  title: 'Municipios de México',                  
+                  title: 'Contratos',                  
                   className: "btn-sm",
                   exportOptions: {
                     columns: [1, 2, 3],
@@ -162,7 +164,7 @@
                   text: '<i class="fa fa-file-pdf-o"></i>',
                   pageSize: 'LETTER',
                   titleAttr: 'Exportar a PDF',
-                  title: 'Municipios de México',                  
+                  title: 'Contratos',                  
                   className: "btn-sm",
                   //Sub titulo
                   message: '',

@@ -37,14 +37,15 @@
                     
             <!-- ibox-content- -->
             <div class="ibox-content">
-
-              @include('partials.errors')
-
+              <a href="{{URL::to('citizens.index', 'contact')}}" class="btn btn-sm btn-default" title="Vista Contactos"><i class="fa fa-th-large"></i></a>
               <a href="{{ route('citizens.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Registrar</a><br/><br/>
-
+    
             @if($citizens->count())
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover dataTables-example" >
+              
+                  @include('partials.errors')
+                    
+                    <table class="table dataTables-example table-striped table-hover">
                     <thead>
                     <tr>
                         <th></th>
@@ -113,11 +114,6 @@
                     </tr>
                     </tfoot>
                     </table>
-                    <br/>
-                    <br/>
-                    <br/>
-                    <br/>                    
-                    <br/>
                 	</div>
                 @else
                   <div class="alert alert-info">
@@ -160,7 +156,7 @@
                   text: '<i class="fa fa-file-excel-o"></i>',
                   titleAttr: 'Exportar a Excel',
                   //Titulo
-                  title: 'Inspectores',                  
+                  title: 'Ciudadanos',                  
                   className: "btn-sm",
                   exportOptions: {
                     columns: [1, 2, 3, 4],
@@ -171,7 +167,7 @@
                   text: '<i class="fa fa-file-pdf-o"></i>',
                   pageSize: 'LETTER',
                   titleAttr: 'Exportar a PDF',
-                  title: 'Inspectores',                  
+                  title: 'Ciudadanos',                  
                   className: "btn-sm",
                   //Sub titulo
                   message: '',

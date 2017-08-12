@@ -19,6 +19,7 @@ class CreateCitizensTable extends Migration
             $table->foreign('state_id')->references('id')->on('states');
             $table->integer('municipality_id')->unsigned();
             $table->foreign('municipality_id')->references('id')->on('municipalities');
+            $table->date('birthdate');
             $table->string('street',100);
             $table->string('number_ext',20);
             $table->string('number_int',20);

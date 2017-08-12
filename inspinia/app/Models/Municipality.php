@@ -8,11 +8,7 @@ class Municipality extends Model
 {
     protected $table = 'municipalities';
 	
-    public function state()
-    {        
-    	return $this->belongsTo('App\Models\State');
-    }    
-        
+    //*** Relations ***        
     public function citizens()
     {        
         return $this->hasMany('App\Models\Citizen');
@@ -22,6 +18,11 @@ class Municipality extends Model
     {        
         return $this->hasMany('App\Models\Contract');
     }
+    
+    public function state()
+    {        
+        return $this->belongsTo('App\Models\State');
+    }    
     
     // *** Methods ***
     public static function states($id){

@@ -1,11 +1,10 @@
 {
-    "name": "florientr/laravel-gentelella",
-    "description": "The Laravel 5.2 framework with Gentelella template",
+    "name": "laravel-inspinia",
+    "description": "The Laravel 5.2 framework with INSPINIA template",
     "keywords": [
       "framework",
       "laravel",
-      "gentelella",
-      "laravel-gentelella",
+      "inspinia",
       "template",
       "bootstrap",
       "responsive",
@@ -16,13 +15,23 @@
     ],
     "license": "MIT",
     "type": "project",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packagist.org"
+        },
+        {
+            "packagist": false
+        }
+    ],   
     "require": {
         "php": ">=5.5.9",
         "laravel/framework": "5.2.*",
         "thomaswelton/laravel-gravatar": "~1.0",
         "laravelcollective/html": "^5.2.0",
         "intervention/image": "2.*",
-        "barryvdh/laravel-dompdf": "^0.7.1"
+        "barryvdh/laravel-dompdf": "^0.7.1",
+        "yajra/laravel-datatables-oracle": "^6.29"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

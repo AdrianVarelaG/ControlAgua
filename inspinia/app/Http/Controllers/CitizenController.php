@@ -28,12 +28,20 @@ class CitizenController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($view)
     {
-        $citizens = Citizen::all();  
-        $company = Company::first();
-        return view('citizens.index')->with('citizens', $citizens)
-                                    ->with('company', $company); 
+        
+        if($view=='contact'){
+            $citizens = Citizen::paginate(5);            
+            $company = Company::first();
+            return view('citizens.index2')->with('citizens', $citizens)
+                                    ->with('company', $company);
+        }else if($view=='list'){
+            $citizens = Citizen::orderBy('name')->get();            
+            $company = Company::first();
+            return view('citizens.index')->with('citizens', $citizens)
+                                    ->with('company', $company);
+        }
     }
 
     /**
@@ -70,6 +78,7 @@ class CitizenController extends Controller
         $citizen->state_id= $request->input('state');
         $citizen->municipality_id= $request->input('municipality');
         $citizen->name= $request->input('name');
+        $citizen->birthdate= (new ToolController)->format_ymd($request->input('birthdate'));
         $citizen->profession= $request->input('profession');
         $citizen->email= $request->input('email');
         $citizen->phone= $request->input('phone');
@@ -131,6 +140,7 @@ class CitizenController extends Controller
         $citizen->state_id= $request->input('state');
         $citizen->municipality_id= $request->input('municipality');
         $citizen->name= $request->input('name');
+        $citizen->birthdate= (new ToolController)->format_ymd($request->input('birthdate'));
         $citizen->profession= $request->input('profession');
         $citizen->email= $request->input('email');
         $citizen->phone= $request->input('phone');

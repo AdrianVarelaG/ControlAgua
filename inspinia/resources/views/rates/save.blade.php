@@ -42,7 +42,12 @@
                                 </div>
                             </div>                            
                              <div class="form-group">
-                                <label>Monto de la Tarifa por m3 *</label><small> Para decimales use el punto (.)</small>
+                                @if($rate->id ==1)
+                                    <label>Monto de la Tarifa *</label>
+                                @else
+                                    <label>Monto de la Tarifa por m3 *</label>
+                                @endif
+                                <small> Para decimales use el punto (.)</small>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon">{{ Session::get('coin') }}</span>
                                     {!! Form::text('amount', $rate->amount, ['id'=>'amount', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'', 'number', 'required', 'min'=>'0']) !!}
@@ -58,7 +63,11 @@
                             <div class="form-group pull-right">
                                 <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
                                     <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Ok</button>
-                                    <a href="{{URL::to('rates/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                                    @if($rate->id==1)
+                                        <a href="{{URL::to('home')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                                    @else
+                                        <a href="{{URL::to('rates/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                                    @endif
                                 </div>
                             </div>                            
                         {{ Form::close() }}

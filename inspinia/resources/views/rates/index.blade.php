@@ -16,7 +16,7 @@
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-globe" aria-hidden="true"></i> Tarifas</h5>
+                    <h5><i class="fa fa-globe" aria-hidden="true"></i> Tarifas por Consumo</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -37,13 +37,14 @@
                     
             <!-- ibox-content- -->
             <div class="ibox-content">
-
-              @include('partials.errors')
               
               <a href="{{ route('rates.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Registrar</a><br/><br/>
 
             @if($rates->count())
                 <div class="table-responsive">
+                    
+                  @include('partials.errors')
+
                     <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
@@ -158,7 +159,7 @@
                   text: '<i class="fa fa-file-excel-o"></i>',
                   titleAttr: 'Exportar a Excel',
                   //Titulo
-                  title: 'Tarifas del Servicio',                  
+                  title: 'Tarifas por Consumo',                  
                   className: "btn-sm",
                   exportOptions: {
                     columns: [1, 2, 3, 4],
@@ -169,7 +170,7 @@
                   text: '<i class="fa fa-file-pdf-o"></i>',
                   pageSize: 'LETTER',
                   titleAttr: 'Exportar a PDF',
-                  title: 'Tarifas del Servicio',                  
+                  title: 'Tarifas por Consumo',                  
                   className: "btn-sm",
                   //Sub titulo
                   message: '',
@@ -217,6 +218,7 @@
                 },
               ]
             });
+            
             //Notifications
             setTimeout(function() {
                 toastr.options = {

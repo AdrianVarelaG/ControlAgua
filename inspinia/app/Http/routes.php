@@ -21,6 +21,7 @@ Route::get('authorizations.status/{id}', ['as' => 'authorizations.status', 'uses
 
 //Citizen
 Route::resource("citizens","CitizenController");
+Route::get('citizens.index/{view}', ['as' => 'citizens', 'uses' => 'CitizenController@index']);
 Route::get('citizens.status/{id}', ['as' => 'citizens.status', 'uses' => 'CitizenController@status']);
 
 //Company
@@ -34,6 +35,16 @@ Route::resource("contracts","ContractController");
 Route::get('contracts.create/{id}', ['as' => 'contracts.create', 'uses' => 'ContractController@create']);
 Route::get('contracts.status/{id}', ['as' => 'contracts.status', 'uses' => 'ContractController@status']);
 Route::get('contracts.citizen_contracts/{id}', ['as' => 'contracts.citizen_contracts', 'uses' => 'ContractController@citizen_contracts']);
+
+//Charge
+Route::resource("charges","ChargeController");
+Route::get('charges.iva', ['as' => 'charges.iva', 'uses' => 'ChargeController@iva']);
+Route::get('charges.status/{id}', ['as' => 'charges.status', 'uses' => 'ChargeController@status']);
+
+//Discount
+Route::resource("discounts","DiscountController");
+Route::get('discounts.age', ['as' => 'discounts.age', 'uses' => 'DiscountController@age']);
+Route::get('discounts.status/{id}', ['as' => 'discounts.status', 'uses' => 'DiscountController@status']);
 
 //Home
 Route::get('/', 'HomeController@index');
@@ -50,6 +61,21 @@ Route::get('company_logo/{id}', 'ImgController@showCompanyLogo');
 Route::resource("inspectors","InspectorController");
 Route::get('inspectors.status/{id}', ['as' => 'inspectors.status', 'uses' => 'InspectorController@status']);
 
+//Invoice
+Route::resource("invoices","InvoiceController");
+Route::get('invoices.index/{year}/{month}', ['as' => 'invoices.index', 'uses' => 'InvoiceController@index']);
+Route::get('invoices.index_group', ['as' => 'invoices.index_group', 'uses' => 'InvoiceController@index_group']);
+
+Route::get('invoices.routines', ['as' => 'invoices.routines', 'uses' => 'InvoiceController@routines']);
+Route::get('invoices.reverse_routine/{year}/{month}', ['as' => 'invoices.reverse_routine', 'uses' => 'InvoiceController@reverse_routine']);
+
+//PDF Reports Controller
+Route::get('invoices.inovice_pdf/{id}', ['as' => 'invoices.invoice_pdf', 'uses' => 'PDFController@invoice_pdf']);
+Route::get('invoices.invoices_pdf/{year}/{month}', ['as' => 'invoices.invoices_pdf', 'uses' => 'PDFController@invoices_pdf']);
+Route::get('payments.print_voucher/{id}', ['as' => 'payments.print_voucher', 'uses' => 'PDFController@print_voucher']);
+
+
+
 //Login
 Route::auth();
 
@@ -57,13 +83,26 @@ Route::auth();
 Route::resource("municipalities","MunicipalityController");
 Route::get('municipalities.status/{id}', ['as' => 'municipalities.status', 'uses' => 'MunicipalityController@status']);
 
+//Payments
+Route::resource("payments","PaymentController");
+Route::post('payments.payment_future', ['as' => 'payments.payment_future', 'uses' => 'PaymentController@payment_future']);
+Route::get('payments.create/{id}', ['as' => 'payments.create', 'uses' => 'PaymentController@create']);
+Route::get('payments.contracts_debt', ['as' => 'payments.contracts_debt', 'uses' => 'PaymentController@contracts_debt']);
+Route::get('payments.contracts_solvent', ['as' => 'payments.contracts_solvent', 'uses' => 'PaymentController@contracts_solvent']);
+Route::get('payments.future/{id}', ['as' => 'payments.future', 'uses' => 'PaymentController@future']);
+
+
 //RateType
 Route::resource("rate_types","RateTypeController");
 Route::get('rate_types.status/{id}', ['as' => 'rate_types.status', 'uses' => 'RateTypeController@status']);
 
 //Rate
 Route::resource("rates","RateController");
+Route::get('rates.flat_rate', ['as' => 'rates.flat_rate', 'uses' => 'RateController@flat_rate']);
 Route::get('rates.status/{id}', ['as' => 'rates.status', 'uses' => 'RateController@status']);
+
+//Readings
+Route::resource("readings","ReadingController");
 
 //Setting
 Route::resource("settings","SettingController");

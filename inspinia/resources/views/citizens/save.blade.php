@@ -6,7 +6,8 @@
 <!-- Select2 -->
 <link href="{{ URL::asset('js/plugins/select2/dist/css/select2.min.css') }}" rel="stylesheet">
 <link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
-
+<!-- DatePicker -->
+<link href="{{ URL::asset('css/plugins/datapicker/datepicker3.css') }}" rel="stylesheet">
 @endpush
 
 @section('page-header')
@@ -74,6 +75,13 @@
                                     {!! Form::text('profession', $citizen->profession, ['id'=>'profession', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Web Developer', 'maxlength'=>'100']) !!}
                                 </div>
                             </div>                        
+                            <div class="form-group" id="data_1">
+                                <label>Fecha de Nacimiento *</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    {{ Form::text ('birthdate', ($citizen->id)?$citizen->birthdate->format('d/m/Y'):'', ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                </div>
+                            </div>                            
                             <div class="form-group">
                                 <label>Teléfono</label>
                                 <div class="input-group m-b">
@@ -81,6 +89,8 @@
                                     {!! Form::text('phone', $citizen->phone, ['id'=>'phone', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. +52 555.55.55', 'maxlength'=>'25']) !!}
                                 </div>
                             </div>                            
+                        </div>
+                        <div class="col-sm-6">                        
                             <div class="form-group">
                                 <label>Móvil</label>
                                 <div class="input-group m-b">
@@ -94,9 +104,7 @@
                                     <span class="input-group-addon"><i class="fa fa-envelope" aria-hidden="true"></i></span>
                                     {!! Form::text('email', $citizen->email, ['id'=>'email', 'class'=>'form-control', 'type'=>'email', 'placeholder'=>'Ej. correo@dominio.com', 'minlength'=>'3', 'maxlength'=>'50']) !!}
                                 </div>
-                            </div>                        
-                        </div>
-                        <div class="col-sm-6">                        
+                            </div>                            
                             <div class="form-group">
                                 <label>Estado *</label>
                                 <div class="input-group">
@@ -171,6 +179,9 @@
 <!-- Select2 -->
 <script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>
 <script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>
+<!-- DatePicker --> 
+<script src="{{ URL::asset('js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+<script src="{{ URL::asset('js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
 
 <!-- Page-Level Scripts -->
 <script>
@@ -230,6 +241,15 @@
             }        
         });        
     
+        //Datepicker fecha de nacimiento
+        var date_input_1=$('#data_1 .input-group.date');
+        date_input_1.datepicker({
+            format: 'dd/mm/yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            language: 'es',
+        })
+        
         // Select2 
         $("#state").select2({
           language: "es",
