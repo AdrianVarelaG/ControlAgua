@@ -30,11 +30,15 @@ class MunicipalityController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($state_id)
     {
-        $company = Company::first();                  
-        $municipalities = Municipality::all();  
+        $company = Company::first();
+        $state = State::find($state_id);
+        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');                  
+        $municipalities = Municipality::where('state_id', $state_id)->get();  
         return view('municipalities.index')->with('municipalities', $municipalities)
+                                            ->with('states', $states)
+                                            ->with('state', $state)
                                             ->with('company', $company);  
     }
 
@@ -46,7 +50,7 @@ class MunicipalityController extends Controller
     public function create()
     {
         $municipality = new Municipality();
-        $states = State::orderBy('name')->lists('name','id');
+        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');
         return view('municipalities.save')->with('municipality', $municipality)
                                   ->with('states', $states);
     }
@@ -87,7 +91,7 @@ class MunicipalityController extends Controller
     public function edit($id)
     {
         $municipality = Municipality::find(Crypt::decrypt($id));
-        $states = State::orderBy('name')->lists('name','id');
+        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');
         return view('municipalities.save')->with('municipality', $municipality)
                                   ->with('states', $states);
     }
@@ -127,6 +131,22 @@ class MunicipalityController extends Controller
         }else{            
             return redirect()->route('municipalities.index')->withErrors('No se puede eliminar el Municipio. Existen <strong>'.$municipality->citizens->count().'</strong> ciudadanos asociados. Debe primero eliminar los ciudadanos asociados. Gracias...');            
         }
+    }
+
+
+    /**
+     * Update the status to specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function status($id)
+    {
+        $municipality = Municipality::find(Crypt::decrypt($id));
+        ($municipality->status == "A")?$municipality->status="D":$municipality->status= "A";  
+        $municipality->save();
+        return redirect()->route('municipalities.index');
     }
 
 }

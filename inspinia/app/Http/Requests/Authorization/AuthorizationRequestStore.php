@@ -25,7 +25,7 @@ class AuthorizationRequestStore extends Request
     public function rules()
     {
         return [
-            'name' => 'required|min:3|max:100|unique:inspectors',
+            'name' => 'required|min:3|max:100|unique:authorizations',
             'position' => 'required|max:100',
             'email' => 'email|max:50'
         ];

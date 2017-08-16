@@ -79,7 +79,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find(Crypt::decrypt($id));        
+        return view('users.show')->with('user', $user);  
     }
 
     /**

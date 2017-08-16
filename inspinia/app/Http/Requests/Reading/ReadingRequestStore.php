@@ -26,6 +26,7 @@ class ReadingRequestStore extends Request
     {
         return [
             'period' => 'required',
+            'contract' => 'required',
             'date' => 'required|date_format:d/m/Y',
             'inspector' => 'required',
             'previous_reading' => 'required|numeric|min:0',
@@ -37,6 +38,7 @@ class ReadingRequestStore extends Request
     {
         return [
             'period.required'  => 'El mes y año de consumo es obligatorio.',
+            'contract.required'  => 'Debe seleccionar un contrato.',
             'date.required'  => 'La fecha de lectura es obligatoria.',
             'inspector.required'  => 'Debe seleccionar un inspector.',
             'previous_reading.required'  => 'La lectura anterior es obligatoria.',

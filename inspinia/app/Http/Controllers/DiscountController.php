@@ -9,6 +9,7 @@ use App\Http\Requests\Discount\DiscountRequestStore;
 use App\Http\Requests\Discount\DiscountRequestUpdate;
 use App\Models\Discount;
 use App\Models\Company;
+use App\Models\Authorization;
 use Illuminate\Support\Facades\Crypt;
 
 
@@ -37,7 +38,10 @@ class DiscountController extends Controller
     public function create()
     {
         $discount = new Discount();
-        return view('discounts.save')->with('discount', $discount);
+        $authorizations = Authorization::where('status', 'A')->orderBy('name')->lists('name','id');
+        
+        return view('discounts.save')->with('discount', $discount)
+                                    ->with('authorizations', $authorizations);
     }
 
     /**
@@ -66,6 +70,7 @@ class DiscountController extends Controller
             $discount->percent= $request->input('percent');
         }        
         $discount->description= $request->input('description');
+        $discount->authorization_id= $request->input('authorization');
         $discount->status= 'A';
         $discount->save();
         
@@ -104,7 +109,10 @@ class DiscountController extends Controller
     public function edit($id)
     {
         $discount = Discount::find(Crypt::decrypt($id));
-        return view('discounts.save')->with('discount', $discount);
+        $authorizations = Authorization::where('status', 'A')->orderBy('name')->lists('name','id');
+
+        return view('discounts.save')->with('discount', $discount)
+                                    ->with('authorizations', $authorizations);
     }
 
     /**
@@ -120,6 +128,7 @@ class DiscountController extends Controller
         if($discount->id == 1){
             $discount->age= $request->input('age');
         }else{
+            $discount->authorization_id= $request->input('authorization');            
             if ($request->input('temporary')){
                 $discount->temporary = 'Y';
                 $discount->initial_date = (new ToolController)->format_ymd($request->input('initial_date'));
@@ -157,7 +166,6 @@ class DiscountController extends Controller
     {
         /**
         * Logica de eliminacion para no generar inconsistencia.
-        * Se chequea si hay condominios asociados con el pais
         */        
         $discount = Discount::find($id);
         $discount->delete();

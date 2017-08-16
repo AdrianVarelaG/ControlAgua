@@ -15,6 +15,8 @@ class DiscountsSeeder extends Seeder
 			'movement_type' =>  'DE',
 			'type' =>  'P',
 			'description' =>  'Descuento por 3ra Edad',
+			'age' =>  60,
+			'temporary' =>  'N',
 			'amount' =>  0,
 			'percent' =>  8,
 			'status' =>  'A',

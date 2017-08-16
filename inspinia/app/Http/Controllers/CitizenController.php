@@ -20,6 +20,8 @@ use App\Http\Controllers\ImgController;
 use Image;
 use File;
 use DB;
+use Session;
+use Carbon\Carbon;
 
 class CitizenController extends Controller
 {
@@ -28,21 +30,27 @@ class CitizenController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($view)
-    {
-        
-        if($view=='contact'){
+    public function index()
+    {        
+        if(Session::get('citizens_view') == 'contact'){
             $citizens = Citizen::paginate(5);            
             $company = Company::first();
             return view('citizens.index2')->with('citizens', $citizens)
                                     ->with('company', $company);
-        }else if($view=='list'){
+        }else if(Session::get('citizens_view') == 'list'){
             $citizens = Citizen::orderBy('name')->get();            
             $company = Company::first();
             return view('citizens.index')->with('citizens', $citizens)
                                     ->with('company', $company);
         }
     }
+
+    public function change_view($view){
+
+        Session::put('citizens_view', $view);
+        return redirect()->route('citizens.index');
+    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -52,7 +60,7 @@ class CitizenController extends Controller
     public function create()
     {
         $citizen = new Citizen();
-        $states = State::orderBy('name')->lists('name','id');
+        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');
         return view('citizens.save')->with('citizen', $citizen)
                                     ->with('states', $states);
     }
@@ -104,6 +112,77 @@ class CitizenController extends Controller
         //
     }
 
+    
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function balance($id, $period)
+    {
+        $company = Company::first();                  
+        $citizen = Citizen::find(Crypt::decrypt($id));
+        $initial_balance=0;
+        $movements = $citizen->movements;
+        $credits =0;
+        $debits =0;
+        switch ($period) 
+        {
+            case '3':
+                $period_title = 'Estado de Cuenta últimos 3 meses';
+                break;
+            case '6':
+                $period_title = 'Estado de Cuenta últimos 6 meses';
+                break;
+            case '12':
+                $period_title = 'Estado de Cuenta últimos 12 meses';
+                break;
+            case 'all':
+                $period_title = 'Estado de Cuenta Completo';
+                break;
+        }        
+        if($period == '3'){
+            $initial_date = Carbon::now()->subMonths(2)->startOfMonth();
+            $credits = $citizen->credits()->where('date', '<' , $initial_date)->sum('amount');
+            $debits = $citizen->debits()->where('date', '<' , $initial_date)->sum('amount');
+            $initial_balance = $credits - $debits;
+            $movements = $citizen->movements()->where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+        }        
+        else if($period == '6'){
+            $initial_date = Carbon::now()->subMonths(5)->startOfMonth();
+            $credits = $citizen->credits()->where('date', '<' , $initial_date)->sum('amount');
+            $debits = $citizen->debits()->where('date', '<' , $initial_date)->sum('amount');
+            $initial_balance = $credits - $debits;            
+            $movements = $citizen->movements()->where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+
+        }
+        else if($period == '12'){
+            $initial_date = Carbon::now()->subMonths(11)->startOfMonth();
+            $credits = $citizen->credits()->where('date', '<' , $initial_date)->sum('amount');
+            $debits = $citizen->debits()->where('date', '<' , $initial_date)->sum('amount');
+            $initial_balance = $credits - $debits;            
+            $movements = $citizen->movements()->where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+
+        }
+        else if($period == 'all'){
+            $initial_date = Carbon::now();
+            $movements = $citizen->movements()->orderBy('date')->get();
+        }
+                        
+        return view('citizens.balance')->with('company', $company)
+                                    ->with('citizen', $citizen)
+                                    ->with('initial_balance', $initial_balance)
+                                    ->with('initial_date', $initial_date)
+                                    ->with('movements', $movements)
+                                    ->with('period', $period)
+                                    ->with('period_title', $period_title);
+
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -113,7 +192,7 @@ class CitizenController extends Controller
     public function edit($id)
     {
         $citizen = Citizen::find(Crypt::decrypt($id));        
-        $states = State::orderBy('name')->lists('name','id');        
+        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');        
         return view('citizens.save')->with('citizen', $citizen)
                                     ->with('states', $states);
     }
@@ -162,16 +241,16 @@ class CitizenController extends Controller
      */
     public function destroy($id)
     {
+        //return $view;
         /**
         * Logica de eliminacion para no generar inconsistencia.
-        * Se chequea si hay condominios asociados con el pais
         */        
         $citizen = Citizen::find($id);
-        if ($citizen->meters->count() == 0){            
+        if ($citizen->contracts->count() == 0){            
             $citizen->delete();
             return redirect()->route('citizens.index')->with('notity', 'delete');        
         }else{            
-            return redirect()->route('citizens.index')->withErrors('No se puede eliminar el ciudadano. Existen <strong>'.$citizens->meters->count().'</strong> medidores asociados. Debe primero eliminar los medidores asociados. Gracias...');            
+            return redirect()->route('citizens.index')->withErrors('No se puede eliminar el ciudadano. Existen <strong>'.$citizen->contracts->count().'</strong> contratos asociados a él. Debe primero eliminar los contratos asociados. Gracias...');            
         }
     }
 

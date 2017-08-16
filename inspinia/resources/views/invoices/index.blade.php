@@ -47,11 +47,11 @@
                     <thead>
                     <tr>
                         <th></th>
-                        <th>#</th>
+                        <th class="text-center">Recibo #</th>
                         <th>Contrato</th>
                         <th>Monto {{ Session::get('coin') }}</th>
                         <th>Vencimiento</th>
-                        <th>Estado</th>
+                        <th>Estatus</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -62,6 +62,7 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
+                                    <li><a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-eye"></i> Vista previa</a></li>
                                     <li><a href="{{ route('invoices.invoice_pdf', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-print"></i> Imprimir</a></li>
                                     <li class="divider"></li>
                                     <li>
@@ -79,10 +80,12 @@
                             </div>
                         <!-- /Split button -->                          
                         </td>                          
-                        <td><strong>{{ $invoice->id }}</strong></td>
+                        <td class="text-center">
+                          <a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}" class="client-link" title="Vista previa">{{ $invoice->id }}</a>
+                        </td>
                         <td>
                           <strong>{{ $invoice->contract->number }}</strong><br/>
-                          <small>{{ $invoice->citizen->name }}</small>
+                          <small>{{ $invoice->contract->citizen->name }}</small>
                         </td>
                         <td>{{ money_fmt($invoice->total) }}</td>
                         <td>{{ $invoice->date_limit->format('d/m/Y') }}</td>
@@ -95,11 +98,11 @@
                     <tfoot>
                     <tr>
                         <th></th>
-                        <th>#</th>
+                        <th class="text-center">Recibo #</th>
                         <th>Contrato</th>
                         <th>Monto {{ Session::get('coin') }}</th>
                         <th>Vencimiento</th>
-                        <th>Estado</th>
+                        <th>Estatus</th>
                     </tr>
                     </tfoot>
                     </table>

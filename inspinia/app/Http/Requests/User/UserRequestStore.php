@@ -26,7 +26,7 @@ class UserRequestStore extends Request
     {
         return [
             'name' => 'required|min:3|max:50',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
             'password_confirmation' => 'required|min:6',
             'role' => 'required'            
@@ -39,6 +39,7 @@ class UserRequestStore extends Request
             'name.required'  => 'El nombre de usuario es obligatorio.',
             'email.required'  => 'El correo electrónico es obligatorio.',
             'email.email'  => 'El correo electrónico no es un correo válido.',
+            'email.unique'  => 'Ya existe un usuario registrado con ese correo electrónico.',
             'role.required'  => 'Debe seleccionar un rol.'                        
         ];
     }

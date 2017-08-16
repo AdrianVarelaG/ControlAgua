@@ -48,7 +48,7 @@
                         {!! Form::hidden('hdd_final_month', null, ['id'=>'hdd_final_month']) !!}
                         {!! Form::hidden('hdd_year', $year, ['id'=>'hdd_year']) !!}
                         <!-- 1ra Columna -->
-                        <div class="col-sm-6">                            
+                        <div class="col-sm-5">                            
                             <h2>{{ $contract->citizen->name }}, Contrato # {{ $contract->number }}</h2>
 
                             <div class="form-group" id="data_1">
@@ -88,7 +88,7 @@
                         <!-- /1ra Columna -->
                                                 
                         <!-- 2da Columna -->
-                        <div class="col-sm-6">
+                        <div class="col-sm-7">
                             
                         <h2>Servicio</h2>
                             <p><i class="fa fa-info-circle"></i><small> Los pagos por adelantado se calcularán a monto fijo.</small></p>                        
@@ -139,7 +139,7 @@
                                 @php($i=0)
                                 @foreach($other_discounts as $discount)
                                     <div class="i-checks">
-                                        <p>{!! Form::radio('other_discount[]', $discount->id,  false, ['id'=>'other_discount['.$i.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}.</p>
+                                        <p>{!! Form::radio('other_discount[]', $discount->id,  false, ['id'=>'other_discount['.$i.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
                                             {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$i.']']) !!}
                                             {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$i.']']) !!}
                                             {!! Form::hidden('other_discount_type',  $discount->type , ['id'=>'other_discount_type['.$i++.']']) !!}
@@ -300,8 +300,12 @@
 
         
         $('#btn_reset').on('click', function(event){ 
-            $("input[id^='invoice']").iCheck('uncheck');
-            $("input[id^='other_discount']").iCheck('uncheck'); 
+            $("input[id='iva']").iCheck('uncheck');
+            $("input[id^='charge']").iCheck('uncheck');
+            $("input[id^='other_discount']").iCheck('uncheck');
+            if ('{{ $contract->citizen->age_discount() }}'=='1'){
+                $("input[id='age_discount']").iCheck('uncheck');
+            } 
         });    
 
     //Rutina para el calculo del monto a pagar
@@ -364,26 +368,29 @@
                     type = document.getElementById("other_discount_type["+i+"]").value;
                     amount  = parseFloat(document.getElementById("other_discount_amount["+i+"]").value);
                     percent = parseFloat(document.getElementById("other_discount_percent["+i+"]").value);
+                    if(type =='P'){
+                        discount = total*(percent/100);
+                    }else if(type == 'M'){
+                        discount = amount;
+                    }
                 }
             }
-            if(type =='P'){
-                discount = total*(percent/100);
-            }else if(type == 'M'){
-                discount = amount;
-            }        
         }
         total = total - discount;
 
-        //tot_invoices = tot_invoices.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        //discount = discount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        //total = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
         $('#hdd_discount_id').val(discount_id);
-        document.getElementById("servicios_cargos").innerHTML = "Servicio + Cargos: " +tot_invoices+" + "+tot_charges+ " = " +(tot_charges+tot_invoices);
-        document.getElementById("tot_iva").innerHTML = "IVA: " + iva;
-        document.getElementById("sub_tot").innerHTML = "SUB TOTAL: " + (tot_charges+tot_invoices+iva);
-        document.getElementById("total_descuento").innerHTML = "Descuento: " + discount;
-        document.getElementById("total_monto").innerHTML = "PAGO TOTAL: " + total+ " {{ Session::get('coin') }}";        
-    }       
+        document.getElementById("servicios_cargos").innerHTML = "Servicio + Cargos: " +money_fmt(tot_invoices)+" + "+money_fmt(tot_charges)+ " = " +money_fmt(tot_charges+tot_invoices);
+        document.getElementById("tot_iva").innerHTML = "IVA: " + money_fmt(iva);
+        document.getElementById("sub_tot").innerHTML = "SUB TOTAL: " + money_fmt(tot_charges+tot_invoices+iva);
+        document.getElementById("total_descuento").innerHTML = "Descuento: " + money_fmt(discount);
+        document.getElementById("total_monto").innerHTML = "PAGO TOTAL: " + money_fmt(total)+ " {{ Session::get('coin') }}";        
+    }
+    
+    function money_fmt(num){
+        num_fmt = num.toFixed(2).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+        return num_fmt;
+        //console.log (num_fmt);
+    }
 
     });
     </script>

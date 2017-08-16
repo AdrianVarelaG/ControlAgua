@@ -49,6 +49,7 @@
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
+                        <th>Estado</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -76,6 +77,7 @@
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
+                        <th>Estado</th>
                     </tr>
                     </tfoot>
                     </table>

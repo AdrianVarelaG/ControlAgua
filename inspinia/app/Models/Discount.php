@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Discount extends Model
 {
@@ -10,7 +11,29 @@ class Discount extends Model
     protected $dates = ['initial_date', 'final_date'];
     
     
-	//*** Accesors ***
+    //*** Relations ***      
+    public function authorization()
+    {        
+        return $this->belongsTo('App\Models\Authorization');
+    }    
+	
+
+    //*** Methods ***
+    public function show_temporary(){
+
+        $today = Carbon::now()->format('Ymd');
+        if($this->temporary=='Y'){
+            if($today >= $this->initial_date->format('Ymd') && $today <= $this->final_date->format('Ymd')){
+                return true;                
+            }else{
+                return false;
+            }
+        }else{            
+            return true;        
+        }
+    }
+
+    //*** Accesors ***
     public function getTypeDescriptionAttribute(){
 
         if($this->type=='M'){

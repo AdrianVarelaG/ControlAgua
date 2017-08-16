@@ -52,6 +52,7 @@ class RateController extends Controller
         $rate->name= $request->input('name');
         $rate->amount= $request->input('amount');
         $rate->observation= $request->input('observation');
+        $rate->status= 'A';
         $rate->created_by= Auth::user()->name;
         $rate->save();
         return redirect()->route('rates.index')->with('notity', 'create');
@@ -124,11 +125,13 @@ class RateController extends Controller
      */
     public function destroy($id)
     {
-        //No hay verificacion de registros asociados porque los datos se van completo a las tablas transaccionales (Recibos)
         $rate = Rate::find($id);
-        $rate->delete()->with('notity', 'delete');
-        
-        return redirect()->route('rates.index');        
+        if ($rate->contracts->count() == 0){            
+            $rate->delete();
+            return redirect()->route('rates.index')->with('notity', 'delete');        
+        }else{            
+            return redirect()->route('rates.index')->withErrors('No se puede eliminar la tarifa. Existen <strong>'.$rate->contracts->count().'</strong> contratos asociados.<br>Debe primero eliminar los contratos asociados.<br>También puede deshabilitar la tarifa para que no siga siendo utilizada en el sistema.');            
+        }
     }
 
     /**

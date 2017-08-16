@@ -27,7 +27,7 @@ class DiscountRequestStore extends Request
         
 
         $rules = [
-            'description' => 'required|max:100|unique:charges',
+            'description' => 'required|max:100|unique:discounts',
         ];        
         
         if($this->request->get('temporary')){
@@ -52,6 +52,7 @@ class DiscountRequestStore extends Request
     {
         return [
             'amount.required'  => 'El monto del cargo es obligatorio.',
+            'description.unique'  => 'La descripción del descuento ya ha sido registrada.',
             'percent.required'  => 'El porcentaje del cargo es obligatorio.',
             'amount.numeric'  => 'El monto del cargo debe ser numérico.',
             'percent.numeric'  => 'El porcentaje del cargo debe ser numérico.',

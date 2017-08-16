@@ -109,11 +109,11 @@ class AdministrationController extends Controller
         * Se chequea si hay condominios asociados con el pais
         */        
         $administration = Administration::find($id);
-        if ($administration->meters->count() == 0){            
+        if ($administration->contracts->count() == 0){            
             $administration->delete();
             return redirect()->route('administrations.index')->with('notity', 'delete');        
         }else{            
-            return redirect()->route('administrations.index')->withErrors('No se puede eliminar la Administración. Existen <strong>'.$administration->meters->count().'</strong> medidores asociados. Debe primero eliminar los medidores asociados. Gracias...');            
+            return redirect()->route('administrations.index')->withErrors('No se puede eliminar la Administración. Existen <strong>'.$administration->contracts->count().'</strong> contratos asociados. Debe primero eliminar los contractos asociados. Gracias...');            
         }
     }
 

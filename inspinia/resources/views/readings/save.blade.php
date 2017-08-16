@@ -80,7 +80,7 @@
                                 <label>Lectura Anterior (m3) *</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
-                                    {!! Form::text('previous_reading', $reading->previous_reading, ['id'=>'previous_reading', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 100', 'maxlength'=>'100', 'required']) !!}
+                                    {!! Form::text('previous_reading', $reading->previous_reading, ['id'=>'previous_reading', 'class'=>'form-control', 'type'=>'numeric', 'placeholder'=>'Ej. 100', 'min'=>'0', 'required']) !!}
                                 </div>
                             </div>                            
                         </div>
@@ -89,7 +89,7 @@
                                 <label>Lectura Actual (m3) *</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
-                                    {!! Form::text('current_reading', $reading->current_reading, ['id'=>'current_reading', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 120', 'maxlength'=>'100', 'required']) !!}
+                                    {!! Form::text('current_reading', $reading->current_reading, ['id'=>'current_reading', 'class'=>'form-control', 'type'=>'numeric', 'placeholder'=>'Ej. 120', 'min'=>'0', 'required']) !!}
                                 </div>
                             </div>                            
                         </div>    
@@ -166,8 +166,7 @@
             minViewMode: 'months',
             todayHighlight: true,
             autoclose: true,
-            language: 'es',
-        
+            language: 'es',        
         })
 
 
@@ -178,12 +177,6 @@
             autoclose: true,
             language: 'es',
         })
-        if($('#data_2 .input-group.date').val() == ''){
-          $('#data_2 .input-group.date').datepicker("setDate", new Date());                
-        }
-
-
-
    
     });
     </script>

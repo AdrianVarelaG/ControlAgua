@@ -3,26 +3,30 @@
 @push('stylesheets')
   <!-- CSS Datatables -->
   <link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
+<!-- Select2 -->
+<link href="{{ URL::asset('js/plugins/select2/dist/css/select2.min.css') }}" rel="stylesheet">
+<link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
 @endpush
 
 @section('page-header')
+
 @endsection
 
 @section('content')
 
 <div class="wrapper wrapper-content animated fadeInRight">
-	<div class="row">
+    <div class="row">
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-tasks" aria-hidden="true"></i> Control de Recibos Generados</h5>
+                    <h5><i class="fa fa-th-list" aria-hidden="true"></i> Estado de Cuenta por Ciudadano</h5>
                     <div class="ibox-tools">
-                    	<a class="collapse-link">
-                        	<i class="fa fa-chevron-up"></i>
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
                         </a>
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        	<i class="fa fa-wrench"></i>
+                            <i class="fa fa-wrench"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
                             <li><a href="#">Config option 1</a></li>
@@ -37,57 +41,81 @@
                     
             <!-- ibox-content- -->
             <div class="ibox-content">
-
-              @include('partials.errors')
                 
-              <a href="{{ route('invoices.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Generar</a><br/><br/>
+            {{ Form::open(array('url' => 'citizens.balance/'.$citizen->id.'/3', 'id' => 'form', 'method' => 'get'), ['' ])}}
+            
 
-            @if(count($routines_generated))
+            @if($citizen->movements->count())
+                
+
                 <div class="table-responsive">
+                    
+                  @include('partials.errors')
+
+                <div class="col-sm-7">
+                    <h2>{{ $citizen->name }}</h2>
+                    <h4>{{ $period_title }}</h4>
+                    @if($period!='all')
+                        <p>Saldo al {{ $initial_date->format('d/m/Y') }} : <strong>{{ money_fmt($initial_balance) }} {{ Session::get('coin') }}</strong></p>
+                    @endif
+                </div>
+                <div class="col-sm-5">
+                    <div class="form-group">
+                        <label>Consultar otro período</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                            {{ Form::select('period', ['3' => 'Ultimos 3 meses', '6' => 'Ultimos 6 meses', '12' => 'Ultimo 12 meses', 'all' => 'Completo'],  $period, ['id'=>'period', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>''])}}
+                        </div>
+                    </div>
+                </div>
+                                    
+                <div class="col-md-12 col-sm-12 col-xs-12">
                     <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
-                        <th></th>
-                        <th>Facturación</th>
-                        <th>Consumo</th>
-                        <th>Tarifa Aplicada</th>
-                        <th>Generados por</th>
-                        <th>Fecha</th>
+                        <th class="text-center">#</th>
+                        <th class="text-center">Fecha</th>
+                        <th>Descripción</th>
+                        <th class="text-right">Débito {{ Session::get('coin') }}</th>
+                        <th class="text-right">Crédito {{ Session::get('coin') }}</th>
+                        <th class="text-right">Saldo {{ Session::get('coin') }}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($routines_generated as $ruotine)
+                    @php
+                        $i=1;
+                        $balance=$initial_balance;
+                    @endphp
+                    @foreach($movements as $movement)
                     <tr class="gradeX">
-                        <td class="text-center">                            
-                        <!-- Split button -->
-                            <a href="{{ route('invoices.reverse_routine', [Crypt::encrypt($ruotine->year_consume), Crypt::encrypt($ruotine->month_consume)] ) }}" class="btn btn-xs btn-default" onclick="return confirm('Desea reversar la rutina del mes {{ $ruotine->month_consume }} y el año {{ $ruotine->year_consume }}?')"><i class="fa fa-history" title="Reversar"></i></a>
-                        <!-- /Split button -->                        
-                        </td>                          
-                        <td>{{ $ruotine->month}}/{{ $ruotine->year }}</td>
-                        <td>{{ $ruotine->month_consume }}/{{ $ruotine->year_consume }}</td>
-                        <td>{{ $ruotine->type_description }}</td>
-                        <td>{{ $ruotine->created_by }}</td>
-                        <td>{{ $ruotine->created_at->format('d/m/Y H:m') }}</td>
+                        @php( ($movement->movement_type=='C')?$balance=$balance+$movement->amount:$balance=$balance-$movement->amount )
+                        <td class="text-center">{{ $i++ }}</td>
+                        <td class="text-center">{{ $movement->date->format('d/m/Y') }}</td>                          
+                        <td><small>{{ $movement->description }} - Nº {{ $movement->contract->number }}</small></td>
+                        <td class="text-right">{{ ($movement->movement_type == 'D')?money_fmt($movement->amount):'' }}</td>
+                        <td class="text-right">{{ ($movement->movement_type == 'C')?money_fmt($movement->amount):'' }}</td>
+                        <td class="text-right">{{ money_fmt($balance) }}</td>
                     </tr>
                     @endforeach
                     </tbody>
                     <tfoot>
                     <tr>
-                        <th></th>
-                        <th>Facturación</th>
-                        <th>Consumo</th>
-                        <th>Tarifa Aplicada</th>                        
-                        <th>Generados por</th>
-                        <th>Fecha</th>
+                        <th class="text-center">#</th>
+                        <th class="text-center">Fecha</th>
+                        <th>Descripción</th>
+                        <th class="text-right">Débito {{ Session::get('coin') }}</th>
+                        <th class="text-right">Crédito {{ Session::get('coin') }}</th>
+                        <th class="text-right">Saldo {{ Session::get('coin') }}</th>
                     </tr>
                     </tfoot>
                     </table>
                     <br/>
                     <br/>
                     <br/>
-                    <br/>                    
                     <br/>
-                	</div>
+                    <br/>
+                    </div>
+                </div>
                 @else
                   <div class="alert alert-info">
                     <ul>
@@ -95,35 +123,42 @@
                     </ul>
                   </div>                
                 @endif
+                
+                {{ Form::close() }} 
                 </div>
                 <!-- /ibox-content- -->
             </div>
         </div>
     </div>
 </div>
+
+
 @endsection
 
 @push('scripts')
-	<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
-
+<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
+<!-- Select2 -->
+<script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>
+<script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>
+    
     <!-- Page-Level Scripts -->
     <script>
         path_str_language = "{{URL::asset('js/plugins/dataTables/es_ES.txt')}}";
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
-              "aaSorting": [[1, "asc"]],
+              "ordering": false,
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
-                { "sWidth": "5%" }, // 1st column width 
-                { "sWidth": "20%" }, // 2nd column width
-                { "sWidth": "20%" }, // 3nd column width
-                { "sWidth": "20%" }, // 4nd column width
-                { "sWidth": "20%" }, // 5nd column width
-                { "sWidth": "15%" } // 6nd column width
-
+                { "sWidth": "5%" },  // 1st column width 
+                { "sWidth": "15%" }, // 2nd column width
+                { "sWidth": "35%" }, // 3nd column width
+                { "sWidth": "15%" }, // 4nd column width
+                { "sWidth": "15%" }, // 5nd column width
+                { "sWidth": "15%" }  // 6nd column width
               ],              
-              responsive: false,              
+              responsive: false,
+              paging: false,              
               dom: '<"html5buttons"B>lTfgitp',
               buttons: [
                 {
@@ -131,10 +166,10 @@
                   text: '<i class="fa fa-file-excel-o"></i>',
                   titleAttr: 'Exportar a Excel',
                   //Titulo
-                  title: 'Control de Recibos Generados',                  
+                  title: '{!! $period_title !!}',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1, 2, 3, 4, 5],
+                    columns: [0, 1, 2, 3, 4, 5],
                   }                                    
                 },
                 {
@@ -142,12 +177,12 @@
                   text: '<i class="fa fa-file-pdf-o"></i>',
                   pageSize: 'LETTER',
                   titleAttr: 'Exportar a PDF',
-                  title: 'Control de Recibos Generados',                  
+                  title: '{!! $period_title !!}',                  
                   className: "btn-sm",
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1, 2, 3, 4, 5],
+                    columns: [0, 1, 2, 3, 4, 5],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body
@@ -190,25 +225,24 @@
                 },
               ]
             });
-            
-            //Notifications
-            setTimeout(function() {
-                toastr.options = {
-                    closeButton: true,
-                    progressBar: true,
-                    showMethod: 'slideDown',
-                    timeOut: 2000
-                };
-                if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
-                  toastr.success('Recibos generados exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='update' &&  '{{ Session::get('update_notification') }}'=='1'){
-                  toastr.success('Registro actualizado exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
-                  toastr.success('Recibos reversados exitosamente', '{{ Session::get('app_name') }}');
-                }
-            }, 1300);        
+        
+        // Select2 
+        $("#period").select2({
+          language: "es",
+          placeholder: "Seleccione un período",
+          minimumResultsForSearch: 10,
+          allowClear: false,
+          width: '100%'
+        });
+
+        
+      $('#period').on("change", function (e) { 
+        console.log("Cambio "+$('#period').val());
+        url = `{{URL::to('citizens.balance/'.Crypt::encrypt($citizen->id))}}/${e.target.value}`;
+        $('#form').attr('action', url);
+        $('#form').submit();
+      });
+
         });
     </script>
 @endpush

@@ -40,14 +40,14 @@
                             <div class="form-group">
                                 <label>Estado *</label>
                                 <div class="input-group">
-                                    <span class="input-group-addon"><i class="fa fa-globe" aria-hidden="true"></i></span>
+                                    <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
                                     {{ Form::select('state', $states, $municipality->state_id, ['id'=>'state', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
                                 </div>
                             </div>                             
                              <div class="form-group">
                                 <label>Nombre del Municipio *</label>
                                 <div class="input-group m-b">
-                                    <span class="input-group-addon"><i class="fa fa-globe" aria-hidden="true"></i></span>
+                                    <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
                                     {!! Form::text('name', $municipality->name, ['id'=>'name', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Mazatlán', 'maxlength'=>'100', 'required']) !!}
                                 </div>
                             </div>                            

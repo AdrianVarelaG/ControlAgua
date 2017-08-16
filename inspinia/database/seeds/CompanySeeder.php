@@ -12,7 +12,7 @@ class CompanySeeder extends Seeder
     public function run()
     {
         DB::table('company')->insert(array(        
-        	'name'  	=> 'Aguas de Mexico, C.A.',
+            'name'  	=> 'Aguas de Mexico, C.A.',
         	'ID_company' => 'J-45872659-9',
         	'address' => 'México DF, MEX',
         	'company_phone' => '426-543.99.74',

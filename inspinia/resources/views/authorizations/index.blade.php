@@ -70,7 +70,7 @@
                                     <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('authorizations.destroy', $authorization->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el usuario?')) { return true } else {return false };">
+                                        <form action="{{ route('authorizations.destroy', $authorization->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar la persona Autorizada?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
@@ -93,7 +93,7 @@
                         <td>
                             <div class="client-avatar" style="display: inline;">
                               <img alt="image" src="{{ url('authorization_avatar/'.$authorization->id) }}">&nbsp;&nbsp;
-                              <a href="#contact-1" class="client-link">{{ $authorization->name }}
+                              <a href="{{ route('authorizations.show', Crypt::encrypt($authorization->id)) }}" class="client-link">{{ $authorization->name }}
                               </a>
                             </div>
                         </td>

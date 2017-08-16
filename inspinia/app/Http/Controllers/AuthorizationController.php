@@ -77,7 +77,8 @@ class AuthorizationController extends Controller
      */
     public function show($id)
     {
-        //
+        $authorization = Authorization::find(Crypt::decrypt($id));        
+        return view('authorizations.show')->with('authorization', $authorization);  
     }
 
     /**
@@ -124,10 +125,13 @@ class AuthorizationController extends Controller
      */
     public function destroy($id)
     {
-        //Falta validar si tiene descuentos especiales asociados
         $authorization = Authorization::find($id);
-        $authorization->delete();
-        return redirect()->route('authorizations.index')->with('notity', 'delete');
+        if ($authorization->discounts->count() == 0){            
+            $authorization->delete();
+            return redirect()->route('authorizations.index')->with('notity', 'delete');        
+        }else{            
+            return redirect()->route('authorizations.index')->withErrors('No se puede eliminar la persona que autoriza. Existen <strong>'.$authorization->discounts->count().'</strong> descuentos asociados.<br>Debe primero eliminar los descuentos asociados.<br> Tambien puede deshabilitar la persona para que no siga autorizando descuentos.');  
+        }
     }
 
     /**

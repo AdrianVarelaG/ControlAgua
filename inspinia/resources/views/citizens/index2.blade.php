@@ -9,7 +9,7 @@
 <div class="row wrapper border-bottom white-bg page-heading">
   <div class="col-lg-9">
     <h2>Ciudadanos</h2>
-    <a href="{{URL::to('citizens.index', 'list')}}" class="btn btn-sm btn-default" title="Vista Lista"><i class="fa fa-list"></i></a>    
+    <a href="{{URL::to('citizens.change_view', 'list')}}" class="btn btn-sm btn-default" title="Vista Lista"><i class="fa fa-list"></i></a>    
     <a href="{{ route('citizens.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Registrar</a>
   </div>
 </div>

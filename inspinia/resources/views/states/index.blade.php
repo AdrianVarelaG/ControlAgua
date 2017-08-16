@@ -16,7 +16,7 @@
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-globe" aria-hidden="true"></i> Estados de México</h5>
+                    <h5><i class="fa fa-map-marker" aria-hidden="true"></i> Estados de México</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>

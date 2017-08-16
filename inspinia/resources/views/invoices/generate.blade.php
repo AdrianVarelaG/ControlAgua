@@ -43,16 +43,17 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="ibox-content">
+                
+                <!-- ibox-content -->
+                <div class="ibox-content">
                             
-              @include('partials.errors')
+                        @include('partials.errors')
 
-                            <p>
-                                Por favor siga las instrucciones paso a paso. <strong>(*) Campos obligatorios.</strong>
-                            </p>
+                            <p>Por favor siga las instrucciones paso a paso. <strong>(*) Campos obligatorios.</strong></p>
 
                             
                             {{ Form::open(array('url' => 'invoices/' . $invoice->id, 'id'=>'form'), ['class'=>'wizard-big'])}}    
+                                <!-- Step1 -->
                                 <h1>Fechas</h1>
                                 <fieldset>
                                     <h2>Fechas del Recibo</h2>
@@ -81,33 +82,45 @@
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
+                                            <p><strong>Facturación:</strong> Fecha a la que corresponde el recibo de pago. El sistema tomará el mes y año de dicha fecha como período de facturación.</p>
+                                            <p><strong>Mes y Año de Consumo:</strong> Período de consumo al que corresponde el recibo. Este período se utilizará para buscar las lecturas del mismo período y efectuar el cálculo en caso de seleccionar la opción <i>Monto según Consumo</i>.</p>
                                             <p><strong>Vencimiento:</strong> Fecha limite de pago. El sistema colocará el ultimo día del mes de facturación. Usted lo puede modificar si lo desea.</p>
                                             <div class="text-center">
                                                 <div style="margin-top: 20px">
-                                                    <i class="fa fa-sign-in" style="font-size: 180px;color: #e5e5e5 "></i>
+                                                    <i class="fa fa-sign-in" style="font-size: 50px;color: #e5e5e5 "></i>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                 </fieldset>
+                                <!-- /Step1 -->
+                                
+                                <!-- Step2 -->
                                 <h1>Tarifas</h1>
                                 <fieldset>
                                     <h2>Tarifas a aplicar</h2>
                                     <div class="row">
                                         <div class="col-lg-6">
                                             <div class="form-group">
-                                                <label>Regla de aplicación</label>
+                                                <br/><label>Regla de aplicación</label><br/><br/>
                                                 <div class="i-checks"><p> <input type="radio" name="type" value="F" checked> <i></i> Monto Fijo ({{ money_fmt($flat_rate->amount) }} {{ Session::get('coin') }})</p></div>
                                                 <div class="i-checks"><p> <input type="radio" name="type" value="C"> <i></i> Monto según Consumo </p></div>
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
-                                            <p><strong>Monto Fijo:</strong> El sistema aplicará un monto único (previamente definido) a todos los suscriptores.</p>
-                                            <p><strong>Monto según Consumo:</strong> El sistema aplicará un monto calculado en base al tipo de tarifa ({{ Session::get('coin') }}/m3) asignada al suscriptor y el consumo en m3 que haya tenido en el mes.</p>
+                                            <p><strong>Monto Fijo:</strong> El sistema aplicará un monto único (previamente definido) a todos los contratos activos independientemente del consumo que hayan tenido.</p>
+                                            <p><strong>Monto según Consumo:</strong> El sistema aplicará un monto calculado en base al tipo de tarifa ({{ Session::get('coin') }}/m3) asignada al contrato y el consumo en m3 que haya tenido en el mes.<br/><br/>El sistema buscará las lecturas del período, en caso de que el contrato no tenga lectura registrada aplicará por defecto el consumo por <i>Monto Fijo</i>.</p>
+                                            <div class="text-center">
+                                                <div style="margin-top: 20px">
+                                                    <i class="fa fa-sign-in" style="font-size: 50px;color: #e5e5e5 "></i>
+                                                </div>
+                                            </div>                                            
                                         </div>
                                     </div>
                                 </fieldset>
+                                <!-- /Step2 -->
+
+                                <!-- Step3 -->
                                 <h1>Cargos Adicionales</h1>
                                 <fieldset>
                                 <h2>Cargos Adicionales Comunes</h2>
@@ -116,21 +129,25 @@
                                 <!-- Colección de Cargos Adicionales -->                                 
                                 @if($charges->count())
                                     <!-- Monto Fijo -->
-                                    <label>Monto Unico</label>                                   
-                                    @foreach($charges->where('type','M') as $charge)
-                                        <div class="i-checks">
-                                            <p>{!! Form::checkbox('charges_m[]', $charge->id,  false, ['id'=>'charges_m']) !!} {{ $charge->description.' ( '.money_fmt($charge->amount).' '.Session::get('coin').' )' }}</p>
-                                        </div>
-                                    @endforeach
+                                    @if($charges->where('type','M')->count())
+                                        <label>Monto Unico</label>                                   
+                                        @foreach($charges->where('type','M') as $charge)
+                                            <div class="i-checks">
+                                                <p>{!! Form::checkbox('charges_m[]', $charge->id,  false, ['id'=>'charges_m']) !!} {{ $charge->description.' ( '.money_fmt($charge->amount).' '.Session::get('coin').' )' }}</p>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                     <!-- /Monto Fijo -->
 
                                     <!-- Porcentuales -->
-                                    <label>Porcentual</label>                                   
-                                    @foreach($charges->where('type','P') as $charge)
-                                        <div class="i-checks">
-                                            <p>{!! Form::checkbox('charges_p[]', $charge->id,  false, ['id'=>'charges_p']) !!} {{ $charge->description.' ( '.$charge->percent.'%)' }}</p>
-                                        </div>
-                                    @endforeach
+                                    @if($charges->where('type','P')->count())
+                                        <label>Porcentuales</label>                                   
+                                        @foreach($charges->where('type','P') as $charge)
+                                            <div class="i-checks">
+                                                <p>{!! Form::checkbox('charges_p[]', $charge->id,  false, ['id'=>'charges_p']) !!} {{ $charge->description.' ( '.$charge->percent.'%)' }}</p>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                     <!-- /Porcentuales -->
                                 @else
                                     <p>No existen cargos fijos definidos</p>
@@ -148,25 +165,44 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <p><strong>Cargos Adicionales Comunes:</strong> Son todos aquellos cargos adicionales que se cobrán al ciudadano, independiente del nivel de consumo. Por ejemplo: Gastos administrativos, Mantenimiento de Infraestructura, Potabilización, entre otros.</p><br/>
-                                    <p><strong>Monto Unico:</strong> Son todos aquellos cargos adicionales que se cobran a partir de un monto fijo para todos los contratos.</p><br/>
-                                    <p><strong>Porcentuales:</strong> Son todos aquellos cargos adicionales que se cobran a partir de un porcentaje sobre el monto de consumo. Por Ejemplo si usted tuvo un consumo de 100 {{ Session::get('coin') }} y el porcentaje es del 5%. El monto del cargo es de 5 {{ Session::get('coin') }}.</p>
-                                </div>
-                                </div>
-                                </fieldset>
-                                <h1>Mensaje</h1>
-                                <fieldset>
-                                    <h2>Mensaje de interés al ciudadano</h2>
-                                    <div class="form-group">
-                                        <label>Mensaje</label><small> Máx. 400 caracteres.</small>
-                                        <div class="input-group m-b">
-                                        <span class="input-group-addon"><i class="fa fa-align-justify" aria-hidden="true"></i></span>
-                                        {!! Form::textarea('message', null, ['id'=>'message', 'rows'=>'3', 'class'=>'form-control', 'placeholder'=>'Escriba aqui algún mensaje (opcional)', 'maxlength'=>'400']) !!}
+                                    @if($charges->where('type','M')->count())
+                                        <p><strong>Monto Unico:</strong> Son todos aquellos cargos adicionales que se cobran a partir de un monto fijo para todos los contratos.</p><br/>
+                                    @endif
+                                    @if($charges->where('type','P')->count())
+                                        <p><strong>Porcentuales:</strong> Son todos aquellos cargos adicionales que se cobran a partir de un porcentaje sobre el monto de consumo. Por Ejemplo si usted tuvo un consumo de 100 {{ Session::get('coin') }} y el porcentaje es del 5%. El monto del cargo es de 5 {{ Session::get('coin') }}.</p>
+                                    @endif
+                                    <div class="text-center">
+                                        <div style="margin-top: 20px">
+                                            <i class="fa fa-sign-in" style="font-size: 50px;color: #e5e5e5 "></i>
                                         </div>
                                     </div>                                    
-                                    <input id="acceptTerms" name="acceptTerms" type="checkbox" class="required"> <label for="acceptTerms">Estoy seguro que todos los datos estan correctos para la generación de los recibos.
+                                </div>
+                                </div>
                                 </fieldset>
-                        </div>
+                                <!-- /Step3 -->
+
+                                <!-- Step4 -->
+                                <h1>Mensaje</h1>
+                                <fieldset>
+                                    <div class="col-lg-8">
+                                        <h2>Mensaje de interés al ciudadano</h2>
+                                        <div class="form-group">
+                                            <label>Mensaje</label><small> Máx. 400 caracteres.</small>
+                                            <div class="input-group m-b">
+                                            <span class="input-group-addon"><i class="fa fa-align-justify" aria-hidden="true"></i></span>
+                                            {!! Form::textarea('message', null, ['id'=>'message', 'rows'=>'3', 'class'=>'form-control', 'placeholder'=>'Escriba aqui algún mensaje (opcional)', 'maxlength'=>'400']) !!}
+                                            </div>
+                                        </div>                                    
+                                        <input id="acceptTerms" name="acceptTerms" type="checkbox" class="required i-checks"> <label for="acceptTerms">Los datos suministrados están correctos para la generación de los recibos.</label>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <p><strong>Mensaje al ciudadano:</strong> Si lo desea, usted puede escribir un mensaje al ciudadano que se reflejará en el recibo de pago.</p>
+                                    </div>
+                                </fieldset>
+                                <!-- /Step4 -->
                     </div>
+                    <!-- ibox-content -->
+                </div>
             </div>
         </div>
     </div>
@@ -227,13 +263,13 @@
                 onStepChanged: function (event, currentIndex, priorIndex)
                 {
                     // Suppress (skip) "Warning" step if the user is old enough.
-                    if (currentIndex === 2 && Number($("#age").val()) >= 18)
+                    if (currentIndex === 3)
                     {
                         $(this).steps("next");
                     }
 
                     // Suppress (skip) "Warning" step if the user is old enough and wants to the previous step.
-                    if (currentIndex === 2 && priorIndex === 3)
+                    if (currentIndex === 3 && priorIndex === 4)
                     {
                         $(this).steps("previous");
                     }

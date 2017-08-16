@@ -79,7 +79,8 @@ class InspectorController extends Controller
      */
     public function show($id)
     {
-        //
+        $inspector = Inspector::find(Crypt::decrypt($id));        
+        return view('inspectors.show')->with('inspector', $inspector);  
     }
 
     /**
@@ -128,10 +129,13 @@ class InspectorController extends Controller
      */
     public function destroy($id)
     {
-        //Falta validar registros asociados para eliminar
         $inspector = Inspector::find($id);
-        $inspector->delete();
-        return redirect()->route('inspectors.index')->with('notity', 'delete');
+        if ($inspector->readings->count() == 0){            
+            $inspector->delete();
+            return redirect()->route('inspectors.index')->with('notity', 'delete');        
+        }else{            
+            return redirect()->route('inspectors.index')->withErrors('No se puede eliminar el Inspector. Existen <strong>'.$inspector->readings->count().'</strong> lecturas asociadas. Debe primero eliminar las lecturas asociadas. Gracias...');            
+        }
     }
 
     /**

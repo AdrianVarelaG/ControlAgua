@@ -69,7 +69,7 @@
                                     <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('administrations.destroy', $administration->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Estado?')) { return true } else {return false };">
+                                        <form action="{{ route('administrations.destroy', $administration->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar la Administración?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>

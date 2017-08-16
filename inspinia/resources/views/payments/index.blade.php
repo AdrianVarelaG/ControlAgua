@@ -1,8 +1,12 @@
 @extends('layouts.app')
 
 @push('stylesheets')
-  <!-- CSS Datatables -->
-  <link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
+<!-- CSS Datatables -->
+<link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
+<!-- Select2 -->
+<link href="{{ URL::asset('js/plugins/select2/dist/css/select2.min.css') }}" rel="stylesheet">
+<link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
+
 @endpush
 
 @section('page-header')
@@ -38,11 +42,28 @@
             <!-- ibox-content- -->
             <div class="ibox-content">
                 
+            {{ Form::open(array('url' => 'payments.index/1', 'id' => 'form', 'method' => 'get'), ['' ])}}
+            
             @if($payments->count())
                 <div class="table-responsive">
                     
                   @include('partials.errors')
 
+                <div class="col-sm-7">
+                    <h4>{{ $period_title }}</h4>
+                </div>
+                
+                <div class="col-sm-5">
+                    <div class="form-group">
+                        <label>Consultar otro período</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                            {{ Form::select('period', ['1' => 'Ultimo mes', '3' => 'Ultimos 3 meses', '6' => 'Ultimos 6 meses', '12' => 'Ultimo 12 meses', 'all' => 'Completo'],  $period, ['id'=>'period', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>''])}}
+                        </div>
+                    </div>
+                </div>
+                    
+                <div class="col-md-12 col-sm-12 col-xs-12">
                     <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
@@ -62,18 +83,16 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{{ route('payments.show', Crypt::encrypt($payment->id)) }}"><i class="fa fa-eye"></i> Ver</a></li>
+                                    <li><a href="{{ route('payments.show', Crypt::encrypt($payment->id)) }}"><i class="fa fa-eye"></i> Vista previa</a></li>
                                     <li><a href="{{ route('payments.print_voucher', Crypt::encrypt($payment->id)) }}"><i class="fa fa-print"></i> Imprimir Comprobante</a></li>
                                     <li class="divider"></li>
                                     <li>
                                         <!-- href para eliminar registro -->                            
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('payments.destroy', $payment->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el pago?. Esto colocará el(los) recibo(s) como pendientes.')) { return true } else {return false };">
+                                        <form action="{{ route('payments.destroy', $payment->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el pago?. Esto colocará el(los) recibo(s) cancelados con este pago como pendientes.')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
                                         </form>
-                                        <br/><br/>
                                     </li>
 
                                 </ul>
@@ -108,6 +127,7 @@
                     <br/>                    
                     <br/>
                 	</div>
+                </div>
                 @else
                   <div class="alert alert-info">
                     <ul>
@@ -115,6 +135,8 @@
                     </ul>
                   </div>                
                 @endif
+                
+                {{ Form::close() }} 
                 </div>
                 <!-- /ibox-content- -->
             </div>
@@ -124,7 +146,10 @@
 @endsection
 
 @push('scripts')
-	<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
+<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
+<!-- Select2 -->
+<script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>
+<script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>
 
     <!-- Page-Level Scripts -->
     <script>
@@ -132,7 +157,8 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
-              "aaSorting": [[1, "asc"]],
+              "ordering": false,
+              "bLengthChange": true, //Habilitar o deshabilitar el nro de registros por paginacion
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
@@ -142,7 +168,8 @@
                 { "sWidth": "25%" }, // 5nd column width
                 { "sWidth": "20%" }  // 6nd column width                
               ],              
-              responsive: false,              
+              responsive: false,
+              paging: true,
               dom: '<"html5buttons"B>lTfgitp',
               buttons: [
                 {
@@ -153,7 +180,7 @@
                   title: 'Pagos',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4, 5],
                   }                                    
                 },
                 {
@@ -166,7 +193,7 @@
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4, 5],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body
@@ -229,5 +256,23 @@
                 }
             }, 1300);        
         });
+          
+        // Select2 
+        $("#period").select2({
+          language: "es",
+          placeholder: "Seleccione un período",
+          minimumResultsForSearch: 10,
+          allowClear: false,
+          width: '100%'
+        });
+
+      $('#period').on("change", function (e) { 
+        console.log("Cambio "+$('#period').val());
+        url = `{{URL::to('payments.index/')}}/${e.target.value}`;
+        $('#form').attr('action', url);
+        $('#form').submit();
+      });
+
+
     </script>
 @endpush

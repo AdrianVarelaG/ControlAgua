@@ -82,7 +82,7 @@
                             <div class="form-group">
                                 <label>Descripción *</label>
                                 <div class="input-group m-b">
-                                    <span class="input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
+                                    <span class="input-group-addon"><i class="fa fa-arrow-circle-down" aria-hidden="true"></i></span>
                                     {!! Form::text('description', $discount->description, ['id'=>'description', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Gastos Administrativos', 'maxlength'=>'100', 'required']) !!}
                                 </div>
                             </div>                            
@@ -103,13 +103,22 @@
                         </div>    
                         <div id='div_percent' style='display:none;'>
                             <div class="form-group">
-                                <label>Porcentaje *</label>
+                                <label>Porcentaje *</label><small> Para decimales use el punto (.)</small>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-percent"></i></span>
                                     {!! Form::text('percent', $discount->percent, ['id'=>'percent', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'', 'number', 'required', 'min'=>'0', 'max'=>'100']) !!}
                                 </div>
                             </div>                            
-                        </div>                                
+                        </div>                                                            
+                        @if($discount->id != 1)
+                            <div class="form-group">
+                                <label>Autorizado por *</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
+                                    {{ Form::select('authorization', $authorizations, $discount->authorization_id, ['id'=>'authorization', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
+                                </div>
+                            </div>
+                        @endif
                             <div class="form-group pull-right">
                                 <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
                                     <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Ok</button>
@@ -182,6 +191,16 @@
             }        
         });
         
+        
+        // Select2 
+        $("#authorization").select2({
+          language: "es",
+          placeholder: "Seleccione persona que autoriza",
+          minimumResultsForSearch: 10,
+          allowClear: false,
+          width: '100%'
+        });
+
         //Seteo al actualizar
         if('{{ $discount->type }}'=='M'){
           $('#div_amount').show();

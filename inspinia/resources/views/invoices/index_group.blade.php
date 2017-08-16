@@ -70,7 +70,9 @@
                             </div>
                         <!-- /Split button -->                          
                         </td>                          
-                        <td>{{ $invoice_group->month }}/{{ $invoice_group->year }}</td>
+                        <td>
+                          <a href="{{ route('invoices.index', [Crypt::encrypt($invoice_group->year), Crypt::encrypt($invoice_group->month)] ) }}" class="client-link" title="Ver Detalle">{{ $invoice_group->month }}/{{ $invoice_group->year }}                          
+                          </td>
                         <td>{{ $invoice_group->month_consume }}/{{ $invoice_group->year_consume }}</td>
                         <td>{{ $invoice_group->tot_invoice }}</td>
                         <td>{{ money_fmt($invoice_group->tot_amount) }}</td>
@@ -87,11 +89,6 @@
                     </tr>
                     </tfoot>
                     </table>
-                    <br/>
-                    <br/>
-                    <br/>
-                    <br/>                    
-                    <br/>
                 	</div>
                 @else
                   <div class="alert alert-info">
@@ -140,7 +137,7 @@
                   title: 'Resumen Mensual de Recibos',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4],
                   }                                    
                 },
                 {
@@ -153,7 +150,7 @@
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body

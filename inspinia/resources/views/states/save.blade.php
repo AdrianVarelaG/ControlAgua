@@ -44,8 +44,8 @@
                              <div class="form-group">
                                 <label>Nombre *</label>
                                 <div class="input-group m-b">
-                                    <span class="input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
-                                    {!! Form::text('name', $state->name, ['id'=>'name', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Mazatlán', 'maxlength'=>'100', 'required']) !!}
+                                    <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+                                    {!! Form::text('name', $state->name, ['id'=>'name', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Oaxaca', 'maxlength'=>'100', 'required']) !!}
                                 </div>
                             </div>                            
                             <div class="form-group pull-right">

@@ -37,8 +37,8 @@
                     <li class="{{ set_active(['states']) }}">
                         <a href="{{URL::to('states')}}">Estados</a>
                     </li>
-                    <li class="{{ set_active(['municipalities']) }}">
-                        <a href="{{URL::to('municipalities')}}">Municipios</a>
+                    <li class="{{ set_active(['municipalities.index']) }}">
+                        <a href="{{URL::to('municipalities.index', 1)}}">Municipios</a>
                     </li>
                     <li class="{{ set_active(['administrations']) }}">
                         <a href="{{URL::to('administrations')}}">Administraciones</a>
@@ -57,8 +57,8 @@
             <li class="{{ set_active(['users']) }}">
                 <a href="{{URL::to('users')}}"><i class="fa fa-users"></i> <span class="nav-label">Usuarios</span></a>
             </li>
-            <li class="{{ set_active(['citizens.index']) }}">
-                <a href="{{URL::to('citizens.index', 'list')}}"><i class="fa fa-address-book-o"></i> <span class="nav-label">Ciudadanos</span></a>
+            <li class="{{ set_active(['citizens']) }}">
+                <a href="{{URL::to('citizens')}}"><i class="fa fa-address-book-o"></i> <span class="nav-label">Ciudadanos</span></a>
             </li>
             <li class="{{ set_active(['contracts']) }}">
                 <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span></a>
@@ -96,11 +96,11 @@
                     </li>                    
                 </ul>
             </li>
-            <li class="{{ set_active(['payments', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
+            <li class="{{ set_active(['payments.index', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
                 <a href="index.html"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    <li class="{{ set_active(['payments']) }}">
-                        <a href="{{URL::to('payments')}}">Consultar</a>
+                    <li class="{{ set_active(['payments.index']) }}">
+                        <a href="{{URL::to('payments.index', 1)}}">Consultar</a>
                     </li>
                     <li class="{{ set_active(['payments.contracts_debt']) }}">
                         <a href="{{URL::to('payments.contracts_debt')}}">Pagar</a>

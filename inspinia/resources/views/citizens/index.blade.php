@@ -37,9 +37,9 @@
                     
             <!-- ibox-content- -->
             <div class="ibox-content">
-              <a href="{{URL::to('citizens.index', 'contact')}}" class="btn btn-sm btn-default" title="Vista Contactos"><i class="fa fa-th-large"></i></a>
+              <a href="{{URL::to('citizens.change_view', 'contact')}}" class="btn btn-sm btn-default" title="Vista Contactos"><i class="fa fa-th-large"></i></a>
               <a href="{{ route('citizens.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Registrar</a><br/><br/>
-    
+              
             @if($citizens->count())
                 <div class="table-responsive">
               
@@ -51,8 +51,8 @@
                         <th></th>
                         <th>Nombre</th>
                         <th>RFC</th>
-                        <th>Teléfono</th>
-                        <th>Correo</th>
+                        <th>Deuda {{ Session::get('coin') }}</th>
+                        <th>Estatus</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -64,13 +64,16 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
+                                    <li><a href="{{ route('citizens.balance', [Crypt::encrypt($citizen->id), '3']) }}"><i class="fa fa-th-list"></i> Estado de Cuenta</a></li>                                    
+                                    <li><a href="{{ route('contracts.citizen_contracts', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-tachometer"></i> Contratos</a></li>
+                                    <li class="divider"></li>
                                     <li><a href="{{ route('citizens.edit', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-pencil"></i> Editar</a></li>
                                     <li><a href="{{ route('citizens.status', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
                                     <li class="divider"></li>
                                     <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('citizens.destroy', $citizen->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el usuario?')) { return true } else {return false };">
+                                        <form action="{{ route('citizens.destroy', $citizen->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el ciudadano?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
@@ -89,18 +92,19 @@
                             </div>
                           @endif
                         <!-- /Split button -->
-                        <a href="{{ route('contracts.citizen_contracts', Crypt::encrypt($citizen->id)) }}" class="btn btn-xs btn-default"><i class="fa fa-tachometer"></i></a>                          
                         </td>                          
                         <td>
                             <div class="client-avatar" style="display: inline;">
                               <img alt="image" src="{{ url('citizen_avatar/'.$citizen->id) }}">&nbsp;&nbsp;
-                              <a href="#contact-1" class="client-link">{{ $citizen->name }}
+                              <a href="{{ route('contracts.citizen_contracts', Crypt::encrypt($citizen->id)) }}" class="client-link">{{ $citizen->name }}
                               </a>
                             </div>
                         </td>
                         <td>{{ $citizen->RFC }}</td>
-                        <td>{{ $citizen->phone }}</td>
-                        <td>{{ $citizen->email }}</td>
+                        <td>{{ $citizen->balance }}</td>
+                        <td>
+                        <p><span class="label {{ $citizen->label_status }}">{{ $citizen->status_description }}</span></p>
+                        </td>
                     </tr>
                     @endforeach
                     </tbody>
@@ -109,11 +113,16 @@
                         <th></th>
                         <th>Nombre</th>
                         <th>RFC</th>
-                        <th>Teléfono</th>
-                        <th>Correo</th>
+                        <th>Deuda {{ Session::get('coin') }}</th>
+                        <th>Estatus</th>
                     </tr>
                     </tfoot>
                     </table>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
                 	</div>
                 @else
                   <div class="alert alert-info">

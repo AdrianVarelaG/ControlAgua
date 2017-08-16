@@ -50,7 +50,7 @@
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
-                        <th>Estado</th>
+                        <th>Estatus</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -62,6 +62,7 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
+                                    <li><a href="{{ route('contracts.balance', [Crypt::encrypt($contract->id), '3']) }}"><i class="fa fa-th-list"></i> Estado de Cuenta</a></li>
                                     <li><a href="{{ route('contracts.edit', Crypt::encrypt($contract->id)) }}"><i class="fa fa-pencil"></i> Editar</a></li>
                                     <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
                                     <li class="divider"></li>
@@ -102,7 +103,7 @@
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
-                        <th>Estado</th>
+                        <th>Estatus</th>
                     </tr>
                     </tfoot>
                     </table>

@@ -16,7 +16,7 @@
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-globe" aria-hidden="true"></i> Tarifas por Consumo</h5>
+                    <h5><i class="fa fa-money" aria-hidden="true"></i> Tarifas por Consumo</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -94,8 +94,8 @@
                         <td>{{ money_fmt($rate->amount) }}</td>
                         <td>
                           <small>
-                            Creada el <i>{{ $rate->created_at->format('d/m/Y') }}</i><br/>
-                            Actualizada el <i>{{ $rate->updated_at->format('d/m/Y') }}</i>
+                            Creada el {{ $rate->created_at->format('d/m/Y') }}<br/>
+                            Actualizada el {{ $rate->updated_at->format('d/m/Y') }}
                           </small>
                         </td>
                         <td><small>{{ $rate->observation }}</small></td>

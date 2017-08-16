@@ -31,12 +31,58 @@ class PaymentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($period)
     {
         $payments = Payment::all();
         $company = Company::first();          
+        
+        switch ($period) 
+        {
+            case '1':
+                $period_title = 'Pagos último mes';
+                break;            
+            case '3':
+                $period_title = 'Pagos últimos 3 meses';
+                break;
+            case '6':
+                $period_title = 'Pagos últimos 6 meses';
+                break;
+            case '12':
+                $period_title = 'Pagos últimos 12 meses';
+                break;
+            case 'all':
+                $period_title = 'Todos los Pagos';
+                break;
+        }        
+        if($period == '1'){
+            $payments = Payment::whereYear('date','=',Carbon::now()->year)
+                                ->whereMonth('date','=',Carbon::now()->month)
+                                ->orderBy('date')->get();
+        }
+        else if($period == '3'){
+            $initial_date = Carbon::now()->subMonths(2)->startOfMonth();
+            $payments = Payment::where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+        }        
+        else if($period == '6'){
+            $initial_date = Carbon::now()->subMonths(5)->startOfMonth();
+            $payments = Payment::where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+        }
+        else if($period == '12'){
+            $initial_date = Carbon::now()->subMonths(11)->startOfMonth();
+            $payments = Payment::where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+        }
+        else if($period == 'all'){
+            $initial_date = Carbon::now();
+            $payments = Payment::orderBy('date')->get();
+        }
+
         return view('payments.index')->with('payments', $payments)
-                                    ->with('company', $company); 
+                                    ->with('company', $company)
+                                    ->with('period', $period) 
+                                    ->with('period_title', $period_title);  
     }
 
     
@@ -142,7 +188,9 @@ class PaymentController extends Controller
         //1. Se registra el pago
         $payment = new Payment();
         $payment->date= (new ToolController)->format_ymd($request->input('date'));
-        $payment->contract_id = $request->input('hdd_contract_id');
+        $contract = Contract::find($request->input('hdd_contract_id'));
+        $payment->citizen_id = $contract->citizen->id;
+        $payment->contract_id = $contract->id;
         $payment->type= $request->input('type');
         $payment->observation = $request->input('observation');
         $payment->amount= 0;
@@ -166,7 +214,8 @@ class PaymentController extends Controller
             }
             //4. Se registra el movimiento de descuento
             $movement = new Movement();
-            $movement->contract_id = $request->input('hdd_contract_id');
+            $movement->citizen_id = $contract->citizen->id;
+            $movement->contract_id = $contract->id;
             $movement->movement_type = 'D';
             $movement->type = 'D';
             $movement->payment_id = $payment->id;
@@ -184,13 +233,14 @@ class PaymentController extends Controller
 
         }
         //5. Se actualiza el monto del pago
-        $str_description = 'Servicio de Agua Meses ('.$str_description.' )';
+        $str_description = 'Pago Servicio de Agua Meses ('.$str_description.' )';
         $payment->description = $str_description;
         $payment->amount= $tot_invoices-$tot_discount;
         $payment->save();
         //6. Se registra el movimiento del pago
         $movement = new Movement();
-        $movement->contract_id = $request->input('hdd_contract_id');
+        $movement->citizen_id = $contract->citizen->id;
+        $movement->contract_id = $contract->id;
         $movement->movement_type = 'D';
         $movement->type = 'P';
         $movement->payment_id = $payment->id;
@@ -224,6 +274,7 @@ class PaymentController extends Controller
         //1. Se registra el pago
         $payment = new Payment();
         $payment->date= (new ToolController)->format_ymd($request->input('date'));
+        $payment->citizen_id = $contract->citizen->id;
         $payment->contract_id = $contract->id;
         $payment->type= $request->input('type');
         $payment->observation = $request->input('observation');
@@ -242,8 +293,8 @@ class PaymentController extends Controller
             $month_consume = $carbon_previous_date->format('n');
             $invoice->month_consume = (strlen($month_consume)==1)?'0'.$month_consume:$month_consume;         
             $invoice->year_consume = $carbon_previous_date->format('Y');
+            $invoice->citizen_id = $contract->citizen->id;
             $invoice->contract_id = $contract->id;
-            $invoice->citizen_id = $contract->citizen_id;
             $invoice->rate = $flat_rate->amount;
             $invoice->rate_description = $flat_rate->name;            
             $invoice->status = 'C';
@@ -297,6 +348,7 @@ class PaymentController extends Controller
             $movement->type = 'C';
             $movement->movement_type = 'C';
             $movement->description = 'Servicio de Agua '.$invoice->month.'/'.$invoice->year;
+            $movement->citizen_id = $contract->citizen->id;
             $movement->contract_id = $contract->id;
             $movement->invoice_id = $invoice->id;
             $movement->amount = $invoice->total;
@@ -314,6 +366,7 @@ class PaymentController extends Controller
             }
             //5. Se registra el movimiento de descuento
             $movement = new Movement();
+            $movement->citizen_id = $contract->citizen->id;
             $movement->contract_id = $contract->id;
             $movement->movement_type = 'D';
             $movement->type = 'D';
@@ -331,13 +384,14 @@ class PaymentController extends Controller
             $payment_detail->save();                            
         }
         //Se actualiza el monto final del pago
-        $str_description = 'Servicio de Agua Meses ('.$str_description.' )';
+        $str_description = 'Pago Servicio de Agua Meses ('.$str_description.' )';
         $payment->amount = $tot_invoices - $tot_discount;
         $payment->description = $str_description;
         $payment->save();
 
         //6. Se registra el movimiento del pago
         $movement = new Movement();
+        $movement->citizen_id = $contract->citizen->id;
         $movement->contract_id = $contract->id;
         $movement->movement_type = 'D';
         $movement->type = 'P';
@@ -407,15 +461,21 @@ class PaymentController extends Controller
     public function destroy($id)
     {
         /**
-        * Logica de eliminacion para no generar inconsistencia.
+        * Logica de eliminacion de un pago
         */        
         $payment = Payment::find($id);
-        if ($payment->municipalities->count() == 0){            
-            $payment->delete();
-            return redirect()->route('payments.index')->with('notity', 'delete');        
-        }else{            
-            return redirect()->route('payments.index')->withErrors('No se puede eliminar el Estado. Existen <strong>'.$payment->municipalities->count().'</strong> Municipios asociados. Debe primero eliminar los Municipios asociados. Gracias...');            
-        }
+        //1. Se eliminam los movimientos asociados al pago.
+        $payment->movements()->delete();        
+        //2. Se elimina el detalle del pago
+        $payment->payment_details()->delete();
+        //3. Se cambia el estatus de los recibos cancelados (status P=Pendiente y su payment_id=NULL)
+        $payment->invoices()->update(array('status' => 'P', 'payment_id' => null));
+        //4. Se elimina el pago
+        $payment->delete();
+
+        return redirect()->route('payments.index')->with('notity', 'delete');
+
+
     }
 
     /**

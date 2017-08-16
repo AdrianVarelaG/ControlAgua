@@ -93,7 +93,7 @@
                         <td>
                             <div class="client-avatar" style="display: inline;">
                               <img alt="image" src="{{ url('inspector_avatar/'.$inspector->id) }}">&nbsp;&nbsp;
-                              <a href="#contact-1" class="client-link">{{ $inspector->name }}
+                              <a href="{{ route('inspectors.show', Crypt::encrypt($inspector->id)) }}" class="client-link">{{ $inspector->name }}
                               </a>
                             </div>
                         </td>

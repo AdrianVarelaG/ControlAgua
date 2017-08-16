@@ -104,7 +104,7 @@ class Contract extends Model
             
             if($this->expired_invoices > 0){
                 
-                return 'Vencido';
+                return 'Moroso';
                 
             }else{
                 
@@ -123,7 +123,7 @@ class Contract extends Model
         
             return 'label-primary';
         
-        }elseif($this->status_description =='Vencido'){
+        }elseif($this->status_description =='Moroso'){
                             
             return 'label-danger';
                 

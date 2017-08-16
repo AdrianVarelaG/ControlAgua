@@ -14,6 +14,7 @@ class CreateRatesTable extends Migration
     {
         Schema::create('rates', function (Blueprint $table) {
             $table->increments('id');
+            $table->char('movement_type',2);
             $table->string('name', 50);            
             $table->float('amount',11,2);
             $table->string('observation');

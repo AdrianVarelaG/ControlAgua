@@ -14,10 +14,10 @@ class CreateInvoicesTable extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('citizen_id')->unsigned();
+            $table->foreign('citizen_id')->references('id')->on('citizens');            
             $table->integer('contract_id')->unsigned();
             $table->foreign('contract_id')->references('id')->on('contracts');
-            $table->integer('citizen_id')->unsigned();
-            $table->foreign('citizen_id')->references('id')->on('citizens');
             $table->integer('reading_id')->unsigned()->nullable();
             $table->foreign('reading_id')->references('id')->on('readings');
             $table->integer('payment_id')->unsigned()->nullable();
@@ -25,6 +25,7 @@ class CreateInvoicesTable extends Migration
             $table->float('rate',11,2);
             $table->string('rate_description', 100);
             $table->date('date');
+            $table->date('date_limit');
             $table->char('month',2);
             $table->char('year',4);            
             $table->char('month_consume',2);

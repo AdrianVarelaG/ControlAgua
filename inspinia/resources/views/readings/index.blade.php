@@ -70,7 +70,7 @@
                                     <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('readings.destroy', $reading->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Estado?')) { return true } else {return false };">
+                                        <form action="{{ route('readings.destroy', $reading->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar la lectura?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
@@ -156,7 +156,7 @@
                   title: 'Lecturas',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4, 5],
                   }                                    
                 },
                 {
@@ -169,7 +169,7 @@
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4, 5],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body

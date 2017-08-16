@@ -16,7 +16,7 @@
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-globe" aria-hidden="true"></i> Otros Descuentos</h5>
+                    <h5><i class="fa fa-arrow-circle-down" aria-hidden="true"></i> Otros Descuentos</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -72,7 +72,7 @@
                                     <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('discounts.destroy', $discount->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el cargo?')) { return true } else {return false };">
+                                        <form action="{{ route('discounts.destroy', $discount->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el descuento?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
@@ -92,7 +92,10 @@
                           @endif
                         <!-- /Split button -->                          
                         </td>                          
-                        <td>{{ $discount->description }}</td>
+                        <td>
+                          <strong>{{ $discount->description }}</strong><br>
+                          <small>Autoriza: {{ $discount->authorization->name }}</small>
+                        </td>
                         <td>{{ $discount->type_description }}</td>
                         <td>{{ ($discount->type=='M')?$discount->amount:'' }}</td>
                         <td class="text-center">{{ ($discount->type=='P')?$discount->percent:'' }}</td>
@@ -147,12 +150,12 @@
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
-                { "sWidth": "20%" }, // 2nd column width
+                { "sWidth": "32%" }, // 2nd column width
                 { "sWidth": "15%" }, // 3nd column width
-                { "sWidth": "15%" }, // 4nd column width
-                { "sWidth": "15%" }, // 5nd column width
-                { "sWidth": "15%" }, // 6nd column width                
-                { "sWidth": "15%" }  // 7nd column width
+                { "sWidth": "12%" }, // 4nd column width
+                { "sWidth": "12%" }, // 5nd column width
+                { "sWidth": "12%" }, // 6nd column width                
+                { "sWidth": "12%" }  // 7nd column width
               ],              
               responsive: false,              
               dom: '<"html5buttons"B>lTfgitp',
@@ -165,7 +168,7 @@
                   title: 'Otros Descuentos',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4, 5, 6],
                   }                                    
                 },
                 {
@@ -178,7 +181,7 @@
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4, 5, 6],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body

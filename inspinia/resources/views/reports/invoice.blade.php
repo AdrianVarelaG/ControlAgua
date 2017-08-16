@@ -56,9 +56,9 @@
                                 <span><strong>Período de Consumo:</strong> {{ month_letter($invoice->month_consume, 'lg') }} {{ $invoice->year_consume }}</span>
                             </td>
                             <td class="text-right">
-                                <span><strong>Lectura Anterior:</strong> {{ ($invoice->reagind_id)?$invoice->reading->previous_reading:'00000' }}</span><br>
-                                <span><strong>Lectura Actual:</strong> {{ ($invoice->reagind_id)?$invoice->reading->current_reading:'00000' }}</span><br>
-                                <span><strong>Consumo:</strong> {{ ($invoice->reagind_id)?$invoice->reading->consume:'00000' }}</span><br>
+                                <span><strong>Lectura Anterior:</strong> {{ ($invoice->reading_id)?$invoice->reading->previous_reading:'00000' }}</span><br>
+                                <span><strong>Lectura Actual:</strong> {{ ($invoice->reading_id)?$invoice->reading->current_reading:'00000' }}</span><br>
+                                <span><strong>Consumo:</strong> {{ ($invoice->reading_id)?$invoice->reading->consume:'00000' }}</span><br>
                             </td>
                         </tr>
                     </tbody>
@@ -132,7 +132,7 @@
         </div>        
 
         <!-- Message -->        
-        <div class="well m-t"><strong>Mesnaje al ciudadano:</strong><br>
+        <div class="well m-t"><strong>Mensaje al ciudadano:</strong><br>
             <small>{{ $invoice->message }}</small>
         </div>
         <!-- /Message -->

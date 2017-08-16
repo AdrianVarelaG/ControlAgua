@@ -23,6 +23,7 @@ class CreateReadingsTable extends Migration
             $table->date('date');
             $table->float('previous_reading',11,2);
             $table->float('current_reading',11,2);
+            $table->float('consume',11,2);
             $table->string('observation',400)->nullable();            
             $table->timestamps();
         });

@@ -47,7 +47,7 @@
                             {{ Form::hidden ('_method', 'PUT') }}
                         @endif
                         <!-- 1ra Columna -->
-                        <div class="col-sm-6">                            
+                        <div class="col-sm-5">                            
                             <h2>{{ $contract->citizen->name }}, Contrato # {{ $contract->number }}</h2>
 
                             <div class="form-group" id="data_1">
@@ -75,7 +75,7 @@
                         <!-- /1ra Columna -->
                                                 
                         <!-- 2da Columna -->
-                        <div class="col-sm-6">
+                        <div class="col-sm-7">
                             
                         <h2>Recibos pendientes</h2>
 
@@ -86,9 +86,11 @@
                                     <thead>
                                         <tr>
                                             <th></th>
-                                            <th class="text-center">Nro</th>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Facturación</th>
                                             <th class="text-right">Monto {{ Session::get('coin') }}</th>
-                                            <th class="text-center">Vencimiento</th>                          
+                                            <th class="text-center">Vencimiento</th>
+                                            <th class="text-center">Estatus</th>                          
                                         </tr>
                                     </thead>
                                     <tbody>                  
@@ -102,9 +104,11 @@
                                                 {!! Form::hidden('amount',  $invoice->total , ['id'=>'amount['.$i++.']']) !!}
                                             </td>
                                             <td class="text-center"><strong>{{ $invoice->id }}</strong></td>
+                                            <td class="text-center">{{ $invoice->month }}/{{ $invoice->year }}</td>
                                             <td class="text-right">{{ money_fmt($invoice->total) }}</td>
                                             <td class="text-center">{{ $invoice->date_limit->format('d/m/Y') }}
                                             </td>
+                                            <td class="text-center"><p><span class="label {{ $invoice->label_status }}">{{ $invoice->status_description }}</span></p></td>
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -134,12 +138,14 @@
                              @if($other_discounts)
                                 @php($i=0)
                                 @foreach($other_discounts as $discount)
-                                    <div class="i-checks">
-                                        <p>{!! Form::radio('other_discount[]', $discount->type,  false, ['id'=>'other_discount['.$i.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}.</p>
+                                    @if($discount->show_temporary())
+                                        <div class="i-checks">
+                                            <p>{!! Form::radio('other_discount[]', $discount->type,  false, ['id'=>'other_discount['.$i.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
                                             {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$i.']']) !!}
                                             {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$i.']']) !!}
                                             {!! Form::hidden('other_discount_id',  $discount->id , ['id'=>'other_discount_id['.$i++.']']) !!}
-                                    </div>                             
+                                        </div>                             
+                                    @endif
                                 @endforeach
                             @endif
                         </div>
@@ -276,7 +282,11 @@
         
         $('#btn_reset').on('click', function(event){ 
             $("input[id^='invoice']").iCheck('uncheck');
-            $("input[id^='other_discount']").iCheck('uncheck'); 
+            $("input[id^='other_discount']").iCheck('uncheck');
+            if ('{{ $contract->citizen->age_discount() }}'=='1'){
+                $("input[id='age_discount']").iCheck('uncheck');
+            } 
+ 
         });
 
 
@@ -332,16 +342,19 @@
                 total = total - discount;
             }        
         }
-        //console.log (discount_id);
         $('#hdd_discount_id').val(discount_id);
-        //tot_invoices = tot_invoices.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        //discount = discount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        //total = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        document.getElementById("total_recibos").innerHTML = "Sub Total: " + tot_invoices;
-        document.getElementById("total_descuento").innerHTML = "Descuento: " + discount;
-        document.getElementById("total_monto").innerHTML = "PAGO TOTAL: " + total;        
+        
+
+        document.getElementById("total_recibos").innerHTML = "Sub Total: " + money_fmt(tot_invoices);
+        document.getElementById("total_descuento").innerHTML = "Descuento: " + money_fmt(discount);
+        document.getElementById("total_monto").innerHTML = "PAGO TOTAL: " + money_fmt(total);        
     }       
     
+    function money_fmt(num){
+        num_fmt = num.toFixed(2).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+        return num_fmt;
+        //console.log (num_fmt);
+    }
 
     });
     </script>

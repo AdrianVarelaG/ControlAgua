@@ -49,7 +49,7 @@
                              <div class="form-group">
                                 <label>Descripción *</label>
                                 <div class="input-group m-b">
-                                    <span class="input-group-addon"><i class="fa fa-user" aria-hidden="true"></i></span>
+                                    <span class="input-group-addon"><i class="fa fa-arrow-circle-up" aria-hidden="true"></i></span>
                                     {!! Form::text('description', $charge->description, ['id'=>'description', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Gastos Administrativos', 'maxlength'=>'100', 'required']) !!}
                                 </div>
                             </div>                            

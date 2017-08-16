@@ -137,15 +137,11 @@ class ChargeController extends Controller
     {
         /**
         * Logica de eliminacion para no generar inconsistencia.
-        * Se chequea si hay condominios asociados con el pais
         */        
         $charge = Charge::find($id);
-        if ($charge->invoice_details->count() == 0){            
-            $charge->delete();
-            return redirect()->route('charges.index')->with('notity', 'delete');        
-        }else{            
-            return redirect()->route('charges.index')->withErrors('No se puede eliminar el cargo. existen recibos con ese cargo asociado. Puede deshabilitarlo si no quiere seguir utilizandolo.');            
-        }
+        $charge->delete();
+        
+        return redirect()->route('charges.index')->with('notity', 'delete');        
     }
 
     /**

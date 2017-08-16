@@ -65,19 +65,20 @@
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
                                     <li><a href="{{ route('users.edit', Crypt::encrypt($user->id)) }}"><i class="fa fa-pencil"></i> Editar</a></li>
+                                  @if(Auth::user()->id != $user->id)
                                     <li><a href="{{ route('users.status', Crypt::encrypt($user->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
                                     <li class="divider"></li>
                                     <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el usuario?')) { return true } else {return false };">
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el usuario ?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
                                         </form>
                                         <br/><br/>
                                     </li>
-
+                                @endif
                                 </ul>
                             </div>
                           @else                              
@@ -93,7 +94,7 @@
                         <td>
                             <div class="client-avatar" style="display: inline;">
                               <img alt="image" src="{{ url('user_avatar/'.$user->id) }}">&nbsp;&nbsp;
-                              <a href="#contact-1" class="client-link">{{ $user->name }}
+                              <a href="{{ route('users.show', Crypt::encrypt($user->id)) }}" class="client-link">{{ $user->name }}
                               </a>
                             </div>
                         </td>

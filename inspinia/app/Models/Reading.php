@@ -15,6 +15,11 @@ class Reading extends Model
         return $this->belongsTo('App\Models\Inspector');
     }
 
+    public function invoice()
+    {        
+        return $this->hasOne('App\Models\Invoice');
+    }
+    
     public function contract()
     {        
         return $this->belongsTo('App\Models\Contract');

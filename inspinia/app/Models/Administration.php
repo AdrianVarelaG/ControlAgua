@@ -8,4 +8,10 @@ class Administration extends Model
 {
     protected $table = 'administrations';
     
+	//*** Relations ***
+    public function contracts()
+    {        
+        return $this->hasMany('App\Models\Contract');
+    }
+
 }

@@ -15,9 +15,11 @@ class RatesSeeder extends Seeder
 			'movement_type' =>  'CT',
 			'name' =>  'Monto Fijo',
 			'amount' =>  40,
-			'description' =>  '',
+			'observation' =>  'Monto Fijo',
 			'created_by' =>  '',
 			'status' =>  'A',
+			'created_at' =>  '2017-01-01',
+			'updated_at' =>  '2017-01-01',
 		));
     }
 }

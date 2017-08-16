@@ -46,6 +46,8 @@ class ChargeRequestStore extends Request
     {
         return [
             'amount.required'  => 'El monto del cargo es obligatorio.',
+            'description.required'  => 'El nombre del cargo es obligatorio.',
+            'description.unique'  => 'El cargo ya ha sido registrado.',
             'percent.required'  => 'El porcentaje del cargo es obligatorio.',
             'amount.numeric'  => 'El monto del cargo debe ser numérico.',
             'percent.numeric'  => 'El porcentaje del cargo debe ser numérico.',            

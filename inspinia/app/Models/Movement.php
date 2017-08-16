@@ -11,19 +11,24 @@ class Movement extends Model
     protected $dates = ['date'];
 
     //*** Relations ***    
-    public function contracts()
+    public function citizen()
     {        
-        return $this->hasMany('App\Models\Contract');
+        return $this->belongsTo('App\Models\Citizen');
+    }
+    
+    public function contract()
+    {        
+        return $this->belongsTo('App\Models\Contract');
     }
 
-    public function invoices()
+    public function invoice()
     {        
-        return $this->hasMany('App\Models\Invoice');
+        return $this->belongsTo('App\Models\Invoice');
     }
 
-    public function payments()
+    public function payment()
     {        
-        return $this->hasMany('App\Models\Payment');
+        return $this->belongsTo('App\Models\Payment');
     }
     
 }

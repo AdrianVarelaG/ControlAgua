@@ -14,11 +14,14 @@ class CreateDiscountsTable extends Migration
     {
         Schema::create('discounts', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('authorization_id')->unsigned()->nullable();
+            $table->foreign('authorization_id')->references('id')->on('authorizations');
             $table->char('temporary',1);
             $table->char('movement_type',2);
-            $table->char('type',1);            
-            $table->date('intial_date');
-            $table->date('final_date');
+            $table->char('type',1);
+            $table->string('description', 100);            
+            $table->date('initial_date')->nullable();
+            $table->date('final_date')->nullable();
             $table->integer('age');
             $table->float('percent',8,2);
             $table->float('amount',11,2);

@@ -13,7 +13,7 @@
 
 //Administration
 Route::resource("administrations","AdministrationController");
-Route::get('administrations.status/{id}', ['as' => 'administrations.status', 'uses' => 'AdmininstrationController@status']);
+Route::get('administrations.status/{id}', ['as' => 'administrations.status', 'uses' => 'AdministrationController@status']);
 
 //Authorization
 Route::resource("authorizations","AuthorizationController");
@@ -21,8 +21,9 @@ Route::get('authorizations.status/{id}', ['as' => 'authorizations.status', 'uses
 
 //Citizen
 Route::resource("citizens","CitizenController");
-Route::get('citizens.index/{view}', ['as' => 'citizens', 'uses' => 'CitizenController@index']);
+Route::get('citizens.change_view/{view}', ['as' => 'citizens.change_view', 'uses' => 'CitizenController@change_view']);
 Route::get('citizens.status/{id}', ['as' => 'citizens.status', 'uses' => 'CitizenController@status']);
+Route::get('citizens.balance/{id}/{period}', ['as' => 'citizens.balance', 'uses' => 'CitizenController@balance']);
 
 //Company
 Route::resource("company","CompanyController");
@@ -35,6 +36,7 @@ Route::resource("contracts","ContractController");
 Route::get('contracts.create/{id}', ['as' => 'contracts.create', 'uses' => 'ContractController@create']);
 Route::get('contracts.status/{id}', ['as' => 'contracts.status', 'uses' => 'ContractController@status']);
 Route::get('contracts.citizen_contracts/{id}', ['as' => 'contracts.citizen_contracts', 'uses' => 'ContractController@citizen_contracts']);
+Route::get('contracts.balance/{id}/{period}', ['as' => 'contracts.balance', 'uses' => 'ContractController@balance']);
 
 //Charge
 Route::resource("charges","ChargeController");
@@ -81,10 +83,12 @@ Route::auth();
 
 //Municipality
 Route::resource("municipalities","MunicipalityController");
+Route::get('municipalities.index/{state_id}', ['as' => 'municipalities.index', 'uses' => 'MunicipalityController@index']);
 Route::get('municipalities.status/{id}', ['as' => 'municipalities.status', 'uses' => 'MunicipalityController@status']);
 
 //Payments
 Route::resource("payments","PaymentController");
+Route::get('payments.index/{period}', ['as' => 'payments.index', 'uses' => 'PaymentController@index']);
 Route::post('payments.payment_future', ['as' => 'payments.payment_future', 'uses' => 'PaymentController@payment_future']);
 Route::get('payments.create/{id}', ['as' => 'payments.create', 'uses' => 'PaymentController@create']);
 Route::get('payments.contracts_debt', ['as' => 'payments.contracts_debt', 'uses' => 'PaymentController@contracts_debt']);

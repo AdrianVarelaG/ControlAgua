@@ -26,6 +26,11 @@ class Invoice extends Model
         return $this->hasMany('App\Models\InvoiceDetail');
     }
 
+    public function movement()
+    {        
+        return $this->hasOne('App\Models\Movement');
+    }    
+    
     public function payment()
     {        
         return $this->belongsTo('App\Models\Payment');
@@ -64,11 +69,11 @@ class Invoice extends Model
                 return 'Pendiente';                              
             }        
         
-        }else if ($this->type=='A') {
+        }else if ($this->status=='A') {
         
             return 'Abonado';
         
-        }else if ($this->type=='C') {
+        }else if ($this->status=='C') {
         
             return 'Cancelado';
         

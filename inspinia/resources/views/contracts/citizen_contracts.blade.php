@@ -144,7 +144,7 @@
                 
                             <div class="form-group pull-right">
                                 <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
-                                    <a href="{{ URL::to('citizens') }}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                                    <a href="{{URL::to('citizens')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                                 </div>
                             </div>                            
 

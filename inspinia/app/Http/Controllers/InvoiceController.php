@@ -93,7 +93,7 @@ class InvoiceController extends Controller
         $invoice = new Invoice();
         $flat_rate = Rate::find(1);
         $iva = Charge::find(1);        
-        $charges = Charge::where('id', '>', 1)->get();
+        $charges = Charge::where('id', '>', 1)->where('status', 'A')->get();
         $last_day_month = date("t/m/Y");
         return view('invoices.generate')->with('charges', $charges)
                                         ->with('flat_rate', $flat_rate)
@@ -131,8 +131,8 @@ class InvoiceController extends Controller
                     $invoice->month = substr($request->input('date'),3,2);                    
                     $invoice->month_consume = $month_consume;
                     $invoice->year_consume = $year_consume;
+                    $invoice->citizen_id = $contract->citizen->id;
                     $invoice->contract_id = $contract->id;
-                    $invoice->citizen_id = $contract->citizen_id;
                     $invoice->message = $request->input('message');
                     $invoice->status = 'P';
                     $invoice->save();
@@ -215,6 +215,7 @@ class InvoiceController extends Controller
                     $movement->type = 'C';
                     $movement->movement_type = 'C';
                     $movement->description = 'Servicio de Agua '.$invoice->month.'/'.$invoice->year;
+                    $movement->citizen_id = $contract->citizen->id;
                     $movement->contract_id = $contract->id;
                     $movement->invoice_id = $invoice->id;
                     $movement->amount = $invoice->total;
@@ -247,7 +248,11 @@ class InvoiceController extends Controller
      */
     public function show($id)
     {
-        //
+        $invoice = Invoice::find(Crypt::decrypt($id));
+        $company = Company::first();          
+        
+        return view('invoices.show')->with('invoice', $invoice)
+                                        ->with('company', $company);
     }
 
     /**
@@ -299,7 +304,19 @@ class InvoiceController extends Controller
      */
     public function destroy($id)
     {
-        return "metodo para eliminar 1 recibo";
+        /**
+        * Logica de eliminacion.
+        */        
+        $invoice = Invoice::find($id);
+        $year = $invoice->year;
+        $month = $invoice->month;
+        
+        if ($invoice->status == 'P'){            
+            $state->delete();
+            return redirect()->route('invoices.index', [Crypt::encrypt($year), Crypt::encrypt($month)])->with('notity', 'delete');        
+        }else{            
+        return redirect()->route('invoices.index', [Crypt::encrypt($year), Crypt::encrypt($month)])->withErrors('No se pueden elminar recibos que ya han sido cancelados.');
+        }
     }
 
     public function routine_exist($year_consume, $month_consume){

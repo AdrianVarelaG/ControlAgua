@@ -54,8 +54,8 @@ class ReadingController extends Controller
             $last_date = Carbon::now();
             $last_inspector_id = "";
         }        
-        $inspectors = Inspector::orderBy('name')->lists('name','id');        
-        $contracts = Contract::orderBy('number')->lists('number','id');        
+        $inspectors = Inspector::where('status', 'A')->orderBy('name')->lists('name','id');        
+        $contracts = Contract::where('status', 'A')->orderBy('number')->lists('number','id');        
         
         return view('readings.save')->with('reading', $reading)
                                     ->with('contracts', $contracts)
@@ -74,20 +74,41 @@ class ReadingController extends Controller
      */
     public function store(ReadingRequestStore $request)
     {
-        $reading = new Reading();
-        $reading->month = substr($request->input('period'),0,2);
-        $reading->year = substr($request->input('period'),3,4);        
-        $reading->date = (new ToolController)->format_ymd($request->input('date'));       
-        $reading->inspector_id = $request->input('inspector');
-        $reading->contract_id = $request->input('contract');
-        $reading->previous_reading = $request->input('previous_reading');
-        $reading->current_reading = $request->input('current_reading');
-        $reading->consume = $reading->current_reading - $reading->previous_reading;
-        $reading->observation = $request->input('observation');        
-        $reading->save();
-        return redirect()->route('readings.index')->with('notity', 'create');
+        $contract_id = $request->input('contract');            
+        $month = substr($request->input('period'),0,2);
+        $year = substr($request->input('period'),3,4);        
+        
+        if(!$this->reading_exist($contract_id, $year, $month)){
+            $reading = new Reading();
+            $reading->date = (new ToolController)->format_ymd($request->input('date'));       
+            $reading->contract_id = $contract_id;            
+            $reading->month = $month;
+            $reading->year = $year;                    
+            $reading->inspector_id = $request->input('inspector');
+            $reading->previous_reading = $request->input('previous_reading');
+            $reading->current_reading = $request->input('current_reading');
+            $reading->consume = $reading->current_reading - $reading->previous_reading;
+            $reading->observation = $request->input('observation');        
+            $reading->save();
+            return redirect()->route('readings.index')->with('notity', 'create');
+        }else{
+            $contract = Contract::find($contract_id);
+            return redirect()->route('readings.create')->withErrors('Ya existe una lectura para el contrato <strong>'.$contract->number.'</strong> en el período <strong>'.$month.'/'.$year.'</strong>.');
+        }
     }
 
+    
+    public function reading_exist($contract_id, $year, $month){
+        $reading = Reading::where('contract_id', $contract_id)
+                            ->where('year', $year)
+                            ->where('month', $month);
+        if($reading->count()>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
     /**
      * Display the specified resource.
      *
@@ -108,8 +129,8 @@ class ReadingController extends Controller
     public function edit($id)
     {
         $reading = Reading::find(Crypt::decrypt($id));
-        $inspectors = Inspector::orderBy('name')->lists('name','id');        
-        $contracts = Contract::orderBy('number')->lists('number','id');        
+        $inspectors = Inspector::where('status', 'A')->orderBy('name')->lists('name','id');        
+        $contracts = Contract::where('status', 'A')->orderBy('number')->lists('number','id');        
         
         return view('readings.save')->with('reading', $reading)
                                     ->with('contracts', $contracts)
@@ -147,27 +168,12 @@ class ReadingController extends Controller
      */
     public function destroy($id)
     {
-        /**
-        * Logica de eliminacion para no generar inconsistencia.
-        * Se chequea si hay condominios asociados con el pais
-        */        
         $reading = Reading::find($id);
-        $reading->delete();
-        return redirect()->route('readings.index')->with('notity', 'delete');        
-    }
-
-    /**
-     * Update the status to specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function status($id)
-    {
-        $reading = Reading::find(Crypt::decrypt($id));
-        ($reading->status == "A")?$reading->status="D":$reading->status= "A";  
-        $reading->save();
-        return redirect()->route('readings.index');
+        if ($reading->invoice){            
+            return redirect()->route('readings.index')->withErrors('No puede eliminar la lectura. El recibo # <strong>'.$reading->invoice->id.'</strong> ha sido generado con esa lectura. Debe primero eliminar el recibo.');
+        }else{            
+            $reading->delete();
+            return redirect()->route('readings.index')->with('notity', 'delete');        
+        }
     }
 }

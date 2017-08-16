@@ -16,7 +16,7 @@
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-globe" aria-hidden="true"></i> Cargos Adicionales</h5>
+                    <h5><i class="fa fa-arrow-circle-up" aria-hidden="true"></i> Cargos Adicionales</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -157,7 +157,7 @@
                   title: 'Cargos Adicionales',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4],
                   }                                    
                 },
                 {
@@ -170,7 +170,7 @@
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1],
+                    columns: [1, 2, 3, 4],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body

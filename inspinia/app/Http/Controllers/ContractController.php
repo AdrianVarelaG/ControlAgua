@@ -14,6 +14,7 @@ use App\Models\Rate;
 use App\Models\State;
 use App\Models\Administration;
 use Illuminate\Support\Facades\Crypt;
+use Carbon\Carbon;
 
 
 class ContractController extends Controller
@@ -44,7 +45,7 @@ class ContractController extends Controller
         $contracts = $citizen->contracts()->get();  
         return view('contracts.citizen_contracts')->with('company', $company)
                                             ->with('citizen', $citizen)
-                                            ->with('contracts', $contracts);  
+                                            ->with('contracts', $contracts); 
     }
 
     /**
@@ -56,9 +57,9 @@ class ContractController extends Controller
     {
         $contract = new Contract();
         $citizen = Citizen::find(Crypt::decrypt($citizen_id));        
-        $rates = Rate::orderBy('name')->lists('name','id');
-        $administrations = Administration::orderBy('period')->lists('period','id');
-        $states = State::orderBy('name')->lists('name','id');
+        $rates = Rate::where('status', 'A')->orderBy('name')->lists('name','id');
+        $administrations = Administration::where('status', 'A')->orderBy('period')->lists('period','id');
+        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');
         return view('contracts.save')->with('contract', $contract)
                                     ->with('citizen', $citizen)
                                     ->with('rates', $rates)
@@ -104,6 +105,77 @@ class ContractController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function balance($id, $period)
+    {
+        $company = Company::first();                  
+        $contract = Contract::find(Crypt::decrypt($id));
+        $initial_balance=0;
+        $movements = $contract->movements;
+        $credits =0;
+        $debits =0;
+        switch ($period) 
+        {
+            case '3':
+                $period_title = 'Estado de Cuenta últimos 3 meses';
+                break;
+            case '6':
+                $period_title = 'Estado de Cuenta últimos 6 meses';
+                break;
+            case '12':
+                $period_title = 'Estado de Cuenta últimos 12 meses';
+                break;
+            case 'all':
+                $period_title = 'Estado de Cuenta Completo';
+                break;
+        }        
+        if($period == '3'){
+            $initial_date = Carbon::now()->subMonths(2)->startOfMonth();
+            $credits = $contract->credits()->where('date', '<' , $initial_date)->sum('amount');
+            $debits = $contract->debits()->where('date', '<' , $initial_date)->sum('amount');
+            $initial_balance = $credits - $debits;
+            $movements = $contract->movements()->where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+        }        
+        else if($period == '6'){
+            $initial_date = Carbon::now()->subMonths(5)->startOfMonth();
+            $credits = $contract->credits()->where('date', '<' , $initial_date)->sum('amount');
+            $debits = $contract->debits()->where('date', '<' , $initial_date)->sum('amount');
+            $initial_balance = $credits - $debits;            
+            $movements = $contract->movements()->where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+
+        }
+        else if($period == '12'){
+            $initial_date = Carbon::now()->subMonths(11)->startOfMonth();
+            $credits = $contract->credits()->where('date', '<' , $initial_date)->sum('amount');
+            $debits = $contract->debits()->where('date', '<' , $initial_date)->sum('amount');
+            $initial_balance = $credits - $debits;            
+            $movements = $contract->movements()->where('date','>=',$initial_date)
+                                    ->orderBy('date')->get();
+
+        }
+        else if($period == 'all'){
+            $initial_date = Carbon::now();
+            $movements = $contract->movements()->orderBy('date')->get();
+        }
+                        
+        return view('contracts.balance')->with('company', $company)
+                                    ->with('contract', $contract)
+                                    ->with('initial_balance', $initial_balance)
+                                    ->with('initial_date', $initial_date)
+                                    ->with('movements', $movements)
+                                    ->with('period', $period)
+                                    ->with('period_title', $period_title);
+
+    }
+    
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
@@ -113,9 +185,9 @@ class ContractController extends Controller
     {
         $contract = Contract::find(Crypt::decrypt($id));
         $citizen = Citizen::find($contract->citizen_id);        
-        $rates = Rate::orderBy('name')->lists('name','id');
-        $administrations = Administration::orderBy('period')->lists('period','id');
-        $states = State::orderBy('name')->lists('name','id');
+        $rates = Rate::where('status', 'A')->orderBy('name')->lists('name','id');
+        $administrations = Administration::where('status', 'A')->orderBy('period')->lists('period','id');
+        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');
         return view('contracts.save')->with('contract', $contract)
                                     ->with('citizen', $citizen)
                                     ->with('rates', $rates)
@@ -133,7 +205,7 @@ class ContractController extends Controller
      */
     public function update(ContractRequestUpdate $request, $id)
     {
-        $contract = Contract::find($id);        
+        $contract = Contract::find($id);
         $contract->number= $request->input('number');
         $contract->date= (new ToolController)->format_ymd($request->input('date'));        
         $contract->rate_id= $request->input('rate'); 
@@ -159,12 +231,17 @@ class ContractController extends Controller
     {
         /**
         * Logica de eliminacion para no generar inconsistencia.
-        * Se chequea si hay condominios asociados con el pais
+        * Verifica si hay recibos y lecturas asociadas
         */        
         $contract = Contract::find($id);
         if ($contract->invoices->count() == 0){            
-            $contract->delete();
-            return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'delete');        
+            if($contract->readings->count()==0){
+                $contract->delete();
+                return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'delete');
+            }else{
+                return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->withErrors('No se puede eliminar el Contrato. Existen <strong>'.$contract->readings->count().'</strong> lecturas asociadas. Debe primero eliminar las lecturas asociadas. Gracias...');            
+            }
+        
         }else{            
             return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->withErrors('No se puede eliminar el Contrato. Existen <strong>'.$contract->invoices->count().'</strong> recibos asociados. Debe primero eliminar los recibos asociados. Gracias...');            
         }
