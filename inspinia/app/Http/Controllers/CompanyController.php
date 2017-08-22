@@ -76,7 +76,7 @@ class CompanyController extends Controller
         $company->contact_phone= $request->input('contact_phone');
         $company->contact_email= $request->input('contact_email');
         $company->save();
-        return view('home');
+        return redirect()->route('home')->with('notity', 'create');
     }
 
     /**
@@ -128,7 +128,7 @@ class CompanyController extends Controller
         $company->contact_phone= $request->input('contact_phone');
         $company->contact_email= $request->input('contact_email');
         $company->save();
-        return view('home');
+        return redirect()->route('home')->with('notity', 'update');
     }
 
     /**

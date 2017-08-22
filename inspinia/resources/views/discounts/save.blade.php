@@ -67,14 +67,14 @@
                                 <label>Desde *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('initial_date', ($discount->initial_date)?$discount->initial_date->format('d/m/Y'):'', ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                    {{ Form::text ('initial_date', ($discount->initial_date)?$discount->initial_date->format('d/m/Y'):'', ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>                            
                             <div class="form-group" id="data_2">
                                 <label>Hasta *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('final_date', ($discount->final_date)?$discount->final_date->format('d/m/Y'):'', ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                    {{ Form::text ('final_date', ($discount->final_date)?$discount->final_date->format('d/m/Y'):'', ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>
                         </div>                                                    

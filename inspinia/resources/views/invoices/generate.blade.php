@@ -63,21 +63,21 @@
                                                 <label>Facturación *</label>
                                                 <div class="input-group date">
                                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                                    {{ Form::text ('date', null, ['id'=>'date', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                                    {{ Form::text ('date', null, ['id'=>'date', 'class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                                 </div>
                                             </div>
                                             <div class="form-group" id="data_2">
                                                 <label>Mes y Año de Consumo *</label>
                                                 <div class="input-group date">
                                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                                    {{ Form::text ('date_consume', null, ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 01/2021', 'required']) }}
+                                                    {{ Form::text ('date_consume', null, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'Ej. 01/2021', 'required']) }}
                                                 </div>
                                             </div>                                        
                                             <div class="form-group" id="data_3">
                                                 <label>Vencimiento *</label>
                                                 <div class="input-group date">
                                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                                    {{ Form::text ('date_limit', null, ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                                    {{ Form::text ('date_limit', null, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                                 </div>
                                             </div>
                                         </div>

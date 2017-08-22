@@ -55,7 +55,7 @@
                                 <label>Fecha del Pago *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('date', $payment->date, ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                    {{ Form::text ('date', $payment->date, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -136,14 +136,16 @@
                         <div id='div_other_discounts' style='display:solid;'>
                             <!-- Otros Descuentos -->
                              @if($other_discounts)
-                                @php($i=0)
+                                @php($count_od=0)
                                 @foreach($other_discounts as $discount)
-                                    <div class="i-checks">
-                                        <p>{!! Form::radio('other_discount[]', $discount->id,  false, ['id'=>'other_discount['.$i.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
-                                            {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$i.']']) !!}
-                                            {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$i.']']) !!}
-                                            {!! Form::hidden('other_discount_type',  $discount->type , ['id'=>'other_discount_type['.$i++.']']) !!}
-                                    </div>                             
+                                    @if($discount->show_temporary())
+                                        <div class="i-checks">
+                                            <p>{!! Form::radio('other_discount[]', $discount->id,  false, ['id'=>'other_discount['.$count_od.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
+                                            {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$count_od.']']) !!}
+                                            {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$count_od.']']) !!}
+                                            {!! Form::hidden('other_discount_type',  $discount->type , ['id'=>'other_discount_type['.$count_od++.']']) !!}
+                                        </div>                             
+                                    @endif
                                 @endforeach
                             @endif
                         </div>
@@ -362,7 +364,7 @@
         //Otros Descuentos
         }else{
             //Recorre para obtener el monto y el porcentaje
-            for (i=0; i< {{ $other_discounts->count() }}; i++){
+            for (i=0; i< {{ $count_od }}; i++){
                 if (document.getElementById("other_discount["+i+"]").checked){
                     discount_id = document.getElementById("other_discount["+i+"]").value;
                     type = document.getElementById("other_discount_type["+i+"]").value;

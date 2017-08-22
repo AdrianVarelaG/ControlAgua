@@ -79,7 +79,7 @@
                                 <label>Fecha de Nacimiento *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('birthdate', ($citizen->id)?$citizen->birthdate->format('d/m/Y'):'', ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                    {{ Form::text ('birthdate', ($citizen->id)?$citizen->birthdate->format('d/m/Y'):'', ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>                            
                             <div class="form-group">

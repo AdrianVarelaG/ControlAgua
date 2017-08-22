@@ -44,7 +44,7 @@
                                 <label>Mes y Año de Consumo *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('period', ($reading->id)?(strlen($reading->month)==1?'0'.$reading->month:$reading->month).'/'.$reading->year:$last_month.'/'.$last_year, ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 01/2021', 'required']) }}
+                                    {{ Form::text ('period', ($reading->id)?(strlen($reading->month)==1?'0'.$reading->month:$reading->month).'/'.$reading->year:$last_month.'/'.$last_year, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'Ej. 01/2021', 'required']) }}
                                 </div>
                             </div>                                                         
                         </div>
@@ -53,7 +53,7 @@
                                 <label>Fecha de Lectura *</label>
                                     <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('date', ($reading->id)?$reading->date->format('d/m/Y'):$last_date->format('d/m/Y'), ['id'=>'date', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                    {{ Form::text ('date', ($reading->id)?$reading->date->format('d/m/Y'):$last_date->format('d/m/Y'), ['id'=>'date', 'class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>
                         </div>

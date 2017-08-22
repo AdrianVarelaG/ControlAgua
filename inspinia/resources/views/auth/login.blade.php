@@ -29,7 +29,7 @@
 
             </div>
             <h3>Bienvenido</h3>
-            <p>Ssistema de Gestión de Servicio de Agua.</p>
+            <p>Sistema de Gestión de Servicio de Agua.</p>
 
                     <!-- show erros -->
                     @if (count($errors) > 0)

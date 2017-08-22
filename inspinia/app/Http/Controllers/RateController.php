@@ -111,7 +111,7 @@ class RateController extends Controller
         $rate->status= 'A';
         $rate->save();
         if($rate->id == 1){
-            return view('home');
+            return redirect()->route('home')->with('notity', 'update');
         }else{
             return redirect()->route('rates.index')->with('notity', 'update');
         }

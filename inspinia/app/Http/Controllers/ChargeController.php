@@ -121,7 +121,8 @@ class ChargeController extends Controller
         $charge->save();
         
         if($charge->id == 1){
-            return view('home');
+            return redirect()->route('home')->with('notity', 'update');
+            //return view('home');
         }else{
             return redirect()->route('charges.index')->with('notity', 'update');
         }

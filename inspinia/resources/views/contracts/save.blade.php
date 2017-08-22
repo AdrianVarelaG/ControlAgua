@@ -63,7 +63,7 @@
                                 <label>Fecha de Contrato *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('date', $contract->date, ['class'=>'form-control', 'type'=>'text', 'placeholder'=>'01/01/2017', 'date', 'required']) }}
+                                    {{ Form::text ('date', $contract->date, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>
                             <div class="form-group">

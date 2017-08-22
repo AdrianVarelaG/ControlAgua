@@ -150,7 +150,7 @@ class DiscountController extends Controller
         $discount->save();
         
         if($discount->id == 1){
-            return view('home');
+            return redirect()->route('home')->with('notity', 'update');
         }else{
             return redirect()->route('discounts.index')->with('notity', 'update');
         }

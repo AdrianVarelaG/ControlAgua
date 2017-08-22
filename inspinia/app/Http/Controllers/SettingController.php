@@ -60,7 +60,7 @@ class SettingController extends Controller
         $setting->save();
         //Se actualizan las variables de Sesión
         $this->set_session();
-        return view('home');
+        return redirect()->route('home')->with('notity', 'create');
     }
 
     /**
