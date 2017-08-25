@@ -135,6 +135,7 @@ class InvoiceController extends Controller
                     $invoice->contract_id = $contract->id;
                     $invoice->message = $request->input('message');
                     $invoice->status = 'P';
+                    $invoice->previous_debt = $invoice->contract->balance;
                     $invoice->save();
                     //Paso 3. Registrar el detalle del recibo
             

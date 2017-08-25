@@ -5,57 +5,64 @@
 
 @section('page-header')
 <div class="wrapper wrapper-content">
+    @php
+        //Recibos del Año
+        $sum_invoices_year = $invoices_year->sum('total');        
+        $count_invoices_year = $invoices_year->count();
+        
+        $sum_invoices_year_pending = $invoices_year->where('status', 'P')->sum('total');
+        $count_invoices_year_pending = $invoices_year->where('status', 'P')->count();
+        $sum_invoices_year_canceled = $invoices_year->where('status', 'C')->sum('total');
+        $count_invoices_year_canceled = $invoices_year->where('status', 'C')->count();
+        
+        //Recibos del Mes
+        $sum_invoices_month = $invoices_month->sum('total');        
+        $count_invoices_month = $invoices_month->count();
+
+        $sum_invoices_month_pending =  $invoices_month->where('status', 'P')->sum('total');
+        $count_invoices_month_pending =  $invoices_month->where('status', 'P')->count();
+        $sum_invoices_month_canceled =  $invoices_month->where('status', 'C')->sum('total');
+        $count_invoices_month_canceled =  $invoices_month->where('status', 'C')->count();
+
+    @endphp
     <!-- Widgets -->
     <div class="row">
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <span class="label label-success pull-right">{{ month_letter($current_month, 'lg') }}</span>
-                    <h5>Ingresos {{ Session::get('coin') }}</h5>
+                    <h5>Pagos del Mes {{ Session::get('coin') }}</h5>
                 </div>
                 <div class="ibox-content">
                     <h1 class="no-margins">{{ money_fmt($payments->sum('amount')) }}</h1>
                     <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div>
-                    <small>Total income</small>
+                    <small>Total pagos {{ $payments->count() }}</small>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <span class="label label-info pull-right">{{ month_letter($current_month, 'lg') }}</span>
-                    <h5>Por Cobrar {{ Session::get('coin') }}</h5>
+                    <h5>Descuentos del Mes {{ Session::get('coin') }}</h5>
                 </div>
                 <div class="ibox-content">
-                    <h1 class="no-margins">{{ money_fmt($invoices->where('status', 'P')->sum('total')) }}</h1>
+                    <h1 class="no-margins">{{ money_fmt($discounts->sum('amount')) }}</h1>
                     <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div>
-                    <small>New orders</small>
+                    <small>Total descuentos {{ $discounts->count() }}</small>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <span class="label label-primary pull-right">Today</span>
-                    <h5><i class="fa fa-users" aria-hidden="true"></i> Ciudadanos</h5>
+                    <span class="label label-primary pull-right">{{ month_letter($current_month, 'lg') }}</span>
+                    <h5>Cuentas por Cobrar {{ Session::get('coin') }}</h5>
                 </div>
                 <div class="ibox-content">
-                    <h1 class="no-margins">{{ $citizens->count() }}</h1>
-                    <div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i></div>
-                    <small></small>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3">
-            <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                    <span class="label label-danger pull-right">Low value</span>
-                    <h5> <i class="fa fa-tachometer" aria-hidden="true"></i> Contratos</h5>
-                </div>
-                <div class="ibox-content">
-                    <h1 class="no-margins">{{ $contracts->count() }}</h1>
-                    <div class="stat-percent font-bold text-danger">38% <i class="fa fa-level-down"></i></div>
-                    <small>In first month</small>
+                    <h1 class="no-margins">{{ money_fmt($sum_invoices_month_pending) }}</h1>
+                    <div class="stat-percent font-bold text-navy">{{ ($count_invoices_month!=0)?($count_invoices_month_pending/$count_invoices_month)*100:0 }}% </div>
+                    <small>Recibos Pendientes {{ $count_invoices_month_pending }} de {{ $count_invoices_month }}</small>
                 </div>
             </div>
         </div>
@@ -67,14 +74,7 @@
                     <div class="col-lg-12">
                         <div class="ibox float-e-margins">
                             <div class="ibox-title">
-                                <h5>Orders</h5>
-                                <div class="pull-right">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-xs btn-white active">Today</button>
-                                        <button type="button" class="btn btn-xs btn-white">Monthly</button>
-                                        <button type="button" class="btn btn-xs btn-white">Annual</button>
-                                    </div>
-                                </div>
+                                <h5>Gestión de Cobro {{ $current_year }}</h5>
                             </div>
                             <div class="ibox-content">
                                 <div class="row">
@@ -86,27 +86,27 @@
                                 <div class="col-lg-3">
                                     <ul class="stat-list">
                                         <li>
-                                            <h2 class="no-margins">2,346</h2>
-                                            <small>Total orders in period</small>
+                                            <h2 class="no-margins">{{ money_fmt($sum_invoices_year) }}</h2>
+                                            <small>Recibos en {{ $current_year }}: <strong>{{ $count_invoices_year }}</strong></small>
                                             <div class="stat-percent">48% <i class="fa fa-level-up text-navy"></i></div>
                                             <div class="progress progress-mini">
                                                 <div style="width: 48%;" class="progress-bar"></div>
                                             </div>
                                         </li>
                                         <li>
-                                            <h2 class="no-margins ">4,422</h2>
-                                            <small>Orders in last month</small>
-                                            <div class="stat-percent">60% <i class="fa fa-level-down text-navy"></i></div>
+                                            <h2 class="no-margins ">{{ money_fmt($sum_invoices_year_pending) }}</h2>
+                                            <small>Pendientes en {{ $current_year }}: <strong>{{ $count_invoices_year_pending }}</strong></small>
+                                            <div class="stat-percent">{{ ($count_invoices_year>0)?round(($count_invoices_year_pending/$count_invoices_year)*100,2):0.00 }}% <i class="fa fa-level-down text-navy"></i></div>
                                             <div class="progress progress-mini">
-                                                <div style="width: 60%;" class="progress-bar"></div>
+                                                <div style="width: {{ ($count_invoices_year>0)?round(($count_invoices_year_pending/$count_invoices_year)*100, 2):0.00 }}%;" class="progress-bar progress-bar-warning"></div>
                                             </div>
                                         </li>
                                         <li>
-                                            <h2 class="no-margins ">9,180</h2>
-                                            <small>Monthly income from orders</small>
-                                            <div class="stat-percent">22% <i class="fa fa-bolt text-navy"></i></div>
+                                            <h2 class="no-margins ">{{ money_fmt($sum_invoices_year_canceled) }}</h2>
+                                            <small>Cancelados en {{ $current_year }}: <strong>{{ $count_invoices_year_canceled }}</strong></small>
+                                            <div class="stat-percent">{{ ($count_invoices_year>0)?round(($count_invoices_year_canceled/$count_invoices_year)*100, 2):0.00 }}% <i class="fa fa-bolt text-navy"></i></div>
                                             <div class="progress progress-mini">
-                                                <div style="width: 22%;" class="progress-bar"></div>
+                                                <div style="width: {{ ($count_invoices_year>0)?round(($count_invoices_year_canceled/$count_invoices_year)*100, 2):0.00 }}%;" class="progress-bar progress-bar-success"></div>
                                             </div>
                                         </li>
                                         </ul>
@@ -333,88 +333,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="ibox float-e-margins">
-                                    <div class="ibox-title">
-                                        <h5>Transactions worldwide</h5>
-                                        <div class="ibox-tools">
-                                            <a class="collapse-link">
-                                                <i class="fa fa-chevron-up"></i>
-                                            </a>
-                                            <a class="close-link">
-                                                <i class="fa fa-times"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="ibox-content">
-
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <table class="table table-hover margin bottom">
-                                                    <thead>
-                                                    <tr>
-                                                        <th style="width: 1%" class="text-center">No.</th>
-                                                        <th>Transaction</th>
-                                                        <th class="text-center">Date</th>
-                                                        <th class="text-center">Amount</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    <tr>
-                                                        <td class="text-center">1</td>
-                                                        <td> Security doors
-                                                            </td>
-                                                        <td class="text-center small">16 Jun 2014</td>
-                                                        <td class="text-center"><span class="label label-primary">$483.00</span></td>
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">2</td>
-                                                        <td> Wardrobes
-                                                        </td>
-                                                        <td class="text-center small">10 Jun 2014</td>
-                                                        <td class="text-center"><span class="label label-primary">$327.00</span></td>
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">3</td>
-                                                        <td> Set of tools
-                                                        </td>
-                                                        <td class="text-center small">12 Jun 2014</td>
-                                                        <td class="text-center"><span class="label label-warning">$125.00</span></td>
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">4</td>
-                                                        <td> Panoramic pictures</td>
-                                                        <td class="text-center small">22 Jun 2013</td>
-                                                        <td class="text-center"><span class="label label-primary">$344.00</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">5</td>
-                                                        <td>Phones</td>
-                                                        <td class="text-center small">24 Jun 2013</td>
-                                                        <td class="text-center"><span class="label label-primary">$235.00</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center">6</td>
-                                                        <td>Monitors</td>
-                                                        <td class="text-center small">26 Jun 2013</td>
-                                                        <td class="text-center"><span class="label label-primary">$100.00</span></td>
-                                                    </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <div id="world-map" style="height: 300px;"></div>
-                                            </div>
-                                    </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
     </div>
 </div>
@@ -471,61 +389,27 @@
                 }
             }, 1300);
 
+            //Flot Chart
+            var data1 = {!! $total_incomes_year !!}
 
-            $('.chart').easyPieChart({
-                barColor: '#f8ac59',
-//                scaleColor: false,
-                scaleLength: 5,
-                lineWidth: 4,
-                size: 80
-            });
-
-            $('.chart2').easyPieChart({
-                barColor: '#1c84c6',
-//                scaleColor: false,
-                scaleLength: 5,
-                lineWidth: 4,
-                size: 80
-            });
-
-            var data2 = [
-                [gd(2012, 1, 1), 7], [gd(2012, 1, 2), 6], [gd(2012, 1, 3), 4], [gd(2012, 1, 4), 8],
-                [gd(2012, 1, 5), 9], [gd(2012, 1, 6), 7], [gd(2012, 1, 7), 5], [gd(2012, 1, 8), 4],
-                [gd(2012, 1, 9), 7], [gd(2012, 1, 10), 8], [gd(2012, 1, 11), 9], [gd(2012, 1, 12), 6],
-                [gd(2012, 1, 13), 4], [gd(2012, 1, 14), 5], [gd(2012, 1, 15), 11], [gd(2012, 1, 16), 8],
-                [gd(2012, 1, 17), 8], [gd(2012, 1, 18), 11], [gd(2012, 1, 19), 11], [gd(2012, 1, 20), 6],
-                [gd(2012, 1, 21), 6], [gd(2012, 1, 22), 8], [gd(2012, 1, 23), 11], [gd(2012, 1, 24), 13],
-                [gd(2012, 1, 25), 7], [gd(2012, 1, 26), 9], [gd(2012, 1, 27), 9], [gd(2012, 1, 28), 8],
-                [gd(2012, 1, 29), 5], [gd(2012, 1, 30), 8], [gd(2012, 1, 31), 25]
-            ];
-
-            var data3 = [
-                [gd(2012, 1, 1), 800], [gd(2012, 1, 2), 500], [gd(2012, 1, 3), 600], [gd(2012, 1, 4), 700],
-                [gd(2012, 1, 5), 500], [gd(2012, 1, 6), 456], [gd(2012, 1, 7), 800], [gd(2012, 1, 8), 589],
-                [gd(2012, 1, 9), 467], [gd(2012, 1, 10), 876], [gd(2012, 1, 11), 689], [gd(2012, 1, 12), 700],
-                [gd(2012, 1, 13), 500], [gd(2012, 1, 14), 600], [gd(2012, 1, 15), 700], [gd(2012, 1, 16), 786],
-                [gd(2012, 1, 17), 345], [gd(2012, 1, 18), 888], [gd(2012, 1, 19), 888], [gd(2012, 1, 20), 888],
-                [gd(2012, 1, 21), 987], [gd(2012, 1, 22), 444], [gd(2012, 1, 23), 999], [gd(2012, 1, 24), 567],
-                [gd(2012, 1, 25), 786], [gd(2012, 1, 26), 666], [gd(2012, 1, 27), 888], [gd(2012, 1, 28), 900],
-                [gd(2012, 1, 29), 178], [gd(2012, 1, 30), 555], [gd(2012, 1, 31), 993]
-            ];
+            var data2 = {!! $total_invoices_year !!}
 
 
             var dataset = [
                 {
-                    label: "Number of orders",
-                    data: data3,
+                    label: "Ingreso Esperado",
+                    data: data2,
                     color: "#1ab394",
                     bars: {
                         show: true,
                         align: "center",
-                        barWidth: 24 * 60 * 60 * 600,
+                        barWidth: 0.7,
                         lineWidth:0
                     }
 
                 }, {
-                    label: "Payments",
-                    data: data2,
+                    label: "Ingreso Real",
+                    data: data1,
                     yaxis: 2,
                     color: "#1C84C6",
                     lines: {
@@ -549,13 +433,15 @@
                 }
             ];
 
+            var ticks = [
+                [1, "Ene"], [2, "Feb"], [3, "Mar"], [4, "Abr"], [5, "May"], [6, "Jun"], 
+                [7, "Jul"], [8, "Ago"], [9, "Sep"], [10, "Oct"], [11, "Nov"], [12, "Dic"],
+            ];
 
             var options = {
                 xaxis: {
-                    mode: "time",
-                    tickSize: [3, "day"],
-                    tickLength: 0,
-                    axisLabel: "Date",
+                    ticks: ticks,
+                    tickLength: 0,                    
                     axisLabelUseCanvas: true,
                     axisLabelFontSizePixels: 12,
                     axisLabelFontFamily: 'Arial',
@@ -585,53 +471,61 @@
                     position: "nw"
                 },
                 grid: {
-                    hoverable: false,
+                    hoverable: true,
                     borderWidth: 0
-                }
+                },
             };
-
-            function gd(year, month, day) {
-                return new Date(year, month - 1, day).getTime();
-            }
-
-            var previousPoint = null, previousLabel = null;
-
+            
             $.plot($("#flot-dashboard-chart"), dataset, options);
+            $("#flot-dashboard-chart").UseTooltip();
 
-            var mapData = {
-                "US": 298,
-                "SA": 200,
-                "DE": 220,
-                "FR": 540,
-                "CN": 120,
-                "AU": 760,
-                "BR": 550,
-                "IN": 200,
-                "GB": 120,
-            };
-
-            $('#world-map').vectorMap({
-                map: 'world_mill_en',
-                backgroundColor: "transparent",
-                regionStyle: {
-                    initial: {
-                        fill: '#e4e4e4',
-                        "fill-opacity": 0.9,
-                        stroke: 'none',
-                        "stroke-width": 0,
-                        "stroke-opacity": 0
-                    }
-                },
-
-                series: {
-                    regions: [{
-                        values: mapData,
-                        scale: ["#1ab394", "#22d6b1"],
-                        normalizeFunction: 'polynomial'
-                    }]
-                },
-            });
         });
+    
+        var previousPoint = null, previousLabel = null;
+
+        $.fn.UseTooltip = function () {
+            $(this).bind("plothover", function (event, pos, item) {
+                if (item) {
+                    if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
+                        previousPoint = item.dataIndex;
+                        previousLabel = item.series.label;
+                        $("#tooltip").remove();
+ 
+                        var x = item.datapoint[0]-1;
+                        var y = item.datapoint[1];
+ 
+                        var color = item.series.color;
+ 
+                        //console.log(item.series.xaxis.ticks[x].label);                
+ 
+                        showTooltip(item.pageX,
+                        item.pageY,
+                        color,
+                        "<strong>" + item.series.label + "</strong><br>" + item.series.xaxis.ticks[x].label + " : <strong>" + y + "</strong> {{ Session::get('coin') }}");
+                    }
+                } else {
+                    $("#tooltip").remove();
+                    previousPoint = null;
+                }
+            });
+        };
+ 
+        function showTooltip(x, y, color, contents) {
+            $('<div id="tooltip">' + contents + '</div>').css({
+                position: 'absolute',
+                display: 'none',
+                top: y - 40,
+                left: x - 120,
+                border: '2px solid ' + color,
+                padding: '3px',
+                'font-size': '9px',
+                'border-radius': '5px',
+                'background-color': '#fff',
+                'font-family': 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+                opacity: 0.9
+            }).appendTo("body").fadeIn(200);
+        }
+
     </script>
     
 @endpush

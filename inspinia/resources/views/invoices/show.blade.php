@@ -14,8 +14,18 @@
         <div class="ibox-content p-xl">
         
             <div class="row">
-                <div class="text-right well m-t"><strong>{{ $company->name }}</strong><br>
-                    <small>{{ $company->company_phone }}<br/> {{ $company->company_email }}</small>
+                <div class="text-right well m-t">
+                    <div class="col-md-6 col-sm-12 col-xs-12 text-left">
+                        <img alt="image" style="max-height:120px; max-width:120px;" class="img-thumbnail" src="{{ url('company_logo/'.$company->id) }}"/>
+                    </div>
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        <strong>{{ $company->name }}</strong><br>
+                        <small> {{ $company->company_phone }} {{ $company->company_email }}</small>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
                 </div>
             </div>
 
@@ -55,9 +65,9 @@
                                 <span><strong>Período de Consumo:</strong> {{ month_letter($invoice->month_consume, 'lg') }} {{ $invoice->year_consume }}</span>
                             </td>
                             <td class="text-right">
-                                <span><strong>Lectura Anterior (m3):</strong> {{ ($invoice->reading_id)?$invoice->reading->previous_reading:'00000' }}</span><br>
-                                <span><strong>Lectura Actual (m3):</strong> {{ ($invoice->reading_id)?$invoice->reading->current_reading:'00000' }}</span><br>
-                                <span><strong>Consumo (m3):</strong> {{ ($invoice->reading_id)?$invoice->reading->consume:'00000' }}</span><br>
+                                <span><strong>Saldo Anterior {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->previous_debt) }}</span><br>
+                                <span><strong>Saldo Actual {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->total_calculated()) }}</span><br>
+                                <span><strong>Total Consumo {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->previous_debt + $invoice->total_calculated()) }}</span><br>
                             </td>
                         </tr>
                     </tbody>
@@ -135,7 +145,7 @@
         
         <div class="text-right">
             <a href="{{ route('invoices.invoice_pdf', Crypt::encrypt($invoice->id)) }}" class="btn btn-sm btn-primary"><i class="fa fa-print"></i> Imprimir</a>
-            <a href="{{ route('invoices.index', [Crypt::encrypt($invoice->year), Crypt::encrypt($invoice->month)] ) }}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+            <a href="{{ URL::previous() }}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
         </div>                            
     
     </div>

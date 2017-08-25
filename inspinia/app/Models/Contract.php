@@ -35,6 +35,11 @@ class Contract extends Model
         return $this->belongsTo('App\Models\Municipality');
     }    
         
+    public function payments()
+    {        
+        return $this->hasMany('App\Models\Payment');
+    }
+    
     public function rate()
     {        
     	return $this->belongsTo('App\Models\Rate');
@@ -87,7 +92,7 @@ class Contract extends Model
 
         $expired_invoices=0;
         
-        foreach ($this->invoices as $invoice) {
+        foreach ($this->invoices->where('status', 'P') as $invoice) {
         
              if($invoice->delayed_days > 0){
                 $expired_invoices = $expired_invoices + 1;

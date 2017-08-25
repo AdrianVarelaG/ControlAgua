@@ -13,10 +13,20 @@
 
 <div class="wrapper wrapper-content p-xl">
     <div class="ibox-content p-xl">
-        
             <div class="row">
-                <div class="text-right well m-t"><strong>{{ $company->name }}</strong><br>
-                    <small><span style="font-family: fontawesome">&#xf095;</span> {{ $company->company_phone }} <span style="font-family: fontawesome">&#xf0e0;</span> {{ $company->company_email }}</small>
+                <div class="text-right well m-t">
+                    <div class="col-md-6 col-sm-12 col-xs-12 text-left">
+                        <img alt="image" style="max-height:110px; max-width:110px;" class="img-thumbnail" src="{{ $logo }}"/>
+                    </div>
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        <strong>{{ $company->name }}</strong><br>
+                        <small>{{ $company->company_phone }}, {{ $company->company_email }}</small>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>                    
                 </div>
             </div>
 

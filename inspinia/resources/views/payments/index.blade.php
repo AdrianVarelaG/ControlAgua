@@ -42,7 +42,8 @@
             <!-- ibox-content- -->
             <div class="ibox-content">
                 
-            {{ Form::open(array('url' => 'payments.index/1', 'id' => 'form', 'method' => 'get'), ['' ])}}
+            {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+            {{ Form::close() }} 
             
             @if($payments->count())
                 <div class="table-responsive">
@@ -87,12 +88,14 @@
                                     <li><a href="{{ route('payments.print_voucher', Crypt::encrypt($payment->id)) }}"><i class="fa fa-print"></i> Imprimir Comprobante</a></li>
                                     <li class="divider"></li>
                                     <li>
-                                        <!-- href para eliminar registro -->                            
-                                        <form action="{{ route('payments.destroy', $payment->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el pago?. Esto colocará el(los) recibo(s) cancelados con este pago como pendientes.')) { return true } else {return false };">
+                                        <!-- href para eliminar registro -->                                        
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <form action="{{ route('payments.destroy', $payment->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el pago?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
                                         </form>
+                                        <br/><br/>
                                     </li>
 
                                 </ul>
@@ -136,7 +139,6 @@
                   </div>                
                 @endif
                 
-                {{ Form::close() }} 
                 </div>
                 <!-- /ibox-content- -->
             </div>
@@ -147,6 +149,8 @@
 
 @push('scripts')
 <script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
+<script src="{{ URL::asset('"js/plugins/dataTables/sortDate.js') }}"></script>
+
 <!-- Select2 -->
 <script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>
 <script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>
@@ -157,13 +161,13 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
-              "ordering": false,
+              "ordering": true,
               "bLengthChange": true, //Habilitar o deshabilitar el nro de registros por paginacion
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
                 { "sWidth": "20%" }, // 2nd column width
-                { "sWidth": "15%" }, // 3nd column width
+                { "sWidth": "15%", "sType": "date-uk" }, // 3nd column width
                 { "sWidth": "15%" }, // 4nd column width
                 { "sWidth": "25%" }, // 5nd column width
                 { "sWidth": "20%" }  // 6nd column width                
@@ -268,7 +272,7 @@
 
       $('#period').on("change", function (e) { 
         console.log("Cambio "+$('#period').val());
-        url = `{{URL::to('payments.index/')}}/${e.target.value}`;
+        url = `{{URL::to('payments.change_period/')}}/${e.target.value}`;
         $('#form').attr('action', url);
         $('#form').submit();
       });

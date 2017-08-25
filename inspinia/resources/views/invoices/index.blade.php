@@ -49,6 +49,7 @@
                         <th></th>
                         <th class="text-center">Recibo #</th>
                         <th>Contrato</th>
+                        <th>Facturación</th>
                         <th>Monto {{ Session::get('coin') }}</th>
                         <th>Vencimiento</th>
                         <th>Estatus</th>
@@ -87,6 +88,8 @@
                           <strong>{{ $invoice->contract->number }}</strong><br/>
                           <small>{{ $invoice->contract->citizen->name }}</small>
                         </td>
+                        <td>{{ $invoice->date->format('d/m/Y') }}</td>
+                        </td>
                         <td>{{ money_fmt($invoice->total) }}</td>
                         <td>{{ $invoice->date_limit->format('d/m/Y') }}</td>
                         @php
@@ -100,6 +103,7 @@
                         <th></th>
                         <th class="text-center">Recibo #</th>
                         <th>Contrato</th>
+                        <th>Facturación</th>
                         <th>Monto {{ Session::get('coin') }}</th>
                         <th>Vencimiento</th>
                         <th>Estatus</th>
@@ -131,6 +135,8 @@
 
 @push('scripts')
 <script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
+<script src="{{ URL::asset('"js/plugins/dataTables/sortDate.js') }}"></script>
+
 
     <!-- Page-Level Scripts -->
     <script>
@@ -144,9 +150,10 @@
                 { "sWidth": "5%" },  // 1st column width 
                 { "sWidth": "15%" }, // 2nd column width
                 { "sWidth": "20%" }, // 3nd column width
-                { "sWidth": "20%" }, // 4nd column width
-                { "sWidth": "20%" }, // 5nd column width
-                { "sWidth": "20%" }  // 6nd column width
+                { "sWidth": "15%", "sType": "date-uk" }, // 4nd column width
+                { "sWidth": "15%" }, // 5nd column width
+                { "sWidth": "15%", "sType": "date-uk" }, // 6nd column width
+                { "sWidth": "15%" }  // 7nd column width
               ],              
               responsive: false,              
               dom: '<"html5buttons"B>lTfgitp',

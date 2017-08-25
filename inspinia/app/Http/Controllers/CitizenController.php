@@ -52,6 +52,22 @@ class CitizenController extends Controller
     }
     
 
+    public function invoices($citizen_id){
+
+        $company = Company::first();        
+        $citizen = Citizen::find(Crypt::decrypt($citizen_id));        
+        return view('citizens.invoices')->with('citizen', $citizen)
+                                    ->with('company', $company);
+    }
+    
+    public function payments($citizen_id){
+
+        $company = Company::first();        
+        $citizen = Citizen::find(Crypt::decrypt($citizen_id));        
+        return view('citizens.payments')->with('citizen', $citizen)
+                                    ->with('company', $company);
+    }
+
     /**
      * Show the form for creating a new resource.
      *

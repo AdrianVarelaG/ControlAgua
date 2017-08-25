@@ -11,6 +11,7 @@ use App\Models\Municipality;
 use App\Models\State;
 use App\Models\Company;
 use Illuminate\Support\Facades\Crypt;
+use Session;
 
 
 class MunicipalityController extends Controller
@@ -30,17 +31,21 @@ class MunicipalityController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($state_id)
+    public function index()
     {
         $company = Company::first();
-        $state = State::find($state_id);
-        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');                  
-        $municipalities = Municipality::where('state_id', $state_id)->get();  
-        return view('municipalities.index')->with('municipalities', $municipalities)
-                                            ->with('states', $states)
+        $state = State::find(Session::get('state_id'));
+        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');
+        return view('municipalities.index')->with('states', $states)
                                             ->with('state', $state)
                                             ->with('company', $company);  
     }
+
+    public function change_state($state_id){
+        
+        Session::put('state_id', $state_id);
+        return redirect()->route('municipalities.index');
+    }    
 
     /**
      * Show the form for creating a new resource.

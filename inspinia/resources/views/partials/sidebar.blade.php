@@ -37,8 +37,8 @@
                     <li class="{{ set_active(['states']) }}">
                         <a href="{{URL::to('states')}}">Estados</a>
                     </li>
-                    <li class="{{ set_active(['municipalities.index']) }}">
-                        <a href="{{URL::to('municipalities.index', 1)}}">Municipios</a>
+                    <li class="{{ set_active(['municipalities']) }}">
+                        <a href="{{URL::to('municipalities')}}">Municipios</a>
                     </li>
                     <li class="{{ set_active(['administrations']) }}">
                         <a href="{{URL::to('administrations')}}">Administraciones</a>
@@ -96,11 +96,11 @@
                     </li>                    
                 </ul>
             </li>
-            <li class="{{ set_active(['payments.index', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
+            <li class="{{ set_active(['payments', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
                 <a href="index.html"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    <li class="{{ set_active(['payments.index']) }}">
-                        <a href="{{URL::to('payments.index', 1)}}">Consultar</a>
+                    <li class="{{ set_active(['payments']) }}">
+                        <a href="{{URL::to('payments')}}">Consultar</a>
                     </li>
                     <li class="{{ set_active(['payments.contracts_debt']) }}">
                         <a href="{{URL::to('payments.contracts_debt')}}">Pagar</a>
@@ -174,6 +174,27 @@
             </li>
         <!-- /Menu CAJ Cajero -->
         @endif        
+        
+        <!-- Menu DDA Departamento de Aguas -->
+        @if(Session::get('user_role')=='DDA')
+            <li class="{{ set_active(['payments', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
+                <a href="index.html"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['payments']) }}">
+                        <a href="{{URL::to('payments')}}">Consultar</a>
+                    </li>
+                    <li class="{{ set_active(['payments.contracts_debt']) }}">
+                        <a href="{{URL::to('payments.contracts_debt')}}">Pagar</a>
+                    </li>                    
+                    <li class="{{ set_active(['payments.contracts_solvent']) }}">
+                        <a href="{{URL::to('payments.contracts_solvent')}}">Pagar por Adelantado</a>
+                    </li>                                                            
+                </ul>
+            </li>
+        <!-- / Menu DDA Departamento de Aguas -->
+        @endif        
+
+
         </ul>
     </div>
 </nav>

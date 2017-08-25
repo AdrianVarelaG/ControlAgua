@@ -10,8 +10,7 @@
 <link href="{{ URL::asset('css/plugins/iCheck/custom.css') }}" rel="stylesheet">
 <!-- DatePicker -->
 <link href="{{ URL::asset('css/plugins/datapicker/datepicker3.css') }}" rel="stylesheet">
-<!-- Animate -->
-<link href="{{ URL::asset('css/animate.css') }}" rel="stylesheet">
+
 @endpush
 
 @section('page-header')
@@ -42,9 +41,8 @@
                     <div class="col-md-12 col-sm-12 col-xs-12">
 
                         {{ Form::open(array('url' => 'payments/' . $payment->id, 'id'=>'form'), ['class'=>'form-horizontal'])}}
-                        {!! Form::hidden('hdd_contract_id', $contract->id, ['id'=>'hdd_contract_id']) !!}
-                        {!! Form::hidden('hdd_discount_id', 0, ['id'=>'hdd_discount_id']) !!}
-                        {!! Form::hidden('hdd_net_debt', $contract->balance, ['id'=>'hdd_net_debt']) !!}
+                         {!! Form::hidden('hdd_contract_id', $contract->id, ['id'=>'hdd_contract_id']) !!}
+                        {!! Form::hidden('hdd_discount_id', null, ['id'=>'hdd_discount_id']) !!}
                         @if($payment->id)
                             {{ Form::hidden ('_method', 'PUT') }}
                         @endif
@@ -79,10 +77,45 @@
                         <!-- 2da Columna -->
                         <div class="col-sm-7">
                             
-                        <h2>Saldo al {{ $today->format('d/m/Y') }}</h2>
-                        <h3>
-                            {{ money_fmt($contract->balance) }} {{ Session::get('coin') }}                             <button type="button" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal4"><i class="fa fa-search-plus" aria-hidden="true"></i> Detalle</button>
-                        </h3>
+                        <h2>Recibos pendientes</h2>
+
+                        <!-- Listado de recibos pendientes -->  
+                        @if($contract->invoices->where('status', 'P'))
+                            <div class="table-responsive">
+                                <table id="datatable-buttons" class="table table-striped table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Facturación</th>
+                                            <th class="text-right">Monto {{ Session::get('coin') }}</th>
+                                            <th class="text-center">Vencimiento</th>
+                                            <th class="text-center">Estatus</th>                          
+                                        </tr>
+                                    </thead>
+                                    <tbody>                  
+                                        @php($i=0)                        
+                                        @foreach($invoices as $invoice)
+                                        <tr>
+                                            <td>
+                                                <div class="i-checks">
+                                                {!! Form::checkbox('invoices[]', $invoice->id, null, ['id'=>'invoice['.$i.']', 'class'=>'flat', 'required']) !!}
+                                                </div>
+                                                {!! Form::hidden('amount',  $invoice->total , ['id'=>'amount['.$i++.']']) !!}
+                                            </td>
+                                            <td class="text-center"><strong>{{ $invoice->id }}</strong></td>
+                                            <td class="text-center">{{ $invoice->month }}/{{ $invoice->year }}</td>
+                                            <td class="text-right">{{ money_fmt($invoice->total) }}</td>
+                                            <td class="text-center">{{ $invoice->date_limit->format('d/m/Y') }}
+                                            </td>
+                                            <td class="text-center"><p><span class="label {{ $invoice->label_status }}">{{ $invoice->status_description }}</span></p></td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                        <!-- /Listado de recibos pendientes -->                        
                         </div>
                         <!-- /2da Columna -->
 
@@ -115,60 +148,24 @@
                                     @endif
                                 @endforeach
                             @endif
-                        </div>                        
+                        </div>
+                        
                         </div>
 
-                        <!-- Resumen a Pagar -->
-                        <div class="col-md-6 col-sm-12 col-xs-12 col-md-offset-3">                    
-                            <div class="panel panel-primary">
-                            <div class="panel-heading">Seleccione el monto a pagar <strong>({{ Session::get('coin') }})</strong></div>
-                                <div class="panel-body">
-                        <table class="table table-responsive table-hover">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="i-checks">
-                                            {!! Form::radio('select_amount', 'total', true, ['id'=>'select_amount']) !!}
-                                        </div>                                        
-                                    </td>
-                                    <td>
-                                        <p id='total_desglose'><strong>TOTAL DEUDA</strong> : Saldo - Descuento ({{ money_fmt($contract->balance) }} - 0,00) : </p>
-                                    </td>
-                                    <td class="text-center">
-                                        <h3 id='total_monto'>{{ money_fmt($contract->balance) }}</h3>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="i-checks">
-                                            {!! Form::radio('select_amount', 'other', false, ['id'=>'select_amount']) !!}
-                                        </div>
-                                    </td>
-                                    <td><strong>OTRO MONTO</strong></td>
-                                    <td class="text-center">
-                                    {!! Form::text('other_amount', null, ['id'=>'other_amount', 'class'=>'form-control', 'type'=>'number', 'min'=>'0' ,'placeholder'=>'', 'required', 'disabled']) !!}
-                                    </td>
-                                </tr>                            
-                            </tbody>
-                        </table>                            
-                                    
 
-                                </div>
-                            </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
+                            <h4><label id='total_recibos'>Sub Total: </label></h4>
+                            <h4><label id='total_descuento'>Descuento: </label></h4>
+                            <h3><label id='total_monto'>TOTAL PAGO: </label></h3>
                         </div>
-                        <!-- /Resumen a Pagar -->
 
-
-
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div class="form-group pull-right">
+                            <div class="form-group pull-right">
                                 <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
                                     <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Pagar</button>
                                     <button type="reset" id="btn_reset" class="btn btn-sm btn-default">Reset</button>
                                     <a href="{{URL::to('payments.contracts_debt/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                                 </div>
-                    </div>
-                </div>                                                
+                            </div>                                                
                         
 
                         {{ Form::close() }}
@@ -178,64 +175,6 @@
             </div>
             <!-- /ibox-content -->
             
-            <!-- Invoice Details MODAL-->
-            <div class="modal inmodal" id="myModal4" tabindex="-1" role="dialog"  aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content animated fadeIn">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <h4 class="modal-title">Detalle Deuda</h4>
-                            <h4>Recibos por Cancelar</h4>
-                        </div>
-                        <div class="modal-body">
-                        @if($contract->invoices->where('status', 'P'))
-                            <div class="table-responsive">
-                                <table id="datatable-buttons" class="table table-striped table-condensed">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-center">#</th>
-                                            <th class="text-center">Facturación</th>
-                                            <th class="text-center">Vencimiento</th>
-                                            <th class="text-center">Estatus</th>
-                                            <th class="text-right">Monto {{ Session::get('coin') }}</th>          
-                                        </tr>
-                                    </thead>
-                                    <tbody>                  
-                                        @foreach($invoices as $invoice)
-                                        <tr>
-                                            <td class="text-center"><strong>{{ $invoice->id }}</strong></td>
-                                            <td class="text-center">{{ $invoice->month }}/{{ $invoice->year }}</td>
-                                            <td class="text-center">{{ $invoice->date_limit->format('d/m/Y') }}
-                                            </td>
-                                            <td class="text-center"><p><span class="label {{ $invoice->label_status }}">{{ $invoice->status_description }}</span></p></td>
-                                            <td class="text-right">{{ money_fmt($invoice->total) }}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th class="text-center"></th>
-                                            <th class="text-center"></th>
-                                            <th class="text-center"></th>
-                                            <th class="text-center"></th>
-                                            <th class="text-right">
-                                                {{ money_fmt($invoices->sum('total')) }} {{ Session::get('coin') }}
-                                            </th>                                
-                                        </tr>
-                                    </tfood>                                    
-                                </table>
-                            </div>
-                        @endif
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-white" data-dismiss="modal">Cerar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Invoice Details MODDAL-->
-        
-
         </div>
     </div>
 </div>
@@ -319,17 +258,7 @@
             radioClass: 'iradio_square-green',
         });
 
-        $('#select_amount').on('ifChecked', function(event) {
-            $('#other_amount').val('');
-            $('#other_amount').attr('disabled', true);
-        });
-
-        $('#select_amount').on('ifUnchecked', function(event) {
-            $('#other_amount').attr('disabled', false);
-            $('#other_amount').focus();
-        });    
-
-        
+    
         $('#age_discount').on('ifChecked', function(event){ 
             $("input[id^='other_discount']").iCheck('uncheck'); 
             $('#div_other_discounts').hide();
@@ -352,9 +281,6 @@
         });
         
         $('#btn_reset').on('click', function(event){ 
-            $("#hdd_discount_id").val(0);
-            $("#hdd_net_debt").val({{ $contract->balance }});
-            $("#type").val(null).trigger("change"); 
             $("input[id^='invoice']").iCheck('uncheck');
             $("input[id^='other_discount']").iCheck('uncheck');
             if ('{{ $contract->citizen->age_discount() }}'=='1'){
@@ -373,8 +299,11 @@
         var amount=0;
         var discount_id=0;
         //Recorre los recibos seleccinados
-        //total = parseFloat(document.getElementById("amount["+i+"]").value);
-        total = parseFloat({{ $contract->balance }});
+        for (i=0; i< {{ $invoices->count() }}; i++){
+            if (document.getElementById("invoice["+i+"]").checked){
+                total= total + parseFloat(document.getElementById("amount["+i+"]").value);
+            }
+        }
         tot_invoices = total;
         discount = 0;
         //Descuento 3ra edad
@@ -414,11 +343,11 @@
             }        
         }
         $('#hdd_discount_id').val(discount_id);
-        $('#hdd_net_debt').val(total);
         
 
-        document.getElementById("total_monto").innerHTML = money_fmt(total);
-        document.getElementById("total_desglose").innerHTML = "TOTAL DEUDA : Saldo - Descuento ("+money_fmt(tot_invoices)+" - "+money_fmt(discount)+")";        
+        document.getElementById("total_recibos").innerHTML = "Sub Total: " + money_fmt(tot_invoices);
+        document.getElementById("total_descuento").innerHTML = "Descuento: " + money_fmt(discount);
+        document.getElementById("total_monto").innerHTML = "PAGO TOTAL: " + money_fmt(total);        
     }       
     
     function money_fmt(num){

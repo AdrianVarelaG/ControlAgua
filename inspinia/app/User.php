@@ -34,6 +34,8 @@ class User extends Authenticatable
             return "Operador";
         }else if($this->role == 'CAJ'){
             return "Cajero";
+        }else if($this->role == 'DDA'){
+            return "Departamento de Aguas";
         }
     }
 

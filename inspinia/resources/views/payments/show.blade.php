@@ -77,7 +77,7 @@
                             </div>
                             <div class="text-right">
                                     <a href="{{ route('payments.print_voucher', Crypt::encrypt($payment->id)) }}" class="btn btn-sm btn-primary"><i class="fa fa-print"></i> Imprimir</a>
-                                    <a href="{{URL::to('payments')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                                    <a href="{{ URL::previous() }}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                             </div>                            
                         </div>
                 </div>

@@ -10,6 +10,11 @@ class Payment extends Model
     protected $dates = ['date'];
 
     //*** Relations ***    
+    public function citizen()
+    {        
+        return $this->belongsTo('App\Models\Citizen');
+    }   
+    
     public function contract()
     {        
         return $this->belongsTo('App\Models\Contract');

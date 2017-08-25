@@ -41,10 +41,11 @@
             <!-- ibox-content- -->
             <div class="ibox-content">
               
-            {{ Form::open(array('url' => 'municipalities.index/1', 'id' => 'form', 'method' => 'get'), ['' ])}}
+            {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+            {{ Form::close() }}
               
 
-            @if($municipalities->count())
+            @if($state->municipalities->count())
                 <div class="table-responsive">
                     
                   @include('partials.errors')
@@ -74,7 +75,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($municipalities as $municipality)
+                    @foreach($state->municipalities as $municipality)
                     <tr class="gradeX">
                         <td class="text-center">                            
                         <!-- Split button -->
@@ -87,11 +88,13 @@
                                     <li class="divider"></li>
                                     <li>
                                         <!-- href para eliminar registro -->                            
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                        
                                         <form action="{{ route('municipalities.destroy', $municipality->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Estado?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
                                         </form>
+                                        <br/><br/>
                                     </li>
 
                                 </ul>
@@ -134,7 +137,6 @@
                   </div>                
                 @endif
                 
-                {{ Form::close() }}                 
                 </div>
                 <!-- /ibox-content- -->
             </div>
@@ -260,7 +262,7 @@
 
       $('#state').on("change", function (e) { 
         console.log("Cambio "+$('#period').val());
-        url = `{{URL::to('municipalities.index/')}}/${e.target.value}`;
+        url = `{{URL::to('municipalities.change_state/')}}/${e.target.value}`;
         $('#form').attr('action', url);
         $('#form').submit();
       });

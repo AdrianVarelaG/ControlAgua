@@ -90,7 +90,7 @@ class Citizen extends Model
 
         $expired_invoices=0;
         
-        foreach ($this->invoices as $invoice) {
+        foreach ($this->invoices->where('status', 'P') as $invoice) {
         
              if($invoice->delayed_days > 0){
                 $expired_invoices = $expired_invoices + 1;

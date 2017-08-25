@@ -26,8 +26,7 @@ use Session;
 class PaymentController extends Controller
 {
     
-    var $str_description = "";
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -190,31 +189,39 @@ class PaymentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(PaymentRequestStore $request)
-    {                
-        $tot_debt=0;
+    {
+        $str_description = "";
+        $tot_invoices =0;
         $tot_discount=0;
         $total =0;
         //1. Se registra el pago
         $payment = new Payment();
         $payment->date= (new ToolController)->format_ymd($request->input('date'));
         $contract = Contract::find($request->input('hdd_contract_id'));
-        $tot_debt = $contract->balance;
         $payment->citizen_id = $contract->citizen->id;
         $payment->contract_id = $contract->id;
         $payment->type= $request->input('type');
         $payment->observation = $request->input('observation');
-        $payment->amount =0;
-        $tot_debt= $contract->balance;
+        $payment->amount= 0;
         $payment->save();
-        //2. Se calcula monto del descuento si el cajero ha seleccionado alguno       
-        if($request->input('hdd_discount_id')>0){    
-            $discount = Discount::find($request->input('hdd_discount_id'));        
+        //2. Se actualiza el status de los recibos seleccionados.        
+        foreach ($request->input('invoices') as $invoice_id) {
+            $invoice = Invoice::find($invoice_id);
+            $invoice->payment_id = $payment->id;
+            $invoice->status = 'C';
+            $tot_invoices = $tot_invoices + $invoice->total;
+            $str_description = $str_description.' '.$invoice->month.'/'.$invoice->year;            
+            $invoice->save();
+        }        
+        //3. Se calcula monto del descuento
+        $discount = Discount::find($request->input('hdd_discount_id'));
+        if($discount){
             if($discount->type == 'M'){
                 $tot_discount = $discount->amount;
             }else if($discount->type == 'P'){
-                $tot_discount = $tot_debt * ($discount->percent/100); //Siempre se hace un descuento sobre el total de la deuda asi pague menos.
+                $tot_discount = $tot_invoices * ($discount->percent/100);
             }
-            //3. Se registra el movimiento de descuento
+            //4. Se registra el movimiento de descuento
             $movement = new Movement();
             $movement->citizen_id = $contract->citizen->id;
             $movement->contract_id = $contract->id;
@@ -234,19 +241,10 @@ class PaymentController extends Controller
             $payment_detail->save();
 
         }
-        //4. Cancela los recibos pendientes de acuerdo al monto cancelado
-        if($request->input('select_amount')=='total'){
-            $this->cancel_invoices($contract, $payment, $request->input('hdd_net_debt'), $request->input('hdd_net_debt'));
-        }elseif($request->input('select_amount')=='other'){
-            $this->cancel_invoices($contract, $payment, $request->input('hdd_net_debt'), floatval($request->input('other_amount'))+$tot_discount);
-        }        
         //5. Se actualiza el monto del pago
-        $payment->description = $this->str_description;
-        if($request->input('select_amount')=='total'){
-            $payment->amount= $tot_debt-$tot_discount;
-        }else if($request->input('select_amount')=='other'){
-            $payment->amount= $request->input('other_amount');
-        }
+        $str_description = 'Pago Servicio de Agua Meses ('.$str_description.' )';
+        $payment->description = $str_description;
+        $payment->amount= $tot_invoices-$tot_discount;
         $payment->save();
         //6. Se registra el movimiento del pago
         $movement = new Movement();
@@ -256,86 +254,22 @@ class PaymentController extends Controller
         $movement->type = 'P';
         $movement->payment_id = $payment->id;
         $movement->date = $payment->date= (new ToolController)->format_ymd($request->input('date'));
-        if($request->input('select_amount')=='total'){
-            $movement->amount = $tot_debt-$tot_discount;
-        }else if($request->input('select_amount')=='other'){
-            $movement->amount= $request->input('other_amount');
-        }        
-        $movement->description = $this->str_description;
+        $movement->amount = $tot_invoices-$tot_discount;
+        $movement->description = $str_description;
         $movement->save();
         //Se registra el monto total de los recibos como detalle del pago
         $payment_detail = new PaymentDetail();
         $payment_detail->payment_id = $payment->id;
         $payment_detail->type = 'C';
-        if($request->input('select_amount')=='total'){
-            $payment_detail->amount= $tot_debt;
-        }else if($request->input('select_amount')=='other'){
-            $payment_detail->amount= $request->input('other_amount')+$tot_discount;;
-        }        
-        $payment_detail->description = $this->str_description;
+        $payment_detail->amount = $tot_invoices;
+        $payment_detail->description = $str_description;
         $payment_detail->save();
         
         return redirect()->route('payments.contracts_debt')->with('notity', 'create');
     }
 
-    
-    public function cancel_invoices($contract, $payment, $net_debt, $payment_amount){
-        $months_canceled=0;
-        $invoices = $contract->invoices()->where('status', 'P')->orderBy('date')->get();        
-        //Si el pago es mayor o igual a la deuda neta se cancelas todos los recibos
-        if(floatval($payment_amount) >= floatval($net_debt)){
-            foreach ($invoices as $invoice) {
-                $invoice->payment_id = $payment->id;
-                $invoice->status = 'C';
-                $this->str_description = $this->str_description.' '.$invoice->month.'/'.$invoice->year;            
-                $invoice->save();
-                $months_canceled++;
-            }
-            if($months_canceled==0){
-                $this->str_description = 'Abono a Deuda';
-            }elseif($months_canceled==1){
-                $this->str_description = 'Pago Servicio de Agua Mes ('.$this->str_description.')';
-            }elseif($months_canceled>1){
-                $this->str_description = 'Pago Servicio de Agua Meses ('.$this->str_description.')';
-            }        
-        //Si el pago es menor se cancelan los recibos que se puedan con el monto dado por el ciudadano
-        }else{
-            //PRIMER CHEQUEO: Cancela los recibos en orden cronologico
-            foreach ($invoices as $invoice) {
-                if($payment_amount >= $invoice->total){
-                    $invoice->payment_id = $payment->id;
-                    $invoice->status = 'C';
-                    $this->str_description = $this->str_description.' '.$invoice->month.'/'.$invoice->year;            
-                    $invoice->save();
-                    $months_canceled++;
-                    $payment_amount = $payment_amount - $invoice->total;
-                }
-            }
-            //SEGUNDO CHEQUEO: Cancela los recibos pendientes con montos mas pequeños
-            $invoices = $contract->invoices()->where('status', 'P')->orderBy('total')->get();
-                foreach ($invoices as $invoice) {
-                if($payment_amount >= $invoice->total){
-                    $invoice->payment_id = $payment->id;
-                    $invoice->status = 'C';
-                    $this->str_description = $this->str_description.' '.$invoice->month.'/'.$invoice->year;            
-                    $invoice->save();
-                    $months_canceled++;
-                    $payment_amount = $payment_amount - $invoice->total;
-                }
-            }
-            if($months_canceled==0){
-                $this->str_description = 'Abono a Deuda';
-            }elseif($months_canceled==1){
-                $this->str_description = 'Pago Servicio de Agua Mes ('.$this->str_description.' )';
-            }elseif($months_canceled>1){
-                $this->str_description = 'Pago Servicio de Agua Meses ('.$this->str_description.' )';
-            }
-        }
-    }
-
-
     public function payment_future(Request $request){
-                
+        
         $str_description = "";
         $tot_invoices =0;
         $tot_discount=0;

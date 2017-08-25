@@ -63,6 +63,9 @@
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
                                     <li><a href="{{ route('contracts.balance', [Crypt::encrypt($contract->id), '3']) }}"><i class="fa fa-th-list"></i> Estado de Cuenta</a></li>
+                                    <li><a href="{{ route('contracts.invoices', [Crypt::encrypt($contract->id)]) }}"><i class="fa fa-file-text-o"></i> Recibos</a></li>
+                                    <li><a href="{{ route('contracts.payments', [Crypt::encrypt($contract->id)]) }}"><i class="fa fa-money"></i> Pagos</a></li>
+                                    <li class="divider"></li>                                    
                                     <li><a href="{{ route('contracts.edit', Crypt::encrypt($contract->id)) }}"><i class="fa fa-pencil"></i> Editar</a></li>
                                     <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
                                     <li class="divider"></li>

@@ -21,6 +21,8 @@ Route::get('authorizations.status/{id}', ['as' => 'authorizations.status', 'uses
 
 //Citizen
 Route::resource("citizens","CitizenController");
+Route::get('citizens.invoices/{citizen_id}', ['as' => 'citizens.invoices', 'uses' => 'CitizenController@invoices']);
+Route::get('citizens.payments/{citizen_id}', ['as' => 'citizens.payments', 'uses' => 'CitizenController@payments']);
 Route::get('citizens.change_view/{view}', ['as' => 'citizens.change_view', 'uses' => 'CitizenController@change_view']);
 Route::get('citizens.status/{id}', ['as' => 'citizens.status', 'uses' => 'CitizenController@status']);
 Route::get('citizens.balance/{id}/{period}', ['as' => 'citizens.balance', 'uses' => 'CitizenController@balance']);
@@ -33,6 +35,8 @@ Route::get('get_municipalities/{id}', 'MunicipalityController@getMunicipalities'
 
 //Contract
 Route::resource("contracts","ContractController");
+Route::get('contracts.invoices/{contract_id}', ['as' => 'contracts.invoices', 'uses' => 'ContractController@invoices']);
+Route::get('contracts.payments/{contract_id}', ['as' => 'contracts.payments', 'uses' => 'ContractController@payments']);
 Route::get('contracts.create/{id}', ['as' => 'contracts.create', 'uses' => 'ContractController@create']);
 Route::get('contracts.status/{id}', ['as' => 'contracts.status', 'uses' => 'ContractController@status']);
 Route::get('contracts.citizen_contracts/{id}', ['as' => 'contracts.citizen_contracts', 'uses' => 'ContractController@citizen_contracts']);
@@ -83,12 +87,12 @@ Route::auth();
 
 //Municipality
 Route::resource("municipalities","MunicipalityController");
-Route::get('municipalities.index/{state_id}', ['as' => 'municipalities.index', 'uses' => 'MunicipalityController@index']);
+Route::get('municipalities.change_state/{state_id}', ['as' => 'municipalities.change_state', 'uses' => 'MunicipalityController@change_state']);
 Route::get('municipalities.status/{id}', ['as' => 'municipalities.status', 'uses' => 'MunicipalityController@status']);
 
 //Payments
 Route::resource("payments","PaymentController");
-Route::get('payments.index/{period}', ['as' => 'payments.index', 'uses' => 'PaymentController@index']);
+Route::get('payments.change_period/{period}', ['as' => 'payments.change_period', 'uses' => 'PaymentController@change_period']);
 Route::post('payments.payment_future', ['as' => 'payments.payment_future', 'uses' => 'PaymentController@payment_future']);
 Route::get('payments.create/{id}', ['as' => 'payments.create', 'uses' => 'PaymentController@create']);
 Route::get('payments.contracts_debt', ['as' => 'payments.contracts_debt', 'uses' => 'PaymentController@contracts_debt']);

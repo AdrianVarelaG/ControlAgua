@@ -46,6 +46,8 @@ class Authenticate
                 Session::put('app_name', $setting->app_name);
                 Session::put('coin', $setting->coin);
                 Session::put('money_format', $setting->money_format);
+                Session::put('state_id', 1);
+                Session::put('payments_period', 1);
                 Session::put('create_notification', $setting->create_notification);
                 Session::put('update_notification', $setting->update_notification);
                 Session::put('delete_notification', $setting->delete_notification);         

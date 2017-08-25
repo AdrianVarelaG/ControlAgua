@@ -26,8 +26,7 @@ class PaymentRequestStore extends Request
     {
         $rules = [
             'date' => 'required|date_format:d/m/Y',
-            'type' => 'required',
-            'invoices' => 'required'            
+            'type' => 'required'
         ];        
                 
         return $rules;        
@@ -39,7 +38,6 @@ class PaymentRequestStore extends Request
             'date.required'  => 'La fecha del pago es obligatoria.',
             'date.date_format'  => 'La fecha del pago no es una fecha valida.',
             'type.required'  => 'Debe seleccionar un tipo de pago.',
-            'invoices.required'  => 'Debe seleccionar al menos un recibo a pagar.'
         ];
     }
 

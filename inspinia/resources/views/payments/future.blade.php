@@ -112,15 +112,15 @@
                             
                             <!-- IVA -->
                             <div class="i-checks">
-                                    <p>{!! Form::checkbox('iva', $iva->percent,  false, ['id'=>'iva',]) !!} {{ $iva->description }}. {{ '('.money_fmt($iva->percent).' %) del total a pagar' }}.</p>
+                                    <p>{!! Form::checkbox('iva', $iva->percent,  true, ['id'=>'iva']) !!} {{ $iva->description }}. {{ '('.money_fmt($iva->percent).' %) del total a pagar' }}.</p>
                             </div>
                              <!-- /IVA -->
 
                         </div>
                         <!-- /2da Columna -->
 
-                        <!-- 3ra Columna -->
-                        <div class="col-sm-6">
+                    <!-- 3ra Columna -->
+                    <div class="col-sm-6">
                             <h2>Descuento</h2>
                              <!-- 3ra Edad -->
                              @if($contract->citizen->age_discount())
@@ -148,26 +148,49 @@
                                     @endif
                                 @endforeach
                             @endif
-                        </div>
-                        
-                        </div>
+                        </div>                                            
+                    </div>
 
-
-                        <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
-                            <h4><label id='servicios_cargos'>Servicio + Cargos: </label></h4>
-                            <h4><label id='tot_iva'>IVA: </label></h4>
-                            <h4><label id='sub_tot'>SUB TOTAL: </label></h4>                            
-                            <h4><label id='total_descuento'>Descuento: </label></h4>
-                            <h3><label id='total_monto'>TOTAL PAGO: </label></h3>
+                    <!-- Resumen a Pagar -->
+                    <div class="col-md-6 col-sm-12 col-xs-12 col-md-offset-3">                    
+                    <br/>    
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">Monto a pagar <strong>({{ Session::get('coin') }})</strong></div>
+                            <div class="panel-body">
+                                <table class="table table-responsive table-condensed">
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <p>Servicio + Cargos:</p>
+                                                <p>IVA:</p>
+                                                <strong><p>SUB TOTAL:</p></strong>                            
+                                                <p>Descuento:</p>
+                                                <strong><h3>TOTAL PAGO:</h3></strong>
+                                            </td>
+                                            <td class="text-right">
+                                                <p id='servicios_cargos'></p>
+                                                <p id='tot_iva'></p>
+                                                <strong><p id='sub_tot'></p></strong>
+                                                <p id='total_descuento'></p>
+                                                <strong><h3 id='total_monto'></h3><strong>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+                    </div>
+                    <!-- /Resumen a Pagar -->
 
-                            <div class="form-group pull-right">
-                                <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
-                                    <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Pagar</button>
-                                    <button type="reset" id="btn_reset" class="btn btn-sm btn-default">Reset</button>
-                                    <a href="{{URL::to('payments.contracts_solvent/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
-                                </div>
-                            </div>                                                
+                    <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
+                        <div class="form-group pull-right">
+                            <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
+                                <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Pagar</button>
+                                <button type="reset" id="btn_reset" class="btn btn-sm btn-default">Reset</button>
+                                <a href="{{URL::to('payments.contracts_solvent/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                            </div>
+                        </div>
+                    </div>                                                
                         
 
                         {{ Form::close() }}
@@ -381,11 +404,11 @@
         total = total - discount;
 
         $('#hdd_discount_id').val(discount_id);
-        document.getElementById("servicios_cargos").innerHTML = "Servicio + Cargos: " +money_fmt(tot_invoices)+" + "+money_fmt(tot_charges)+ " = " +money_fmt(tot_charges+tot_invoices);
-        document.getElementById("tot_iva").innerHTML = "IVA: " + money_fmt(iva);
-        document.getElementById("sub_tot").innerHTML = "SUB TOTAL: " + money_fmt(tot_charges+tot_invoices+iva);
-        document.getElementById("total_descuento").innerHTML = "Descuento: " + money_fmt(discount);
-        document.getElementById("total_monto").innerHTML = "PAGO TOTAL: " + money_fmt(total)+ " {{ Session::get('coin') }}";        
+        document.getElementById("servicios_cargos").innerHTML = money_fmt(tot_invoices)+" + "+money_fmt(tot_charges)+ " = " +money_fmt(tot_charges+tot_invoices);
+        document.getElementById("tot_iva").innerHTML = money_fmt(iva);
+        document.getElementById("sub_tot").innerHTML = money_fmt(tot_charges+tot_invoices+iva);
+        document.getElementById("total_descuento").innerHTML = money_fmt(discount);
+        document.getElementById("total_monto").innerHTML = money_fmt(total)+ " {{ Session::get('coin') }}";        
     }
     
     function money_fmt(num){

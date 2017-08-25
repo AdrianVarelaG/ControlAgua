@@ -139,6 +139,8 @@
 
 @push('scripts')
 	<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
+  <script src="{{ URL::asset('"js/plugins/dataTables/sortDate.js') }}"></script>
+
 
     <!-- Page-Level Scripts -->
     <script>
@@ -154,8 +156,8 @@
                 { "sWidth": "15%" }, // 3nd column width
                 { "sWidth": "12%" }, // 4nd column width
                 { "sWidth": "12%" }, // 5nd column width
-                { "sWidth": "12%" }, // 6nd column width                
-                { "sWidth": "12%" }  // 7nd column width
+                { "sWidth": "12%", "sType": "date-uk" }, // 6nd column width                
+                { "sWidth": "12%", "sType": "date-uk" }, // 7nd column width
               ],              
               responsive: false,              
               dom: '<"html5buttons"B>lTfgitp',

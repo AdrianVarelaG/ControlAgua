@@ -33,6 +33,23 @@ class ContractController extends Controller
                                     ->with('company', $company);  
     }
     
+    public function invoices($contract_id){
+
+        $company = Company::first();        
+        $contract = Contract::find(Crypt::decrypt($contract_id));        
+        return view('contracts.invoices')->with('contract', $contract)
+                                    ->with('company', $company);
+    }
+    
+    public function payments($contract_id){
+
+        $company = Company::first();        
+        $contract = Contract::find(Crypt::decrypt($contract_id));        
+        return view('contracts.payments')->with('contract', $contract)
+                                    ->with('company', $company);
+    }
+    
+
     /**
      * Display a listing of the resource.
      *
