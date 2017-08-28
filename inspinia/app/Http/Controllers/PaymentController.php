@@ -117,8 +117,9 @@ class PaymentController extends Controller
     {
         $company = Company::first();                  
         $contracts = Contract::all();
-        //$contracts = $contracts->
+        $current_year = Carbon::now()->year;
         return view('payments.contracts_solvent')->with('contracts', $contracts)
+                                    ->with('current_year', $current_year)
                                     ->with('company', $company);  
     }
 
@@ -130,9 +131,22 @@ class PaymentController extends Controller
     public function create($contract_id)
     {
         $payment = new Payment();
-        $today = Carbon::now();
+        $today = Carbon::now();        
         $contract = Contract::find(Crypt::decrypt($contract_id));
         $invoices = $contract->invoices()->where('status', 'P')->get();
+        $previous_date_m2 = (new Carbon('first day of this month'))->addDays(14)->subMonths(2)->format('Y-m-t');
+        $previous_date_m1 = (new Carbon('first day of this month'))->addDays(14)->subMonths(1)->format('Y-m-t');
+        $previous_balance_m2 = $contract->balance_date($previous_date_m2);
+        $previous_balance_m1 = $contract->balance_date($previous_date_m1);
+        
+        $credits_m1 = $contract->credits_range($previous_date_m2, $previous_date_m1);
+        $debits_m1 = $contract->debits_range($previous_date_m2, $previous_date_m1);
+
+        $credits = $contract->credits_from($previous_date_m1);
+        $debits = $contract->debits_from($previous_date_m1);
+        
+
+        //return "Balance 2: ".$previous_balance_m2." (Creditos ".$credits_m1->sum('amount'). " - Debitos: ".$debits_m1->sum('amount'). ") Balance 1: ".$previous_balance_m1. "Creditos Mes Actual ".$credits->sum('amount')." Debitos Mes Actual ".$debits->sum('amount')." Balance Final ".$contract->balance;
         $age_discount = Discount::find(1);
         $other_discounts = Discount::where('id','>' , 1)
                                     ->where('status', 'A')->get();
@@ -142,7 +156,15 @@ class PaymentController extends Controller
                                     ->with('contract', $contract)
                                     ->with('invoices', $invoices)
                                     ->with('age_discount', $age_discount)
-                                    ->with('other_discounts', $other_discounts);
+                                    ->with('other_discounts', $other_discounts)
+                                    ->with('previous_balance_m2', $previous_balance_m2)
+                                    ->with('previous_balance_m1', $previous_balance_m1)
+                                    ->with('balance', $contract->balance)
+                                    ->with('credits_m1', $credits_m1)
+                                    ->with('debits_m1', $debits_m1)
+                                    ->with('credits', $credits)
+                                    ->with('debits', $debits);
+
     }
 
     /**
@@ -153,12 +175,11 @@ class PaymentController extends Controller
     public function future($contract_id)
     {
         $payment = new Payment();
+        $today = Carbon::now(); 
         $contract = Contract::find(Crypt::decrypt($contract_id));
-        $last_invoice_canceled = $contract->invoices()->where('status', 'C')
-                                                    ->orderBy('year', 'DESC')
-                                                    ->orderBy('month', 'DESC')->first();
+        $last_invoice_canceled = $contract->last_invoice_canceled;
         $last_month = $last_invoice_canceled->month;
-        $last_year = $last_invoice_canceled->year;
+        $last_year = $last_invoice_canceled->year;            
         //Calcular mes y año siguientes
         $carbon_next_date = (new Carbon($last_year.'-'.$last_month.'-15'))->addMonths(1);
         $initial_month =  $carbon_next_date->format('n');
@@ -173,6 +194,7 @@ class PaymentController extends Controller
                                     ->where('status', 'A')->get();
         
         return view('payments.future')->with('payment', $payment)
+                                    ->with('today', $today)
                                     ->with('contract', $contract)
                                     ->with('initial_month', $initial_month)
                                     ->with('year', $year)
@@ -221,7 +243,7 @@ class PaymentController extends Controller
             $movement->movement_type = 'D';
             $movement->type = 'D';
             $movement->payment_id = $payment->id;
-            $movement->date = $payment->date= (new ToolController)->format_ymd($request->input('date'));
+            $movement->date = $payment->date;
             $movement->amount = $tot_discount;
             $movement->description = $discount->description;
             $movement->save();
@@ -255,7 +277,7 @@ class PaymentController extends Controller
         $movement->movement_type = 'D';
         $movement->type = 'P';
         $movement->payment_id = $payment->id;
-        $movement->date = $payment->date= (new ToolController)->format_ymd($request->input('date'));
+        $movement->date = $payment->date;
         if($request->input('select_amount')=='total'){
             $movement->amount = $tot_debt-$tot_discount;
         }else if($request->input('select_amount')=='other'){
@@ -275,7 +297,7 @@ class PaymentController extends Controller
         $payment_detail->description = $this->str_description;
         $payment_detail->save();
         
-        return redirect()->route('payments.contracts_debt')->with('notity', 'create');
+        return redirect()->route('payments.preview', Crypt::encrypt($payment->id))->with('notity', 'create');
     }
 
     
@@ -294,9 +316,9 @@ class PaymentController extends Controller
             if($months_canceled==0){
                 $this->str_description = 'Abono a Deuda';
             }elseif($months_canceled==1){
-                $this->str_description = 'Pago Servicio de Agua Mes ('.$this->str_description.')';
+                $this->str_description = 'Pago Servicio de Agua Mes ('.$this->str_description.' )';
             }elseif($months_canceled>1){
-                $this->str_description = 'Pago Servicio de Agua Meses ('.$this->str_description.')';
+                $this->str_description = 'Pago Servicio de Agua Meses ('.$this->str_description.' )';
             }        
         //Si el pago es menor se cancelan los recibos que se puedan con el monto dado por el ciudadano
         }else{
@@ -341,27 +363,30 @@ class PaymentController extends Controller
         $tot_discount=0;
         $total =0;
         $contract = Contract::find($request->input('hdd_contract_id'));
+        $initial_balance = $contract->balance;
         $flat_rate = Rate::find(1);
         $iva = Charge::find(1);
         $initial_month = intval($request->input('hdd_initial_month'));
         $final_month = intval($request->input('final_month'));
 
         //1. Se registra el pago
+        $date = (new ToolController)->format_ymd($request->input('date'));
         $payment = new Payment();
-        $payment->date= (new ToolController)->format_ymd($request->input('date'));
+        $payment->date= $date;
         $payment->citizen_id = $contract->citizen->id;
         $payment->contract_id = $contract->id;
         $payment->type= $request->input('type');
         $payment->observation = $request->input('observation');
         $payment->amount= 0;
         $payment->save();
-
         //2. Se generan los recibos del periodo selecionado (Incluye cargos e IVA).        
         for ($i= $initial_month; $i <= $final_month ; $i++) { 
             //Paso 2.1 Registrar los datos generales del recibo
             $invoice = new Invoice();
-            $invoice->date = (new ToolController)->format_ymd($request->input('date'));
-            $invoice->date_limit = (new ToolController)->format_ymd($request->input('date'));
+            $first_day_month = $request->input('hdd_year').'-'.$i.'-'.'1';            
+            $last_day_month = date("Y-m-t", strtotime($first_day_month));
+            $invoice->date = $date;
+            $invoice->date_limit = $last_day_month;
             $invoice->month = (strlen($i)==1)?'0'.$i:$i;                                
             $invoice->year = $request->input('hdd_year');
             $carbon_previous_date = (new Carbon($request->input('hdd_year').'-'.$i.'-15'))->subMonths(1);
@@ -373,6 +398,7 @@ class PaymentController extends Controller
             $invoice->rate = $flat_rate->amount;
             $invoice->rate_description = $flat_rate->name;            
             $invoice->status = 'C';
+            $invoice->payment_id = $payment->id;
             $invoice->save();
             $str_description = $str_description.' '.$invoice->month.'/'.$invoice->year; 
             //Paso 2.2 Registrar el detalle del recibo
@@ -382,7 +408,7 @@ class PaymentController extends Controller
             $invoice_detail->invoice_id = $invoice->id;              
             $invoice_detail->movement_type = 'CT';
             $invoice_detail->type = 'M';             
-            $invoice_detail->description = 'Servicio de Agua';            
+            $invoice_detail->description = 'Servicio de Agua '.$invoice->month.'/'.$invoice->year;            
             $invoice_detail->sub_total = $flat_rate->amount;
             $invoice_detail->save();
             //Paso 2.2.2 Incluir cargos adicionales
@@ -403,7 +429,7 @@ class PaymentController extends Controller
                 }
             }
             //Paso 2.2.3 Calcular el Impuesto
-            if($request->input('iva')){
+            if($request->input('apply_iva') == 'Y'){
                 $invoice_detail = new InvoiceDetail();
                 $invoice_detail->invoice_id = $invoice->id;              
                 $invoice_detail->movement_type = $iva->movement_type;
@@ -419,7 +445,7 @@ class PaymentController extends Controller
             $tot_invoices = $tot_invoices + $invoice->total;
             //3. Registrar el cargo en la tabla movimientos
             $movement = new Movement();
-            $movement->date = $invoice->date;                    
+            $movement->date = $date;                    
             $movement->type = 'C';
             $movement->movement_type = 'C';
             $movement->description = 'Servicio de Agua '.$invoice->month.'/'.$invoice->year;
@@ -446,7 +472,7 @@ class PaymentController extends Controller
             $movement->movement_type = 'D';
             $movement->type = 'D';
             $movement->payment_id = $payment->id;
-            $movement->date = $payment->date= (new ToolController)->format_ymd($request->input('date'));
+            $movement->date = $date;
             $movement->amount = $tot_discount;
             $movement->description = $discount->description;
             $movement->save();
@@ -459,8 +485,8 @@ class PaymentController extends Controller
             $payment_detail->save();                            
         }
         //Se actualiza el monto final del pago
-        $str_description = 'Pago Servicio de Agua Meses ('.$str_description.' )';
-        $payment->amount = $tot_invoices - $tot_discount;
+        $str_description = 'Pago Adelantado Servicio de Agua Meses ('.$str_description.' )';
+        $payment->amount = $initial_balance + $tot_invoices - $tot_discount;
         $payment->description = $str_description;
         $payment->save();
 
@@ -471,21 +497,40 @@ class PaymentController extends Controller
         $movement->movement_type = 'D';
         $movement->type = 'P';
         $movement->payment_id = $payment->id;
-        $movement->date = $payment->date= (new ToolController)->format_ymd($request->input('date'));
-        $movement->amount = $tot_invoices-$tot_discount;
+        $movement->date = $date;
+        $final_balance = $initial_balance + $tot_invoices - $tot_discount;
+        if($final_balance > 0){
+            $movement->amount = $final_balance;
+        }else{
+           $movement->amount = 0; //Toma el dinero del saldo a favor 
+        }
         $movement->description = $str_description;
         $movement->save();
         //Se registra el monto total de los recibos como detalle del pago
         $payment_detail = new PaymentDetail();
         $payment_detail->payment_id = $payment->id;
         $payment_detail->type = 'C';
-        $payment_detail->amount = $tot_invoices;
+        $payment_detail->amount = $initial_balance + $tot_invoices;
         $payment_detail->description = $str_description;
         $payment_detail->save();
     
-        return redirect()->route('payments.contracts_solvent')->with('notity', 'create');
+        return redirect()->route('payments.preview', Crypt::encrypt($payment->id))->with('notity', 'create');
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function preview($id)
+    {
+        $company = Company::first();
+        $payment = Payment::find(Crypt::decrypt($id)); 
+        return view('payments.preview')->with('payment', $payment)
+                                        ->with('company', $company);
+    }
+    
     /**
      * Display the specified resource.
      *
@@ -543,8 +588,8 @@ class PaymentController extends Controller
         $payment->movements()->delete();        
         //2. Se elimina el detalle del pago
         $payment->payment_details()->delete();
-        //3. Se cambia el estatus de los recibos cancelados (status P=Pendiente y su payment_id=NULL)
-        $payment->invoices()->update(array('status' => 'P', 'payment_id' => null));
+        //3. Se cambia el estatus de los recibos cancelados (status P=Pendiente, deuda anterior 0,  payment_id=NULL)
+        $payment->invoices()->update(array('status' => 'P', 'previous_debt' => 0, 'payment_id' => null));
         //4. Se elimina el pago
         $payment->delete();
 

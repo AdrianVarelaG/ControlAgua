@@ -49,7 +49,11 @@ class Payment extends Model
         }elseif($this->type =='TA'){
                 
             return 'Transferencia';                              
-        }        
+        
+        }elseif($this->type =='PA'){
+                
+            return 'Pago Automático';                              
+        }       
     }
 
 }

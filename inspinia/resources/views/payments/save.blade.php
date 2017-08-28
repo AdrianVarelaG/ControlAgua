@@ -48,8 +48,11 @@
                         @if($payment->id)
                             {{ Form::hidden ('_method', 'PUT') }}
                         @endif
-                        <!-- 1ra Columna -->
-                        <div class="col-sm-5">                            
+                    
+                    <!-- 1 Row -->
+                    <div class="col-md-12 col-sm-12 col-xs-12">                                                
+                        <!-- 1 Column -->
+                        <div class="col-sm-5">
                             <h2>{{ $contract->citizen->name }}, Contrato # {{ $contract->number }}</h2>
 
                             <div class="form-group" id="data_1">
@@ -74,26 +77,46 @@
                                 </div>
                             </div>                                                        
                         </div>
-                        <!-- /1ra Columna -->
-                                                
-                        <!-- 2da Columna -->
+                        <!-- 2 Column -->
                         <div class="col-sm-7">
+                            <h2>Estado de Cuenta al {{ $today->format('d/m/Y') }}</h2>
+                                <h3>Movimientos del Mes Anterior</h3>
+                                <p>Saldo inicial: <strong>{{ money_fmt($previous_balance_m2) }} {{ Session::get('coin') }}</strong></p>
+                                <small>Cargos: {{ $credits_m1->sum('amount') }}</small><br/>
+                                <small>Pagos y Descuentos: {{ ($debits_m1->count())?$debits_m1->sum('amount'):'0,00' }} {{ Session::get('coin') }}</small><br/><br/>
+                                <p>Total Saldo Anterior: <strong>{{ money_fmt($previous_balance_m1) }} {{ Session::get('coin') }}</strong></p>
                             
-                        <h2>Saldo al {{ $today->format('d/m/Y') }}</h2>
-                        <h3>
-                            {{ money_fmt($contract->balance) }} {{ Session::get('coin') }}                             <button type="button" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal4"><i class="fa fa-search-plus" aria-hidden="true"></i> Detalle</button>
-                        </h3>
+                            <h3>Movimientos del Mes Actual</h3>
+                            <div class="col-sm-5">
+                                <small>Cargos: {{ $credits->sum('amount') }} {{ Session::get('coin') }}</small><br/>
+                                <small>Pagos y Descuentos: {{ ($debits->count())?$debits->sum('amount'):'0,00' }} {{ Session::get('coin') }}</small><br/><br/>
+                                <p>Total Saldo Actual: <strong>{{ money_fmt($contract->balance) }} {{ Session::get('coin') }}</strong></p>
+                            </div>                                
+                            <div class="col-sm-7">
+                                <small>Detalle Cargos:
+                                     @foreach($credits->get() as $credit)
+                                        <ul>
+                                        @foreach($credit->invoice->invoice_details as $detail)
+                                            <li>{{ $detail->description }} {{ money_fmt($detail->sub_total) }} {{ Session::get('coin') }}</li>
+                                        @endforeach
+                                        </ul>
+                                    @endforeach
+                                </small>
+                            </div>
                         </div>
-                        <!-- /2da Columna -->
+                    </div>
+                    <!-- /1 Row -->
 
-                        <!-- 3ra Columna -->
-                        <div class="col-sm-6">
+                    <!-- 2dn Row -->
+                    <div class="col-md-12 col-sm-12 col-xs-12">                    
+                        <!-- 1 Column -->
+                        <div class="col-sm-5">    
                             <h2>Descuentos</h2>
                              <!-- 3ra Edad -->
                              @if($contract->citizen->age_discount())
-                                <p>El ciudadano tiene <strong>{{ $contract->citizen->age }}</strong> años y aplica para el descuento.</p>
+                                <p>El ciudadano tiene <strong>{{ $contract->citizen->age }}</strong> años y aplica para el descuento de 3ra edad. <small>{{ ($age_discount->type=='M')?money_fmt($age_discount->amount).' '.Session::get('coin'):'('.money_fmt($age_discount->percent).' %) del total a pagar' }}.</small></p>
                                 <div class="i-checks">
-                                    <p>{!! Form::checkbox('age_discount', $age_discount->type,  false, ['id'=>'age_discount',]) !!} {{ $age_discount->description }}. {{ ($age_discount->type=='M')?money_fmt($age_discount->amount).' '.Session::get('coin'):'('.money_fmt($age_discount->percent).' %) del total a pagar' }}.</p>
+                                    <p>{!! Form::checkbox('age_discount', $age_discount->type,  false, ['id'=>'age_discount',]) !!} <strong>Posee credencial de la 3ra edad ?</strong></p>
                                         {!! Form::hidden('age_discount_amount',  $age_discount->amount , ['id'=>'age_discount_amount']) !!}
                                         {!! Form::hidden('age_discount_percent', $age_discount->percent , ['id'=>'age_discount_percent']) !!}
                                         {!! Form::hidden('age_discount_id', $age_discount->id , ['id'=>'age_discount_id']) !!}
@@ -115,37 +138,38 @@
                                     @endif
                                 @endforeach
                             @endif
-                        </div>                        
                         </div>
-
+                        </div>
+                        <!-- 1 Column -->
+                        <div class="col-sm-7">
                         <!-- Resumen a Pagar -->
-                        <div class="col-md-6 col-sm-12 col-xs-12 col-md-offset-3">                    
                             <div class="panel panel-primary">
                             <div class="panel-heading">Seleccione el monto a pagar <strong>({{ Session::get('coin') }})</strong></div>
                                 <div class="panel-body">
                         <table class="table table-responsive table-hover">
                             <tbody>
                                 <tr>
-                                    <td>
+                                    <td width="10%">
                                         <div class="i-checks">
                                             {!! Form::radio('select_amount', 'total', true, ['id'=>'select_amount']) !!}
                                         </div>                                        
                                     </td>
-                                    <td>
-                                        <p id='total_desglose'><strong>TOTAL DEUDA</strong> : Saldo - Descuento ({{ money_fmt($contract->balance) }} - 0,00) : </p>
+                                    <td width="60%">
+                                        <p><strong>TOTAL A PAGAR:</strong></p>
+                                        <p id='total_desglose'>Total Saldo Actual - Descuento ({{ money_fmt($contract->balance) }} - 0,00)</p>
                                     </td>
-                                    <td class="text-center">
-                                        <h3 id='total_monto'>{{ money_fmt($contract->balance) }}</h3>
+                                    <td width="30%" class="text-center">
+                                        <h3 id='total_monto'>{{ money_fmt($contract->balance) }} {{ Session::get('coin') }}</h3>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <td width="10%">
                                         <div class="i-checks">
                                             {!! Form::radio('select_amount', 'other', false, ['id'=>'select_amount']) !!}
                                         </div>
                                     </td>
-                                    <td><strong>OTRO MONTO</strong></td>
-                                    <td class="text-center">
+                                    <td width="60%"><strong>OTRO MONTO</strong></td>
+                                    <td width="30%" class="text-center">
                                     {!! Form::text('other_amount', null, ['id'=>'other_amount', 'class'=>'form-control', 'type'=>'number', 'min'=>'0' ,'placeholder'=>'', 'required', 'disabled']) !!}
                                     </td>
                                 </tr>                            
@@ -155,8 +179,10 @@
 
                                 </div>
                             </div>
-                        </div>
                         <!-- /Resumen a Pagar -->
+                    </div>
+                </div>
+                <!-- /2dn Row -->
 
 
 
@@ -292,16 +318,17 @@
             }        
         });
         
-        //Datepicker fecha del contrato
+        //Datepicker fecha del pago
         var date_input_1=$('#data_1 .input-group.date');
         date_input_1.datepicker({
             format: 'dd/mm/yyyy',
+            endDate: '+1d',
             todayHighlight: true,
             autoclose: true,
             language: 'es',
         })
         if($('#data_1 .input-group.date').val() == ''){
-          $('#data_1 .input-group.date').datepicker("setDate", new Date());                
+          $('#data_1 .input-group.date').datepicker("setDate", new Date());
         }            
         
         // Select2 
@@ -417,8 +444,8 @@
         $('#hdd_net_debt').val(total);
         
 
-        document.getElementById("total_monto").innerHTML = money_fmt(total);
-        document.getElementById("total_desglose").innerHTML = "TOTAL DEUDA : Saldo - Descuento ("+money_fmt(tot_invoices)+" - "+money_fmt(discount)+")";        
+        document.getElementById("total_monto").innerHTML = money_fmt(total)+" {{ Session::get('coin') }}";
+        document.getElementById("total_desglose").innerHTML = "Total Saldo Actual - Descuento ("+money_fmt(tot_invoices)+" - "+money_fmt(discount)+")";        
     }       
     
     function money_fmt(num){

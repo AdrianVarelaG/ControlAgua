@@ -103,7 +103,13 @@
                             </div>
                         </td>
                         <td>{{ $citizen->RFC }}</td>
-                        <td>{{ $citizen->balance }}</td>
+                        <td>
+                          @if($citizen->balance>=0)
+                            {{ money_fmt($citizen->balance) }}
+                          @else
+                            {{ money_fmt(abs($citizen->balance)) }} <i class="fa fa-level-up" style="color:#1ab394;cursor:help;" title="Saldo a favor"></i>
+                          @endif
+                        </td>
                         <td>
                         <p><span class="label {{ $citizen->label_status }}">{{ $citizen->status_description }}</span></p>
                         </td>

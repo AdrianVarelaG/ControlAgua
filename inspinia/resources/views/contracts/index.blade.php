@@ -50,7 +50,8 @@
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
-                        <th>Estatus</th>
+                        <th>Solvente hasta</th>
+                        <th>Estatus</th>                        
                     </tr>
                     </thead>
                     <tbody>
@@ -90,12 +91,21 @@
                                     </ul>
                             </div>
                           @endif
-                        <!-- /Split button -->                        </td>                          
+                        <!-- /Split button -->
                         <td><strong>{{ $contract->number }}</strong></td>
                         <td>{{ $contract->citizen->name }}</td>
-                        <td>{{ money_fmt($contract->balance) }}</td>
                         <td>
-                        <p><span class="label {{ $contract->label_status }}">{{ $contract->status_description }}</span></p>
+                          @if($contract->balance>=0)
+                            {{ money_fmt($contract->balance) }}
+                          @else
+                            {{ money_fmt(abs($contract->balance)) }} <i class="fa fa-level-up" style="color:#1ab394;cursor:help;" title="Saldo a favor"></i>
+                          @endif
+                        </td>
+                        <td>
+                          {{ ($contract->last_invoice_canceled)?$contract->last_invoice_canceled->month.'/'.$contract->last_invoice_canceled->year:'Sin pagos' }}
+                        </td>                                                
+                        <td>
+                          <p><span class="label {{ $contract->label_status }}">{{ $contract->status_description }}</span></p>
                         </td>
                     </tr>
                     @endforeach
@@ -106,7 +116,8 @@
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
-                        <th>Estatus</th>
+                        <th>Solvente hasta</th>
+                        <th>Estatus</th>                        
                     </tr>
                     </tfoot>
                     </table>
@@ -144,10 +155,11 @@
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
-                { "sWidth": "25%" }, // 2nd column width
-                { "sWidth": "25%" }, // 3nd column width
-                { "sWidth": "25%" }, // 4nd column width 
-                { "sWidth": "20%" }  // 5nd column width                
+                { "sWidth": "20%" }, // 2nd column width
+                { "sWidth": "20%" }, // 3nd column width
+                { "sWidth": "20%" }, // 4nd column width
+                { "sWidth": "20%" }, // 4nd column width 
+                { "sWidth": "15%" }  // 5nd column width                
               ],              
               responsive: false,              
               dom: '<"html5buttons"B>lTfgitp',
@@ -160,7 +172,7 @@
                   title: 'Contratos',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1, 2, 3],
+                    columns: [1, 2, 3, 4],
                   }                                    
                 },
                 {
@@ -173,7 +185,7 @@
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1, 2, 3],
+                    columns: [1, 2, 3, 4],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body

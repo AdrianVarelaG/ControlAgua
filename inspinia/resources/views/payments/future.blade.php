@@ -47,6 +47,10 @@
                         {!! Form::hidden('hdd_initial_month', $initial_month , ['id'=>'hdd_initial_month']) !!}
                         {!! Form::hidden('hdd_final_month', null, ['id'=>'hdd_final_month']) !!}
                         {!! Form::hidden('hdd_year', $year, ['id'=>'hdd_year']) !!}
+                        {!! Form::hidden('apply_iva', 'Y', ['id'=>'apply_iva']) !!}
+                        
+                    <!-- 1ra Row -->
+                    <div class="col-md-12 col-sm-12 col-xs-12">
                         <!-- 1ra Columna -->
                         <div class="col-sm-5">                            
                             <h2>{{ $contract->citizen->name }}, Contrato # {{ $contract->number }}</h2>
@@ -86,16 +90,11 @@
                             </div>                                                        
                         </div>
                         <!-- /1ra Columna -->
-                                                
+                    
                         <!-- 2da Columna -->
-                        <div class="col-sm-7">
-                            
-                        <h2>Servicio</h2>
-                            <p><i class="fa fa-info-circle"></i><small> Los pagos por adelantado se calcularán a monto fijo.</small></p>                        
-                            <p><strong>Monto del Servicio:</strong> <strong>{{ money_fmt($flat_rate->amount) }} {{ Session::get('coin') }}</strong></p>
-                        
-                        <h2>Cargos</h2>
-                        <p><i class="fa fa-info-circle"></i><small> Los cargos se calculan por cada recibo a pagar. Ej. Si usted va a pagar 3 recibos el cargo se multiplacará por 3.</small></p>
+                        <div class="col-sm-7">                     
+                            <h2>Cargos</h2>
+                            <p><i class="fa fa-info-circle"></i><small> Los cargos se calculan por cada recibo a pagar. Ej. Si usted va a pagar 3 recibos el cargo se multiplacará por 3.</small></p>
                             <!-- Cargos -->
                              @if($charges)
                                 @php($i=0)
@@ -108,52 +107,67 @@
                                     </div>                             
                                 @endforeach
                             @endif
-                            <!-- /Cargos -->
-                            
+                            <!-- /Cargos -->                            
                             <!-- IVA -->
                             <div class="i-checks">
-                                    <p>{!! Form::checkbox('iva', $iva->percent,  true, ['id'=>'iva']) !!} {{ $iva->description }}. {{ '('.money_fmt($iva->percent).' %) del total a pagar' }}.</p>
+                                    <p>{!! Form::checkbox('iva', $iva->percent,  true, ['id'=>'iva', ($iva->status=='A'?'':'disabled')]) !!} {{ $iva->description }}. {{ '('.money_fmt($iva->percent).' %) del total a pagar' }}.</p>
                             </div>
                              <!-- /IVA -->
 
-                        </div>
-                        <!-- /2da Columna -->
-
-                    <!-- 3ra Columna -->
-                    <div class="col-sm-6">
-                            <h2>Descuento</h2>
+                            <h2>Descuentos</h2>
                              <!-- 3ra Edad -->
                              @if($contract->citizen->age_discount())
-                                <p>El ciudadano tiene <strong>{{ $contract->citizen->age }}</strong> años y aplica para el descuento.</p>
+                                <p>El ciudadano tiene <strong>{{ $contract->citizen->age }}</strong> años y aplica para el descuento de 3ra edad. <small>{{ ($age_discount->type=='M')?money_fmt($age_discount->amount).' '.Session::get('coin'):'('.money_fmt($age_discount->percent).' %) del total a pagar' }}.</small></p>
                                 <div class="i-checks">
-                                    <p>{!! Form::checkbox('age_discount', $age_discount->type,  false, ['id'=>'age_discount',]) !!} {{ $age_discount->description }}. {{ ($age_discount->type=='M')?money_fmt($age_discount->amount).' '.Session::get('coin'):'('.money_fmt($age_discount->percent).' %) del total a pagar' }}.</p>
+                                    <p>{!! Form::checkbox('age_discount', $age_discount->type,  false, ['id'=>'age_discount',]) !!} <strong>Posee credencial de la 3ra edad ?</strong></p>
                                         {!! Form::hidden('age_discount_amount',  $age_discount->amount , ['id'=>'age_discount_amount']) !!}
                                         {!! Form::hidden('age_discount_percent', $age_discount->percent , ['id'=>'age_discount_percent']) !!}
                                         {!! Form::hidden('age_discount_id', $age_discount->id , ['id'=>'age_discount_id']) !!}
                                 </div>
                              @endif
                             
-                        <div id='div_other_discounts' style='display:solid;'>
-                            <!-- Otros Descuentos -->
-                             @if($other_discounts)
-                                @php($count_od=0)
-                                @foreach($other_discounts as $discount)
-                                    @if($discount->show_temporary())
-                                        <div class="i-checks">
-                                            <p>{!! Form::radio('other_discount[]', $discount->id,  false, ['id'=>'other_discount['.$count_od.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
-                                            {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$count_od.']']) !!}
-                                            {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$count_od.']']) !!}
-                                            {!! Form::hidden('other_discount_type',  $discount->type , ['id'=>'other_discount_type['.$count_od++.']']) !!}
-                                        </div>                             
-                                    @endif
-                                @endforeach
-                            @endif
-                        </div>                                            
+                            <div id='div_other_discounts' style='display:solid;'>
+                                <!-- Otros Descuentos -->
+                                @if($other_discounts)
+                                    @php($count_od=0)
+                                    @foreach($other_discounts as $discount)
+                                        @if($discount->show_temporary())
+                                            <div class="i-checks">
+                                                <p>{!! Form::radio('other_discount[]', $discount->id,  false, ['id'=>'other_discount['.$count_od.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
+                                                {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$count_od.']']) !!}
+                                                {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$count_od.']']) !!}
+                                                {!! Form::hidden('other_discount_type',  $discount->type , ['id'=>'other_discount_type['.$count_od++.']']) !!}
+                                            </div>                             
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </div>                                            
+                        </div>
+                        <!-- 2da Columna -->
                     </div>
-
-                    <!-- Resumen a Pagar -->
-                    <div class="col-md-6 col-sm-12 col-xs-12 col-md-offset-3">                    
-                    <br/>    
+                    <!-- /1ra Row -->
+                                                
+                <!-- 2nd Row -->
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <!-- 1ra Columna -->
+                    <div class="col-sm-5">
+                        <h2>Estado de Cuenta al {{ $today->format('d/m/Y') }}</h2>
+                        <p>Total Saldo Actual: 
+                          <strong>
+                          @if($contract->balance==0)
+                            {{ money_fmt($contract->balance) }} {{ Session::get('coin') }}
+                          @else
+                            {{ money_fmt(abs($contract->balance)) }} {{ Session::get('coin') }} <i class="fa fa-level-up" style="color:#1ab394;cursor:help;" title="Saldo a favor"></i>
+                          @endif
+                          </strong>
+                        </p>
+                        <h2>Servicio</h2>
+                            <p><i class="fa fa-info-circle"></i><small> Los pagos por adelantado se calcularán a <strong>tarifa fija.</strong></small></p>                        
+                            <p><strong>Monto del Servicio:</strong> <strong>{{ money_fmt($flat_rate->amount) }} {{ Session::get('coin') }}</strong></p>
+                    </div>
+                    <!-- 2da Columna -->
+                    <div class="col-sm-7">
+                        <!-- /Resumen a Pagar -->
                         <div class="panel panel-primary">
                             <div class="panel-heading">Monto a pagar <strong>({{ Session::get('coin') }})</strong></div>
                             <div class="panel-body">
@@ -162,25 +176,33 @@
                                         <tr>
                                             <td>
                                                 <p>Servicio + Cargos:</p>
-                                                <p>IVA:</p>
-                                                <strong><p>SUB TOTAL:</p></strong>                            
+                                                <p>IVA ({{ money_fmt($iva->percent) }}%):</p>
+                                                <strong><p>Sub Total:</p></strong>                            
                                                 <p>Descuento:</p>
-                                                <strong><h3>TOTAL PAGO:</h3></strong>
+                                                <strong><p>Total Período:</p></strong>
+                                                <p><strong>TOTAL A PAGAR:</strong><p> 
+                                                <p>(Saldo Actual + Total Período)</p>
                                             </td>
                                             <td class="text-right">
                                                 <p id='servicios_cargos'></p>
                                                 <p id='tot_iva'></p>
                                                 <strong><p id='sub_tot'></p></strong>
                                                 <p id='total_descuento'></p>
-                                                <strong><h3 id='total_monto'></h3><strong>
+                                                <h3 id='total_periodo'></h3>
+                                                <br/>
+                                                <h3 id='total_monto'></h3>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+                        <!-- /Resumen a Pagar -->
                     </div>
-                    <!-- /Resumen a Pagar -->
+                    <!-- 2da Columna -->
+                </div>
+                 <!-- 2nd Row -->
+                
 
                     <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
                         <div class="form-group pull-right">
@@ -262,6 +284,7 @@
         var date_input_1=$('#data_1 .input-group.date');
         date_input_1.datepicker({
             format: 'dd/mm/yyyy',
+            endDate: '+1d',
             todayHighlight: true,
             autoclose: true,
             language: 'es',
@@ -294,6 +317,14 @@
         });
 
     
+        $('#iva').on('ifChecked', function(event){ 
+            $('#apply_iva').val('Y');
+        });       
+
+        $('#iva').on('ifUnchecked', function(event){ 
+            $('#apply_iva').val('N');
+        });
+        
         $('#age_discount').on('ifChecked', function(event){ 
             $("input[id^='other_discount']").iCheck('uncheck'); 
             $('#div_other_discounts').hide();
@@ -335,6 +366,7 @@
 
     //Rutina para el calculo del monto a pagar
     function calcula_total(){
+        var initial_balance = parseFloat('{{ $contract->balance }}') ;
         var total=0;
         var tot_invoices=0;
         var charge=0;
@@ -348,7 +380,7 @@
         
         //Calcula monto total por consumo
         flat_rate =   $('#hdd_flat_rate').val();
-        nro_months = $('#final_month').val() - $('#hdd_initial_month').val()+1;
+        nro_months = $('#final_month').val() - $('#hdd_initial_month').val()+1;        
         total = flat_rate*nro_months;
         tot_invoices = total;                
         //Cargos
@@ -408,7 +440,8 @@
         document.getElementById("tot_iva").innerHTML = money_fmt(iva);
         document.getElementById("sub_tot").innerHTML = money_fmt(tot_charges+tot_invoices+iva);
         document.getElementById("total_descuento").innerHTML = money_fmt(discount);
-        document.getElementById("total_monto").innerHTML = money_fmt(total)+ " {{ Session::get('coin') }}";        
+        document.getElementById("total_periodo").innerHTML = money_fmt(total)+ " {{ Session::get('coin') }}";
+        document.getElementById("total_monto").innerHTML = "("+money_fmt(initial_balance)+" + "+money_fmt(total)+" ) = "+money_fmt(initial_balance + total)+ " {{ Session::get('coin') }}";        
     }
     
     function money_fmt(num){

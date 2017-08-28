@@ -60,7 +60,7 @@
                     <tr class="gradeX">
                         <td class="text-center">                            
                         <!-- Split button -->
-                            <a href="{{ route('invoices.reverse_routine', [Crypt::encrypt($ruotine->year_consume), Crypt::encrypt($ruotine->month_consume)] ) }}" class="btn btn-xs btn-default" onclick="return confirm('Desea reversar la rutina del mes {{ $ruotine->month_consume }} y el año {{ $ruotine->year_consume }}?')"><i class="fa fa-history" title="Reversar"></i></a>
+                            <a href="{{ route('invoices.reverse_routine', [Crypt::encrypt($ruotine->year), Crypt::encrypt($ruotine->month)] ) }}" class="btn btn-xs btn-default" onclick="return confirm('Desea reversar la rutina del mes {{ $ruotine->month_consume }} y el año {{ $ruotine->year_consume }}?')"><i class="fa fa-history" title="Reversar"></i></a>
                         <!-- /Split button -->                        
                         </td>                          
                         <td>{{ $ruotine->month}}/{{ $ruotine->year }}</td>
@@ -114,7 +114,6 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
-              "aaSorting": [[1, "asc"]],
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" }, // 1st column width 

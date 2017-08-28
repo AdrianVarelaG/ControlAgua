@@ -58,25 +58,87 @@ class Contract extends Model
     //Methods
     public function debits()
     {        
-        return $this->hasMany('App\Models\Movement')->where('movement_type', 'D');
+        return $this->movements()->where('movement_type', 'D');
     }
 
     public function credits()
     {        
-        return $this->hasMany('App\Models\Movement')->where('movement_type', 'C');
+        return $this->movements()->where('movement_type', 'C');
     }
+
+
+    public function debits_range($initial_date, $final_date)
+    {        
+            return $this->movements()->where('movement_type', 'D')
+                                    ->where('date', '>', $initial_date)
+                                    ->where('date', '<=', $final_date);            
+    }
+
+    public function credits_range($initial_date, $final_date)
+    {        
+            return $this->movements()->where('movement_type', 'C')
+                                    ->where('date', '>', $initial_date)
+                                    ->where('date', '<=', $final_date);            
+    }
+    
+    public function credits_from($date)
+    {        
+            return $this->movements()->where('movement_type', 'C')
+                                    ->where('date', '>', $date);
+    }
+    
+    public function debits_from($date)
+    {        
+            return $this->movements()->where('movement_type', 'D')
+                                    ->where('date', '>', $date);
+    }
+
+    public function debits_date($date)
+    {        
+        return $this->movements()->where('movement_type', 'D')
+                                ->where('date', '<=', $date);
+    }
+
+    public function credits_date($date)
+    {        
+        return $this->movements()->where('movement_type', 'C')
+                                ->where('date', '<=', $date);
+    }
+
+    public function total_debits_date($date)
+    {        
+        $total_debits_date = ($this->debits_date($date))?$this->debits_date($date)->sum('amount'):0;
+        
+        return $total_debits_date;
+    }
+
+    public function total_credits_date($date)
+    {        
+        $total_credits_date = ($this->credits_date($date))?$this->credits_date($date)->sum('amount'):0;
+
+        return $total_credits_date;
+    }
+
+
+    public function balance_date($date)
+    {        
+        $balance = $this->total_credits_date($date) - $this->total_debits_date($date);
+
+        return round($balance,2);
+    }
+    
 
     //*** Accessors ***
     public function getTotalDebitsAttribute(){
 
-        $tot_debits = $this->debits->sum('amount');
+        $tot_debits=($this->debits)?$this->debits->sum('amount'):0;
 
         return $tot_debits;
     }
     
     public function getTotalCreditsAttribute(){
 
-        $tot_credits = $this->credits->sum('amount');
+        $tot_credits = ($this->credits)?$this->credits->sum('amount'):0;
 
         return $tot_credits;
     }
@@ -85,7 +147,7 @@ class Contract extends Model
 
         $balance = $this->total_credits - $this->total_debits;
 
-        return $balance;
+        return round($balance,2);
     }
 
     public function getExpiredInvoicesAttribute(){
@@ -136,6 +198,13 @@ class Contract extends Model
                 
             return 'label-warning';                              
         }        
+    }
+
+    public function getLastInvoiceCanceledAttribute(){
+        $last_invoice_canceled = $this->invoices()->where('status', 'C')
+                                                    ->orderBy('year', 'DESC')
+                                                    ->orderBy('month', 'DESC')->first();
+        return $last_invoice_canceled;
     }
 
 }

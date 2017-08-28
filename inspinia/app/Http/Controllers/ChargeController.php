@@ -107,6 +107,7 @@ class ChargeController extends Controller
         $charge = Charge::find($id);
         if($charge->id == 1){
             $charge->percent= $request->input('percent');
+            ($request->input('status_iva')=='on')?$charge->status='A':$charge->status='D';
         }else{
             $charge->type= $request->input('type');
             if ($request->input('type')=='M'){

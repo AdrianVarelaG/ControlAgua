@@ -15,7 +15,7 @@
                     <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">{{ Auth::user()->name }}</strong>
                     </span> <span class="text-muted text-xs block">{{ Auth::user()->role_description }} <b class="caret"></b></span> </span> </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        <li><a href="profile.html">Perfil</a></li>
+                        <li><a href="{{ route('profiles.edit', Crypt::encrypt(Auth::user()->id)) }}">Perfil</a></li>
                         <li class="divider"></li>
                         <li><a href="{{ url('/logout') }}">Logout</a></li>
                     </ul>

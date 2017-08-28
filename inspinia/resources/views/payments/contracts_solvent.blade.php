@@ -16,7 +16,7 @@
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-tachometer" aria-hidden="true"></i> Contratos con Solventes</h5>
+                    <h5><i class="fa fa-tachometer" aria-hidden="true"></i> Contratos Solventes</h5>
                     <div class="ibox-tools">
                       <a class="collapse-link">
                           <i class="fa fa-chevron-up"></i>
@@ -50,25 +50,31 @@
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
-                        <th>Estado</th>
+                        <th>Solvente hasta</th>
                     </tr>
                     </thead>
                     <tbody>
                   @foreach($contracts as $contract)
                     @if($contract->balance <= 0)
-                    <tr class="gradeX">
+                      <tr class="gradeX">
                         <td class="text-center">                            
-                        <!-- Split button -->
+                            @if(($contract->last_invoice_canceled && $contract->last_invoice_canceled->year.$contract->last_invoice_canceled->month < $current_year.'12'))
+                            <!-- Split button -->
                             <a href="{{ route('payments.future', Crypt::encrypt($contract->id)) }}" class="btn btn-xs btn-default"><i class="fa fa-money" title="Pagar"></i></a>
-                        <!-- /Split button -->                          
+                            <!-- /Split button -->                          
+                          @endif
                         </td>                          
                         <td><strong>{{ $contract->number }}</strong></td>
                         <td>{{ $contract->citizen->name }}</td>
-                        <td>{{ money_fmt($contract->balance) }}</td>
                         <td>
-                        <p><span class="label {{ $contract->label_status }}">{{ $contract->status_description }}</span></p>
+                          @if($contract->balance==0)
+                            {{ money_fmt($contract->balance) }}
+                          @else
+                            {{ money_fmt(abs($contract->balance)) }} <i class="fa fa-level-up" style="color:#1ab394;cursor:help;" title="Saldo a favor"></i>
+                          @endif
                         </td>
-                    </tr>
+                        <td>{{ ($contract->last_invoice_canceled)?$contract->last_invoice_canceled->month.'/'.$contract->last_invoice_canceled->year:'Sin pagos' }}</td>
+                      </tr>
                     @endif
                   @endforeach
                     </tbody>
@@ -78,20 +84,24 @@
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
-                        <th>Estado</th>
+                        <th>Solvente hasta</th>
                     </tr>
                     </tfoot>
                     </table>
                   </div>
-                @else
+              @else
                   <div class="alert alert-info">
                     <ul>
                       <i class="fa fa-info-circle"></i> No existen registros para mostrar!
                     </ul>
                   </div>                
-                @endif
+              @endif
                 
-                <i class="fa fa-info-circle"></i> <small>Sólo podrán realizar pagos por adelantado los contratos solventes.</small>
+                <i class="fa fa-info-circle"></i> <strong>Información</strong>
+                <ul>
+                  <li><small>Sólo podrán realizar pagos por adelantado los contratos solventes o con saldo a favor.</small></li>
+                  <li><small>Se podrá cancelar hasta Diciembre del año en curso.</small></li>
+                </ul>
 
                 </div>
                 <!-- /ibox-content- -->

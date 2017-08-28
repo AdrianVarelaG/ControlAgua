@@ -52,7 +52,8 @@
                             <p>Por favor siga las instrucciones paso a paso. <strong>(*) Campos obligatorios.</strong></p>
 
                             
-                            {{ Form::open(array('url' => 'invoices/' . $invoice->id, 'id'=>'form'), ['class'=>'wizard-big'])}}    
+                            {{ Form::open(array('url' => 'invoices/' . $invoice->id, 'id'=>'form'), ['class'=>'wizard-big'])}} 
+                            {!! Form::hidden('apply_iva', 'Y', ['id'=>'apply_iva']) !!}  
                                 <!-- Step1 -->
                                 <h1>Fechas</h1>
                                 <fieldset>
@@ -157,7 +158,7 @@
                                 <!-- IVA -->
                                 <label>Impuesto</label>                                   
                                     <div class="i-checks">
-                                        <p>{!! Form::checkbox('iva', $iva->id,  false, ['id'=>'iva']) !!} {{ $iva->description.' ( '.$iva->percent.'%)' }}</p>
+                                        <p>{!! Form::checkbox('iva', $iva->id,  true, ['id'=>'iva', ($iva->status=='A'?'':'disabled')]) !!} {{ $iva->description.' ( '.$iva->percent.'%)' }}</p>
                                     </div>
                                 <!-- /IVA -->
                                 
@@ -304,10 +305,11 @@
                         }
                     });
     
-        //Datepicker fecha del contrato
+        //Datepicker fecha de facturacion
         var date_input_1=$('#data_1 .input-group.date');
         date_input_1.datepicker({
             format: 'dd/mm/yyyy',
+            //endDate: '+1d',
             todayHighlight: true,
             autoclose: true,
             language: 'es',
@@ -317,9 +319,10 @@
         }
 
 
-        var date_input_3=$('#data_2 .input-group.date');
-        date_input_3.datepicker({
+        var date_input_2=$('#data_2 .input-group.date');
+        date_input_2.datepicker({
             format: 'mm/yyyy',
+            endDate: 'm',
             viewMode: 'months', 
             minViewMode: 'months',
             todayHighlight: true,
@@ -329,8 +332,8 @@
         })
     
         
-        var date_input_1=$('#data_3 .input-group.date');
-        date_input_1.datepicker({
+        var date_input_3=$('#data_3 .input-group.date');
+        date_input_3.datepicker({
             format: 'dd/mm/yyyy',
             todayHighlight: true,
             autoclose: true,
@@ -370,6 +373,14 @@
         $('.i-checks').iCheck({
             checkboxClass: 'icheckbox_square-green',
             radioClass: 'iradio_square-green',
+        });
+    
+        $('#iva').on('ifChecked', function(event){ 
+            $('#apply_iva').val('Y');
+        });       
+
+        $('#iva').on('ifUnchecked', function(event){ 
+            $('#apply_iva').val('N');
         });
     
     });

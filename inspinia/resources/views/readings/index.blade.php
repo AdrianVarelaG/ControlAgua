@@ -52,7 +52,7 @@
                         <th>Contrato</th>
                         <th>Período</th>
                         <th>Fecha</th>
-                        <th>Lecturas (Act - Ant)</th>
+                        <th>Lecturas (Ant - Act)</th>
                         <th>Consumo m3</th>
                         <th>Inspector</th>
                     </tr>
@@ -85,7 +85,7 @@
                         <td><strong>{{ $reading->contract->number }}</strong></td>
                         <td>{{ $reading->month }}/{{ $reading->year }}</td>
                         <td>{{ $reading->date->format('d/m/Y') }}</td>
-                        <td>{{ $reading->current_reading }} - {{ $reading->previous_reading }}</td>
+                        <td>{{ $reading->previous_reading }} - {{ $reading->current_reading }}</td>
                         <td>{{ $reading->consume }}</td>
                         <td>{{ $reading->inspector->name }}</td>
                     </tr>
@@ -97,7 +97,7 @@
                         <th>Contrato</th>
                         <th>Período</th>
                         <th>Fecha</th>
-                        <th>Lecturas (Act - Ant)</th>
+                        <th>Lecturas (Ant - Act)</th>
                         <th>Consumo m3</th>
                         <th>Inspector</th>
                     </tr>
@@ -135,7 +135,6 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
-              "aaSorting": [[1, "asc"]],
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 

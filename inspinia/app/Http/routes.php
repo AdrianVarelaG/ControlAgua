@@ -81,7 +81,6 @@ Route::get('invoices.invoices_pdf/{year}/{month}', ['as' => 'invoices.invoices_p
 Route::get('payments.print_voucher/{id}', ['as' => 'payments.print_voucher', 'uses' => 'PDFController@print_voucher']);
 
 
-
 //Login
 Route::auth();
 
@@ -92,6 +91,7 @@ Route::get('municipalities.status/{id}', ['as' => 'municipalities.status', 'uses
 
 //Payments
 Route::resource("payments","PaymentController");
+Route::get('payments.preview/{id}', ['as' => 'payments.preview', 'uses' => 'PaymentController@preview']);
 Route::get('payments.change_period/{period}', ['as' => 'payments.change_period', 'uses' => 'PaymentController@change_period']);
 Route::post('payments.payment_future', ['as' => 'payments.payment_future', 'uses' => 'PaymentController@payment_future']);
 Route::get('payments.create/{id}', ['as' => 'payments.create', 'uses' => 'PaymentController@create']);
@@ -99,6 +99,8 @@ Route::get('payments.contracts_debt', ['as' => 'payments.contracts_debt', 'uses'
 Route::get('payments.contracts_solvent', ['as' => 'payments.contracts_solvent', 'uses' => 'PaymentController@contracts_solvent']);
 Route::get('payments.future/{id}', ['as' => 'payments.future', 'uses' => 'PaymentController@future']);
 
+//Profile Controller
+Route::resource('profiles',"ProfileController");
 
 //RateType
 Route::resource("rate_types","RateTypeController");
@@ -111,6 +113,7 @@ Route::get('rates.status/{id}', ['as' => 'rates.status', 'uses' => 'RateControll
 
 //Readings
 Route::resource("readings","ReadingController");
+Route::get('get_last_reading/{id}', 'ReadingController@getLastReading');
 
 //Setting
 Route::resource("settings","SettingController");

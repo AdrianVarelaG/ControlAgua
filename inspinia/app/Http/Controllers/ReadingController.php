@@ -25,7 +25,7 @@ class ReadingController extends Controller
      */
     public function index()
     {
-        $readings = Reading::all();
+        $readings = Reading::orderBy('date')->orderBy('contract_id')->get();
         $company = Company::first();          
         return view('readings.index')->with('readings', $readings)
                                     ->with('company', $company); 
@@ -176,4 +176,19 @@ class ReadingController extends Controller
             return redirect()->route('readings.index')->with('notity', 'delete');        
         }
     }
+
+    // Metodo que retorna la ultima lectura de un Contrato
+    public function getLastReading(Request $request, $contract_id){
+
+        if ($request->ajax()){
+            $contract = Contract::find($contract_id);
+            $last_reading = $contract->readings()->orderBy('date', 'DESC')->first();
+            if($last_reading){
+                return response()->json($last_reading);
+            }else{
+                return response()->json(0);
+            }
+        }
+    }
+
 }

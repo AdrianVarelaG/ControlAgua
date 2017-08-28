@@ -77,7 +77,7 @@
                         </div>
                         <div class="col-sm-4 b-r">    
                             <div class="form-group">
-                                <label>Lectura Anterior (m3) *</label>
+                                <label>Lectura Anterior (m3) *</label><small id="date_last_reading"></small>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
                                     {!! Form::text('previous_reading', $reading->previous_reading, ['id'=>'previous_reading', 'class'=>'form-control', 'type'=>'numeric', 'placeholder'=>'Ej. 100', 'min'=>'0', 'required']) !!}
@@ -178,6 +178,23 @@
             language: 'es',
         })
    
+    
+        //ECMAScript 6 Metodo AJAX para recuperar la ultima lectura
+        $("#contract").change( event => {
+          url = `{{URL::to('get_last_reading/')}}/${event.target.value}`;                    
+          $.get(url, function(response){
+            //console.log (response);
+            $("#previous_reading").empty();
+            $("#previous_reading").val(response.current_reading);
+            var date = new Date(response.date);
+            var day = date.getDate().toString();
+            if(day.length == 1){day='0'+day};
+            var month = (date.getMonth()+1).toString();
+            if(month.length == 1){month = '0'+month};
+            $("#date_last_reading").html("&nbsp;&nbsp;&nbsp;&nbsp;Tomada el: "+day+'/'+month+'/'+date.getFullYear());
+          });
+        });
+
     });
     </script>
 

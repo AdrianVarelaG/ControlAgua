@@ -8,6 +8,8 @@
 <link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
 <!-- iCheck -->
 <link href="{{ URL::asset('css/plugins/iCheck/custom.css') }}" rel="stylesheet">
+<!-- Switchery -->
+<link href="{{ URL::asset('js/plugins/switchery/dist/switchery.css') }}" rel="stylesheet">
 
 @endpush
 
@@ -79,6 +81,13 @@
                                 </div>
                             </div>                            
                         </div>                                
+                        @if($charge->id == 1)
+                            <div class="form-group">
+                                <p>{!! Form::checkbox('status_iva', null,  ($charge->status=='A')?true:false, ['id'=>'status_iva', 'class'=>'js-switch']) !!}&nbsp;&nbsp;<strong>Permisología del IVA</strong><br/>
+                                <p><small><strong>ON</strong> El operador podrá decidir si aplica o no el IVA al momento de la generación de los recibos.</small></p>
+                                <p><small><strong>OFF</strong> El IVA siempre se aplicará. El operador no tendrá posibilidad de manipular el IVA.</small></p>
+                            </div>                        
+                        @endif    
                             <div class="form-group pull-right">
                                 <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
                                     <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Ok</button>
@@ -109,6 +118,8 @@
 <script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>
 <!-- iCheck -->
 <script src="{{ URL::asset('js/plugins/iCheck/icheck.min.js') }}"></script>
+<!-- Switchery -->
+<script src="{{ URL::asset('js/plugins/switchery/dist/switchery.js') }}"></script>
 
 
 <!-- Page-Level Scripts -->
@@ -172,6 +183,12 @@
           $('#div_percent').show();
         });       
 
+        // Switchery
+        if('{{ $charge->id }}'=='1'){
+            var elem = document.querySelector('#status_iva');
+            var init = new Switchery(elem, { size: 'small', color: '#1AB394' });            
+        }
+    
     });
     </script>
 
