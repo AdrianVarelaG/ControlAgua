@@ -12,18 +12,18 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Bootstrap -->
-    <link href="{{ asset("css/bootstrap.min.css") }}" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="{{ asset("fonts/css/font-awesome.min.css") }}" rel="stylesheet">
+    <link href="{{ asset('fonts/css/font-awesome.min.css') }}" rel="stylesheet">
     <!-- Animate -->
-    <link href="{{ asset("css/animate.css") }}" rel="stylesheet">
+    <link href="{{ asset('css/animate.css') }}" rel="stylesheet">
     <!-- Notifications -->
     <link href="{{ URL::asset('css/plugins/toastr/toastr.min.css') }}" rel="stylesheet">
     <!-- Custom Style -->
-    <link href="{{ asset("css/style.css") }}" rel="stylesheet">
+    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <!-- Custom Validation -->
     <link href="{{ URL::asset('/js/plugins/jquery-validation-1.16.0/jquery.validate.css') }}" media="all" rel="stylesheet">
-    <script src="{{ asset("js/plugins/toastr/toastr.min.js") }}"></script>
+    <script src="{{ asset('js/plugins/toastr/toastr.min.js') }}"></script>
     
     @stack('stylesheets')
 
@@ -57,14 +57,14 @@
     </div>
     
     <!-- Mainly scripts -->
-    <script src="{{ asset("js/jquery-2.1.1.js") }}"></script>
-    <script src="{{ asset("js/bootstrap.min.js") }}"></script>
-    <script src="{{ asset("js/plugins/metisMenu/jquery.metisMenu.js") }}"></script>
-    <script src="{{ asset("js/plugins/slimscroll/jquery.slimscroll.min.js") }}"></script>
+    <script src="{{ asset('js/jquery-2.1.1.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/metisMenu/jquery.metisMenu.js') }}"></script>
+    <script src="{{ asset('js/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
     <!-- Notifications -->
-    <script src="{{ asset("js/plugins/toastr/toastr.min.js") }}"></script>    
+    <script src="{{ asset('js/plugins/toastr/toastr.min.js') }}"></script>    
     <!-- Custom and plugin javascript -->
-    <script src="{{ asset("js/inspinia.js") }}"></script>
+    <script src="{{ asset('js/inspinia.js') }}"></script>
 
     <!-- Jquery Validate -->
     <script src="{{ URL::asset('js/plugins/jquery-validation-1.16.0/jquery.validate.min.js') }}"></script>

@@ -159,7 +159,7 @@
 
 @push('scripts')    
 <!-- slick carousel-->
-<script src="{{ asset("js/plugins/slick/slick.min.js") }}"></script>
+<script src="{{ asset('js/plugins/slick/slick.min.js') }}"></script>
     
     <script>
         $(document).ready(function(){

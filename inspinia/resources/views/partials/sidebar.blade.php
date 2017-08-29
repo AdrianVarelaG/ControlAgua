@@ -9,7 +9,7 @@
         <ul class="nav metismenu" id="side-menu">
             <!-- Profile -->
             <li class="nav-header">
-                <div class="dropdown profile-element">
+                <div class="dropdown profile-element">                    
                     <span><img alt="image" class="img-circle" style="max-height:70px; max-width:70px;" src="{{ url('user_avatar/'.Auth::user()->id) }}"/></span>
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                     <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">{{ Auth::user()->name }}</strong>

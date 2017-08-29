@@ -15,11 +15,12 @@ use App\Models\State;
 use App\Models\Administration;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
+use Auth;
 
 
 class ContractController extends Controller
 {
-    
+        
     /**
      * Display a listing of the resource.
      *
@@ -37,8 +38,9 @@ class ContractController extends Controller
 
         $company = Company::first();        
         $contract = Contract::find(Crypt::decrypt($contract_id));        
+            
         return view('contracts.invoices')->with('contract', $contract)
-                                    ->with('company', $company);
+                                    ->with('company', $company);            
     }
     
     public function payments($contract_id){

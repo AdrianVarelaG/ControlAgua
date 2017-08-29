@@ -212,7 +212,7 @@
 
 @push('scripts')   
 <!-- Steps -->
-<script src="{{ asset("js/plugins/staps/jquery.steps.js") }}"></script>
+<script src="{{ asset('js/plugins/staps/jquery.steps.js') }}"></script>
 <!-- Select2 -->
 <script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>
 <script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>

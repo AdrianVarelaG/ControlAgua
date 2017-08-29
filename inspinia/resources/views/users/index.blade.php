@@ -100,7 +100,7 @@
                         </td>
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->role_description }}</td>
-                        <td class="center">{{ $user->created_at->format('d/m/Y H:m') }}</td>
+                        <td class="center">{{ $user->created_at->format('d/m/Y') }}</td>
                     </tr>
                     @endforeach
                     </tbody>
@@ -130,8 +130,8 @@
 @endsection
 
 @push('scripts')
-	<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
-  <script src="{{ URL::asset('"js/plugins/dataTables/sortDate.js') }}"></script>
+	<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
+  <script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
 
 
     <!-- Page-Level Scripts -->

@@ -104,8 +104,8 @@
 @endsection
 
 @push('scripts')
-	<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
-  <script src="{{ URL::asset('"js/plugins/dataTables/sortDate.js') }}"></script>
+	<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
+  <script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
 
 
     <!-- Page-Level Scripts -->

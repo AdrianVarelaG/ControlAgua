@@ -117,9 +117,9 @@
                             <h2>Descuentos</h2>
                              <!-- 3ra Edad -->
                              @if($contract->citizen->age_discount())
-                                <p>El ciudadano tiene <strong>{{ $contract->citizen->age }}</strong> años y aplica para el descuento de 3ra edad. <small>{{ ($age_discount->type=='M')?money_fmt($age_discount->amount).' '.Session::get('coin'):'('.money_fmt($age_discount->percent).' %) del total a pagar' }}.</small></p>
+                                <p>El ciudadano tiene <strong>{{ $contract->citizen->age }}</strong> años y aplica para el descuento de 3ra edad.</p>
                                 <div class="i-checks">
-                                    <p>{!! Form::checkbox('age_discount', $age_discount->type,  false, ['id'=>'age_discount',]) !!} <strong>Posee credencial de la 3ra edad ?</strong></p>
+                                    <p>{!! Form::checkbox('age_discount', $age_discount->type,  false, ['id'=>'age_discount',]) !!} {{ $age_discount->description }} {{ ($age_discount->type=='M')?money_fmt($age_discount->amount).' '.Session::get('coin'):'('.money_fmt($age_discount->percent).' %) del total a pagar' }}.</p>
                                         {!! Form::hidden('age_discount_amount',  $age_discount->amount , ['id'=>'age_discount_amount']) !!}
                                         {!! Form::hidden('age_discount_percent', $age_discount->percent , ['id'=>'age_discount_percent']) !!}
                                         {!! Form::hidden('age_discount_id', $age_discount->id , ['id'=>'age_discount_id']) !!}
@@ -152,6 +152,8 @@
                     <!-- 1ra Columna -->
                     <div class="col-sm-5">
                         <h2>Estado de Cuenta al {{ $today->format('d/m/Y') }}</h2>
+                        <h3>Ultimo Pago</h3>
+                            <p>{{ ($contract->last_payment)?$contract->last_payment->date->format('d/m/Y'):'No tiene pagos registrados' }}</p>
                         <p>Total Saldo Actual: 
                           <strong>
                           @if($contract->balance==0)
@@ -207,7 +209,8 @@
                     <div class="col-md-12 col-sm-12 col-xs-12 form-group has-feedback">
                         <div class="form-group pull-right">
                             <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
-                                <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Pagar</button>
+                                <button type="button" id="btn_confirm" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#myModal4" style='display:none;'>Pagar</button>
+                                    <button type="submit" id="btn_submit" class="btn btn-sm btn-primary" style='display:solid;'>Pagar</button>
                                 <button type="reset" id="btn_reset" class="btn btn-sm btn-default">Reset</button>
                                 <a href="{{URL::to('payments.contracts_solvent/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                             </div>
@@ -222,6 +225,25 @@
             </div>
             <!-- /ibox-content -->
             
+            <!-- Confirmacion de Credencial 3ra Edad-->
+            <div class="modal inmodal" id="myModal4" tabindex="-1" role="dialog"  aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content animated fadeIn">
+                        <div class="modal-body">
+                            <i class="fa fa-2x fa-id-badge" aria-hidden="true"></i> <strong>{{ $contract->citizen->name }}</strong> posee credencial de la 3ra Edad ?<br/><br/>
+                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> 
+                            <small>De no poseerla no podrá disfrutar del descuento.</small>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" id="btn_yes" class="btn btn-primary">Si</button>
+                            <button type="button" id="btn_no" class="btn btn-danger" data-dismiss="modal">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Confirmacion de Credencial 3ra Edad-->
+        
+
         </div>
     </div>
 </div>
@@ -280,6 +302,16 @@
             }        
         });
         
+        $('#btn_yes').on('click', function(event){ 
+            $('#myModal4').modal('toggle');
+            $("#form").submit();
+        });
+        
+        //Confirtmacion de credencial de 3ra Edad
+        $("#btn_no").on('click', function(event) {
+            $("#age_discount").iCheck('uncheck');
+        });
+        
         //Datepicker fecha del contrato
         var date_input_1=$('#data_1 .input-group.date');
         date_input_1.datepicker({
@@ -328,10 +360,14 @@
         $('#age_discount').on('ifChecked', function(event){ 
             $("input[id^='other_discount']").iCheck('uncheck'); 
             $('#div_other_discounts').hide();
+            $('#btn_confirm').show();
+            $('#btn_submit').hide();        
         });       
 
         $('#age_discount').on('ifUnchecked', function(event){ 
             $('#div_other_discounts').show();
+            $('#btn_confirm').hide();
+            $('#btn_submit').show();                    
         });
 
         $('#age_discount').on('ifChanged', function(event){ 

@@ -148,8 +148,8 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
-<script src="{{ URL::asset('"js/plugins/dataTables/sortDate.js') }}"></script>
+<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
+<script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
 
 <!-- Select2 -->
 <script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>

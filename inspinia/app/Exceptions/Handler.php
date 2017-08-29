@@ -8,6 +8,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Auth;
 
 class Handler extends ExceptionHandler
 {
@@ -44,7 +45,12 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $e)
-    {
+    {        
+        if(!Auth::check()){
+            return redirect('login')->withErrors(array('global' => 'Su sesión ha expirado. Por favor inicie sesión nuevamente.'));            
+        }
+        
         return parent::render($request, $e);
+
     }
 }

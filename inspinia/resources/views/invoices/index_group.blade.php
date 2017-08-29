@@ -106,7 +106,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
+<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
 <!-- iCheck -->
 <script src="{{ URL::asset('js/plugins/iCheck/icheck.min.js') }}"></script>
 

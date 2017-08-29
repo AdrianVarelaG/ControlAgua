@@ -46,6 +46,8 @@ class PDFController extends Controller
         $data=[
             'company' => $company,
             'invoices' => $invoices,
+            //'root' => realpath(base_path()), 
+            'logo' => 'data:image/png;base64, '.$company->logo
         ];
         $pdf = PDF::loadView('reports/invoice_all', $data);
         return $pdf->download('InvoicesAll.pdf');

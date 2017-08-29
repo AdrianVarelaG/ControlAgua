@@ -357,7 +357,7 @@ class PaymentController extends Controller
 
 
     public function payment_future(Request $request){
-                
+                        
         $str_description = "";
         $tot_invoices =0;
         $tot_discount=0;

@@ -125,7 +125,7 @@
 
 @push('scripts')   
 <!-- Steps -->
-<script src="{{ asset("js/plugins/staps/jquery.steps.min.js") }}"></script>
+<script src="{{ asset('js/plugins/staps/jquery.steps.min.js') }}"></script>
 
 <!-- Page-Level Scripts -->
 <script>

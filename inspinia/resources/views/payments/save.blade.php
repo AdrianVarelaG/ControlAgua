@@ -80,6 +80,8 @@
                         <!-- 2 Column -->
                         <div class="col-sm-7">
                             <h2>Estado de Cuenta al {{ $today->format('d/m/Y') }}</h2>
+                                <h3>Ultimo Pago</h3>
+                                <p>{{ ($contract->last_payment)?$contract->last_payment->date->format('d/m/Y'):'No tiene pagos registrados' }}</p>
                                 <h3>Movimientos del Mes Anterior</h3>
                                 <p>Saldo inicial: <strong>{{ money_fmt($previous_balance_m2) }} {{ Session::get('coin') }}</strong></p>
                                 <small>Cargos: {{ $credits_m1->sum('amount') }}</small><br/>
@@ -114,9 +116,9 @@
                             <h2>Descuentos</h2>
                              <!-- 3ra Edad -->
                              @if($contract->citizen->age_discount())
-                                <p>El ciudadano tiene <strong>{{ $contract->citizen->age }}</strong> años y aplica para el descuento de 3ra edad. <small>{{ ($age_discount->type=='M')?money_fmt($age_discount->amount).' '.Session::get('coin'):'('.money_fmt($age_discount->percent).' %) del total a pagar' }}.</small></p>
+                                <p>El ciudadano tiene <strong>{{ $contract->citizen->age }}</strong> años y aplica para el descuento de 3ra edad.</p>
                                 <div class="i-checks">
-                                    <p>{!! Form::checkbox('age_discount', $age_discount->type,  false, ['id'=>'age_discount',]) !!} <strong>Posee credencial de la 3ra edad ?</strong></p>
+                                    <p>{!! Form::checkbox('age_discount', $age_discount->type,  false, ['id'=>'age_discount',]) !!} {{ $age_discount->description }} {{ ($age_discount->type=='M')?money_fmt($age_discount->amount).' '.Session::get('coin'):'('.money_fmt($age_discount->percent).' %) del total a pagar' }}</p>
                                         {!! Form::hidden('age_discount_amount',  $age_discount->amount , ['id'=>'age_discount_amount']) !!}
                                         {!! Form::hidden('age_discount_percent', $age_discount->percent , ['id'=>'age_discount_percent']) !!}
                                         {!! Form::hidden('age_discount_id', $age_discount->id , ['id'=>'age_discount_id']) !!}
@@ -189,7 +191,8 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="form-group pull-right">
                                 <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
-                                    <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Pagar</button>
+                                    <button type="button" id="btn_confirm" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#myModal4" style='display:none;'>Pagar</button>
+                                    <button type="submit" id="btn_submit" class="btn btn-sm btn-primary" style='display:solid;'>Pagar</button>
                                     <button type="reset" id="btn_reset" class="btn btn-sm btn-default">Reset</button>
                                     <a href="{{URL::to('payments.contracts_debt/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                                 </div>
@@ -204,62 +207,23 @@
             </div>
             <!-- /ibox-content -->
             
-            <!-- Invoice Details MODAL-->
+            <!-- Confirmacion de Credencial 3ra Edad-->
             <div class="modal inmodal" id="myModal4" tabindex="-1" role="dialog"  aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content animated fadeIn">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <h4 class="modal-title">Detalle Deuda</h4>
-                            <h4>Recibos por Cancelar</h4>
-                        </div>
                         <div class="modal-body">
-                        @if($contract->invoices->where('status', 'P'))
-                            <div class="table-responsive">
-                                <table id="datatable-buttons" class="table table-striped table-condensed">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-center">#</th>
-                                            <th class="text-center">Facturación</th>
-                                            <th class="text-center">Vencimiento</th>
-                                            <th class="text-center">Estatus</th>
-                                            <th class="text-right">Monto {{ Session::get('coin') }}</th>          
-                                        </tr>
-                                    </thead>
-                                    <tbody>                  
-                                        @foreach($invoices as $invoice)
-                                        <tr>
-                                            <td class="text-center"><strong>{{ $invoice->id }}</strong></td>
-                                            <td class="text-center">{{ $invoice->month }}/{{ $invoice->year }}</td>
-                                            <td class="text-center">{{ $invoice->date_limit->format('d/m/Y') }}
-                                            </td>
-                                            <td class="text-center"><p><span class="label {{ $invoice->label_status }}">{{ $invoice->status_description }}</span></p></td>
-                                            <td class="text-right">{{ money_fmt($invoice->total) }}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th class="text-center"></th>
-                                            <th class="text-center"></th>
-                                            <th class="text-center"></th>
-                                            <th class="text-center"></th>
-                                            <th class="text-right">
-                                                {{ money_fmt($invoices->sum('total')) }} {{ Session::get('coin') }}
-                                            </th>                                
-                                        </tr>
-                                    </tfood>                                    
-                                </table>
-                            </div>
-                        @endif
+                            <i class="fa fa-2x fa-id-badge" aria-hidden="true"></i> <strong>{{ $contract->citizen->name }}</strong> posee credencial de la 3ra Edad ?<br/><br/>
+                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> 
+                            <small>De no poseerla no podrá disfrutar del descuento.</small>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-white" data-dismiss="modal">Cerar</button>
+                            <button type="submit" id="btn_yes" class="btn btn-primary">Si</button>
+                            <button type="button" id="btn_no" class="btn btn-danger" data-dismiss="modal">No</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Invoice Details MODDAL-->
+            <!-- Confirmacion de Credencial 3ra Edad-->
         
 
         </div>
@@ -318,6 +282,11 @@
             }        
         });
         
+        $('#btn_yes').on('click', function(event){ 
+            $('#myModal4').modal('toggle');
+            $("#form").submit();
+        });
+
         //Datepicker fecha del pago
         var date_input_1=$('#data_1 .input-group.date');
         date_input_1.datepicker({
@@ -360,14 +329,18 @@
         $('#age_discount').on('ifChecked', function(event){ 
             $("input[id^='other_discount']").iCheck('uncheck'); 
             $('#div_other_discounts').hide();
+            $('#btn_confirm').show();
+            $('#btn_submit').hide();
         });       
 
         $('#age_discount').on('ifUnchecked', function(event){ 
             $('#div_other_discounts').show();
+            $('#btn_confirm').hide();
+            $('#btn_submit').show();            
         });
 
         $('#age_discount').on('ifChanged', function(event){ 
-            calcula_total();            
+            calcula_total();           
         });
 
         $("input[id^='invoice']").on('ifChanged', function(event){ 
@@ -387,7 +360,11 @@
             if ('{{ $contract->citizen->age_discount() }}'=='1'){
                 $("input[id='age_discount']").iCheck('uncheck');
             } 
- 
+        });
+
+        //Confirtmacion de credencial de 3ra Edad
+        $("#btn_no").on('click', function(event) {
+            $("#age_discount").iCheck('uncheck');
         });
 
 

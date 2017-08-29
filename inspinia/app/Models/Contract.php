@@ -207,4 +207,11 @@ class Contract extends Model
         return $last_invoice_canceled;
     }
 
+    public function getLastPaymentAttribute(){
+        $last_payment = $this->payments()->orderBy('date', 'DESC')->first();
+        
+        return $last_payment;
+    }
+
+
 }

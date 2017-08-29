@@ -129,7 +129,7 @@
 @endsection
 
 @push('scripts')
-	<script src="{{ asset("js/plugins/dataTables/datatables.min.js") }}"></script>
+	<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
 
     <!-- Page-Level Scripts -->
     <script>
