@@ -48,10 +48,17 @@
                             <div class="form-group">                            
                                 <label>Nro de Contrato *</label>
                                 <div class="input-group m-b">
-                                    <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+                                    <span class="input-group-addon"><i class="fa fa-barcode" aria-hidden="true"></i></span>
                                     {!! Form::text('number', $contract->number, ['id'=>'number', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 0005456328', 'maxlength'=>'25', 'required']) !!}
                                 </div>
                             </div>                            
+                            <div class="form-group">
+                                <label>Estatus</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
+                                    {{ Form::select('status', ['A' => 'Activo', 'B' => 'Baja', 'D' => 'Desactivo', 'R'=>'Reparación'], ($contract->id)?$contract->status:'A', ['id'=>'status', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
+                                </div>
+                            </div>                                                                                                      
                             <div class="form-group">                            
                                 <label>Tarifa *</label>
                                 <div class="input-group">
@@ -127,6 +134,13 @@
                                     {!! Form::text('postal_code', ($contract->id)?$contract->postal_code:$citizen->postal_code, ['id'=>'postal_code', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 21150', 'maxlength'=>'10', 'number', 'required']) !!}
                                 </div>
                             </div>                            
+                            <div class="form-group">
+                                <label>Observación</label><small> Máx. 400 caracteres.</small>
+                                <div class="input-group m-b">
+                                <span class="input-group-addon"><i class="fa fa-align-justify" aria-hidden="true"></i></span>
+                                {!! Form::textarea('observation', $contract->observation, ['id'=>'observation', 'rows'=>'3', 'class'=>'form-control', 'placeholder'=>'Escriba aqui alguna observación', 'maxlength'=>'400']) !!}
+                                </div>
+                            </div>
                             <div class="form-group pull-right">
                                 <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-3">
                                     <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Ok</button>
@@ -178,6 +192,15 @@
         if($('#data_1 .input-group.date').val() == ''){
           $('#data_1 .input-group.date').datepicker("setDate", new Date());                
         }            
+        
+        // Select2 
+        $("#status").select2({
+          language: "es",
+          placeholder: "Seleccione un estatus",
+          minimumResultsForSearch: 10,
+          allowClear: false,
+          width: '100%'
+        });
         
         // Select2 
         $("#rate").select2({

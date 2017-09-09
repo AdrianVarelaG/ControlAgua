@@ -25,7 +25,7 @@ class ReadingController extends Controller
      */
     public function index()
     {
-        $readings = Reading::orderBy('date')->orderBy('contract_id')->get();
+        $readings = Reading::orderBy('date', 'DESC')->paginate(10);
         $company = Company::first();          
         return view('readings.index')->with('readings', $readings)
                                     ->with('company', $company); 

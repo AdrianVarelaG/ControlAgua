@@ -39,8 +39,10 @@
                 </div>
                 <!-- /ibox-title -->
                     
-            <!-- ibox-content- -->
-            <div class="ibox-content">
+          <!-- ibox-content- -->
+          <div class="ibox-content">
+            <div class="row">
+
                 
             {{ Form::open(array('url' => 'contracts.balance/'.$contract->id.'/3', 'id' => 'form', 'method' => 'get'), ['' ])}}
             
@@ -126,8 +128,16 @@
                 @endif
                 
                 {{ Form::close() }} 
+                
+                <div class="col-md-12 col-sm-12 col-xs-12 ">                  
+                  <div class="form-group pull-right">
+                      <a href="{{URL::to('contracts')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                    </div>
                 </div>
-                <!-- /ibox-content- -->
+
+                </div>
+              </div>
+              <!-- /ibox-content- -->
             </div>
         </div>
     </div>

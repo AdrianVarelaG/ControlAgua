@@ -32,8 +32,8 @@ class User extends Authenticatable
             return "Administrador";
         }else if($this->role == 'OPE'){
             return "Operador";
-        }else if($this->role == 'CAJ'){
-            return "Cajero";
+        }else if($this->role == 'TES'){
+            return "Tesorería";
         }else if($this->role == 'DDA'){
             return "Departamento de Aguas";
         }

@@ -9,6 +9,7 @@ class Invoice extends Model
 {
     protected $table = 'invoices';
     protected $dates = ['date', 'date_limit'];
+    protected $guarded = ['id'];
 
     //*** Relations ***    
     public function citizen()

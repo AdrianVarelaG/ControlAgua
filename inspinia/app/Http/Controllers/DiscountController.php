@@ -52,6 +52,7 @@ class DiscountController extends Controller
      */
     public function store(DiscountRequestStore $request)
     {        
+        
         $discount = new Discount();
         $discount->movement_type= 'D';
         $discount->type= $request->input('type');
@@ -64,7 +65,7 @@ class DiscountController extends Controller
             $discount->temporary ='N';
         }
         
-        if ($request->input('type')=='M'){
+        if ($request->input('type')=='M' || $request->input('type')=='T'){
             $discount->amount= $request->input('amount');
         }elseif($request->input('type')=='P'){
             $discount->percent= $request->input('percent');
@@ -140,7 +141,7 @@ class DiscountController extends Controller
             }
         }
         $discount->type= $request->input('type');
-        if ($request->input('type')=='M'){
+        if ($request->input('type')=='M' || $request->input('type')=='T' ){
             $discount->amount= $request->input('amount');
         }elseif($request->input('type')=='P'){
             $discount->percent= $request->input('percent');

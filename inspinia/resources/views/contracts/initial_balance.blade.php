@@ -12,11 +12,11 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 	<div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-12">  
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-file-text-o" aria-hidden="true"></i> Consulta de Recibos</h5>
+                    <h5><i class="fa fa-tachometer" aria-hidden="true"></i> Contratos Desactivos sin Datos Iniciales</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -34,97 +34,71 @@
                     </div>
                 </div>
                 <!-- /ibox-title -->
-                    
-            <!-- ibox-content- -->
-            <div class="ibox-content">
-                
-            @if($contract->invoices->count())
+                                
+          <!-- ibox-content- -->
+          <div class="ibox-content">
+
+            @if($contracts->count())
                 <div class="table-responsive">
-              
-                @include('partials.errors')
                     
-                <div class="col-sm-7">
-                    <h2>Contrato Nro <strong>{{ $contract->number }}</strong></h2>
-                    <h3>{{ $contract->citizen->name }}</h3><br/>
-                </div>                  
-                
-                <div class="col-md-12 col-sm-12 col-xs-12">                    
+                    @include('partials.errors')
+
                     <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
                         <th></th>
-                        <th class="text-center">Recibo #</th>
-                        <th>Facturación</th>
-                        <th>Monto {{ Session::get('coin') }}</th>
-                        <th>Vencimiento</th>
-                        <th>Estatus</th>
+                        <th>Nro Contrato</th>
+                        <th>Ciudadano</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($contract->invoices()->orderBy('date', 'DESC')->get() as $invoice)
+                  @foreach($contracts as $contract)
+                    @if($contract->movements->count()==0)
                     <tr class="gradeX">
                         <td class="text-center">                            
-                        <!-- Split button -->
                             <div class="input-group-btn">
-                                <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
-                                <ul class="dropdown-menu">
-                                    <li><a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-eye"></i> Vista previa</a></li>
-                                    <li><a href="{{ route('invoices.invoice_pdf', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-print"></i> Imprimir Recibo</a></li>
-                                </ul>
+                                <button data-toggle="dropdown" class="btn btn-xs btn-danger dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="{{ route('contracts.activate', Crypt::encrypt($contract->id)) }}"><i class="fa fa-check"></i> Registrar Datos Iniciales y Activar</a></li>
+                                    </ul>
                             </div>
-                        <!-- /Split button -->                          
-                        </td>                          
-                        <td class="text-center">
-                          <a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}" class="client-link" title="Vista previa">{{ $invoice->id }}</a>
-                        </td>
-                        <td>{{ $invoice->date->format('d/m/Y') }}</td>
-                        <td>{{ money_fmt($invoice->total) }}</td>
-                        <td>{{ $invoice->date_limit->format('d/m/Y') }}</td>
-                        @php
-                        @endphp
-                        <td><p><span class="label {{ $invoice->label_status }}">{{ $invoice->status_description }}</span></p></td>
+                        <td><strong>{{ $contract->number }}</strong></td>
+                        <td>{{ $contract->citizen->name }}</td>
                     </tr>
-                    @endforeach
+                    @endif
+                  @endforeach
                     </tbody>
                     <tfoot>
                     <tr>
                         <th></th>
-                        <th class="text-center">Recibo #</th>
-                        <th>Facturación</th>
-                        <th>Monto {{ Session::get('coin') }}</th>
-                        <th>Vencimiento</th>
-                        <th>Estatus</th>
+                        <th>Nro Contrato</th>
+                        <th>Ciudadano</th>
                     </tr>
                     </tfoot>
                     </table>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>                    
+                    <br/>
                 	</div>
-                </div>
                 @else
                   <div class="alert alert-info">
                     <ul>
                       <i class="fa fa-info-circle"></i> No existen registros para mostrar!
                     </ul>
                   </div>                
-                @endif                
-                  <div class="form-group pull-right">
-                    <div class="col-md-12 col-sm-12 col-xs-12 ">
-                      <a href="{{URL::to('contracts')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
-                    </div>
-                  </div>
-                  <br/>
-                  <br/>
+                @endif
                 </div>
                 <!-- /ibox-content- -->
-            </div>
+          </div>
         </div>
     </div>
 </div>
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
-<script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
-
+	<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
 
     <!-- Page-Level Scripts -->
     <script>
@@ -132,14 +106,12 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
+              "aaSorting": [[1, "asc"]],
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
-                { "sWidth": "15%" }, // 2nd column width
-                { "sWidth": "15%", "sType": "date-uk" }, // 3nd column width
-                { "sWidth": "15%" }, // 4nd column width
-                { "sWidth": "15%", "sType": "date-uk" }, // 5nd column width
-                { "sWidth": "20%" }  // 6nd column width
+                { "sWidth": "45%" }, // 2nd column width
+                { "sWidth": "50%" } // 3nd column width
               ],              
               responsive: false,              
               dom: '<"html5buttons"B>lTfgitp',
@@ -149,10 +121,10 @@
                   text: '<i class="fa fa-file-excel-o"></i>',
                   titleAttr: 'Exportar a Excel',
                   //Titulo
-                  title: 'Recibos del Contrato {{ $contract->number }}',                  
+                  title: 'Contratos Desactivos sin Saldo Inicial',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6],
+                    columns: [1, 2],
                   }                                    
                 },
                 {
@@ -160,12 +132,12 @@
                   text: '<i class="fa fa-file-pdf-o"></i>',
                   pageSize: 'LETTER',
                   titleAttr: 'Exportar a PDF',
-                  title: 'Recibos del Contrato {{ $contract->number }}',                  
+                  title: 'Contratos Desactivos sin Saldo Inicial',                  
                   className: "btn-sm",
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6],
+                    columns: [1, 2],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body
@@ -208,25 +180,6 @@
                 },
               ]
             });
-            
-            //Notifications
-            setTimeout(function() {
-                toastr.options = {
-                    closeButton: true,
-                    progressBar: true,
-                    showMethod: 'slideDown',
-                    timeOut: 2000
-                };
-                if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
-                  toastr.success('Registro añadido exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='update' &&  '{{ Session::get('update_notification') }}'=='1'){
-                  toastr.success('Registro actualizado exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
-                  toastr.success('Registro eliminado exitosamente', '{{ Session::get('app_name') }}');
-                }
-            }, 1300);        
         });
     </script>
 @endpush

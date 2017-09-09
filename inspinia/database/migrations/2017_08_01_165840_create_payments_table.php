@@ -18,6 +18,7 @@ class CreatePaymentsTable extends Migration
             $table->foreign('citizen_id')->references('id')->on('citizens');                        
             $table->integer('contract_id')->unsigned();
             $table->foreign('contract_id')->references('id')->on('contracts');            
+            $table->string('folio', 10)->nullable();
             $table->char('type', 2);
             $table->date('date');
             $table->string('description', 400);

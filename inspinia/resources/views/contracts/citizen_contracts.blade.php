@@ -57,7 +57,9 @@
                             </div>
                         </div>                        
                         <div class="col-lg-9">                            
-                            <a href="{{ route('contracts.create', Crypt::encrypt($citizen->id)) }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Nuevo Contrato</a><br/><br/>
+                            @if(Session::get('user_role') == 'ADM')
+                                <a href="{{ route('contracts.create', Crypt::encrypt($citizen->id)) }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Nuevo Contrato</a><br/><br/>
+                            @endif
                         <!-- slick_contracts -->
                         <div class="slick_contracts">
                         @if($citizen->contracts->count()>0)
@@ -117,16 +119,18 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="form-group pull-right">
-                                        <!-- edit_contracts -->
-                                        <a href="{{ route('contracts.edit', Crypt::encrypt($contract->id)) }}" class="btn btn-sm btn-default" title="Editar"><i class="fa fa-pencil"></i></a>
-                                        <!-- delete_contracts -->
-                                        <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el contrato?')) { return true } else {return false };">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <a href="#" onclick="$(this).closest('form').submit()" class="btn btn-sm btn-default" title="Eliminar" style="color:inherit"><i class="fa fa-trash-o"></i></a>
-                                        </form>                                        
-                                    </div>
+                                    @if(Session::get('user_role') == 'ADM')
+                                        <div class="form-group pull-right">
+                                            <!-- edit_contracts -->
+                                            <a href="{{ route('contracts.edit', Crypt::encrypt($contract->id)) }}" class="btn btn-sm btn-default" title="Editar"><i class="fa fa-pencil"></i></a>
+                                            <!-- delete_contracts -->
+                                            <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el contrato?')) { return true } else {return false };">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <a href="#" onclick="$(this).closest('form').submit()" class="btn btn-sm btn-default" title="Eliminar" style="color:inherit"><i class="fa fa-trash-o"></i></a>
+                                            </form>                                        
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             @endforeach

@@ -42,6 +42,7 @@ class Authenticate
                 $setting = Setting::first();
                 $user = User::find(Auth::user()->id);
                 Session::put('citizens_view', 'list');
+                Session::put('filter_name', '');
                 Session::put('user_role', $user->role);
                 Session::put('company_name', $company->name);
                 Session::put('app_name', $setting->app_name);

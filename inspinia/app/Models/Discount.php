@@ -37,10 +37,18 @@ class Discount extends Model
     public function getTypeDescriptionAttribute(){
 
         if($this->type=='M'){
+            
             return 'Monto Fijo';
+        
         }else if ($this->type=='P') {
+        
             return 'Porcentual';
-    	}
+    	
+        }else if ($this->type=='T') {
+        
+            return 'Total';
+        
+        }
     }
 
     public function getMovementTypeDescriptionAttribute(){

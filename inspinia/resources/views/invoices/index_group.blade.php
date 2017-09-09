@@ -46,7 +46,7 @@
               
                   @include('partials.errors')
                     
-                    <table class="table table-striped table-hover dataTables-example" >
+                    <table class="table table-striped table-hover" >
                     <thead>
                     <tr>
                         <th></th>
@@ -65,15 +65,14 @@
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
                                     <li><a href="{{ route('invoices.index', [Crypt::encrypt($invoice_group->year), Crypt::encrypt($invoice_group->month)] ) }}"><i class="fa fa-plus-circle"></i> Ver Detalle</a></li>
-                                    <li><a href="{{ route('invoices.invoices_pdf', [Crypt::encrypt($invoice_group->year), Crypt::encrypt($invoice_group->month)] ) }}"><i class="fa fa-print"></i> Imprimir</a></li>
                                 </ul>
                             </div>
                         <!-- /Split button -->                          
                         </td>                          
                         <td>
-                          <a href="{{ route('invoices.index', [Crypt::encrypt($invoice_group->year), Crypt::encrypt($invoice_group->month)] ) }}" class="client-link" title="Ver Detalle">{{ $invoice_group->month }}/{{ $invoice_group->year }}                          
+                          <a href="{{ route('invoices.index', [Crypt::encrypt($invoice_group->year), Crypt::encrypt($invoice_group->month)] ) }}" class="client-link" title="Ver Detalle">{{ $invoice_group->year }}/{{ $invoice_group->month }}                          
                           </td>
-                        <td>{{ $invoice_group->month_consume }}/{{ $invoice_group->year_consume }}</td>
+                        <td>{{ $invoice_group->year_consume }}/{{ $invoice_group->month_consume }}</td>
                         <td>{{ $invoice_group->tot_invoice }}</td>
                         <td>{{ money_fmt($invoice_group->tot_amount) }}</td>
                     </tr>
@@ -89,7 +88,12 @@
                     </tr>
                     </tfoot>
                     </table>
-                	</div>
+                	
+                  <div class="text-right">
+                      {{ $invoices_groups->links() }}
+                  </div>
+
+                  </div>
                 @else
                   <div class="alert alert-info">
                     <ul>
@@ -116,7 +120,6 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
-              "aaSorting": [[1, "asc"]],
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 

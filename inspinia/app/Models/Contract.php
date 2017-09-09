@@ -8,6 +8,7 @@ class Contract extends Model
 {
     protected $table = 'contracts';
     protected $dates = ['date'];
+    protected $guarded = ['id'];
 	
     //*** Relations ***      
     public function administration()
@@ -129,6 +130,12 @@ class Contract extends Model
     
 
     //*** Accessors ***
+    public function getCitizenNameAttribute(){
+        
+        return $this->citizen->name;
+    }
+    
+
     public function getTotalDebitsAttribute(){
 
         $tot_debits=($this->debits)?$this->debits->sum('amount'):0;

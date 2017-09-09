@@ -39,11 +39,11 @@
             <div class="ibox-content">
                 
             @if($invoices->count())
-                <div class="table-responsive">
+              <div class="table-responsive">
               
                 @include('partials.errors')
                     
-                    <table class="table table-striped table-hover dataTables-example" >
+                    <table class="table table-striped table-hover" >
                     <thead>
                     <tr>
                         <th></th>
@@ -64,7 +64,7 @@
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
                                     <li><a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-eye"></i> Vista previa</a></li>
-                                    <li><a href="{{ route('invoices.invoice_pdf', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-print"></i> Imprimir</a></li>
+                                    <li><a href="{{ route('invoices.invoice_pdf', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-print"></i> Imprimir Recibo</a></li>
                                     <li class="divider"></li>
                                     <li>
                                         <!-- href para eliminar registro -->                            
@@ -110,7 +110,13 @@
                     </tr>
                     </tfoot>
                     </table>
-                	</div>
+                	 
+                  <div class="text-right">
+                      {{ $invoices->links() }}
+                  </div>
+                  
+                  </div>
+                                  
                 @else
                   <div class="alert alert-info">
                     <ul>

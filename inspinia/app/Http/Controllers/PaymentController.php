@@ -60,26 +60,26 @@ class PaymentController extends Controller
         if($period == '1'){
             $payments = Payment::whereYear('date','=',Carbon::now()->year)
                                 ->whereMonth('date','=',Carbon::now()->month)
-                                ->orderBy('date')->get();
+                                ->orderBy('date')->paginate(10);
         }
         else if($period == '3'){
             $initial_date = Carbon::now()->subMonths(2)->startOfMonth();
             $payments = Payment::where('date','>=',$initial_date)
-                                    ->orderBy('date')->get();
+                                    ->orderBy('date')->paginate(10);
         }        
         else if($period == '6'){
             $initial_date = Carbon::now()->subMonths(5)->startOfMonth();
             $payments = Payment::where('date','>=',$initial_date)
-                                    ->orderBy('date')->get();
+                                    ->orderBy('date')->paginate(10);
         }
         else if($period == '12'){
             $initial_date = Carbon::now()->subMonths(11)->startOfMonth();
             $payments = Payment::where('date','>=',$initial_date)
-                                    ->orderBy('date')->get();
+                                    ->orderBy('date')->paginate(10);
         }
         else if($period == 'all'){
             $initial_date = Carbon::now();
-            $payments = Payment::orderBy('date')->get();
+            $payments = Payment::orderBy('date')->paginate(10);
         }
 
         return view('payments.index')->with('payments', $payments)
@@ -92,6 +92,30 @@ class PaymentController extends Controller
         
         Session::put('payments_period', $period);
         return redirect()->route('payments.index');
+    }
+    
+    public function edit($id){
+        
+        $company = Company::first();
+        $payment = Payment::find(Crypt::decrypt($id));
+        
+        return view('payments.folio')->with('payment', $payment)
+                                    ->with('company', $company);        
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(PaymentRequestUpdate $request, $id)
+    {
+        $payment = Payment::find($id);        
+        $payment->folio= $request->input('folio');
+        $payment->save();
+        return redirect()->route('payments.index')->with('notity', 'update');
     }
     
     /**
@@ -191,6 +215,7 @@ class PaymentController extends Controller
                                     ->where('status', 'A')->get();        
         $age_discount = Discount::find(1);
         $other_discounts = Discount::where('id','>' , 1)
+                                    ->where('type', '!=','T')
                                     ->where('status', 'A')->get();
         
         return view('payments.future')->with('payment', $payment)
@@ -233,6 +258,8 @@ class PaymentController extends Controller
             $discount = Discount::find($request->input('hdd_discount_id'));        
             if($discount->type == 'M'){
                 $tot_discount = $discount->amount;
+            }else if($discount->type == 'T'){
+                $tot_discount = $tot_debt - $discount->amount;
             }else if($discount->type == 'P'){
                 $tot_discount = $tot_debt * ($discount->percent/100); //Siempre se hace un descuento sobre el total de la deuda asi pague menos.
             }
@@ -322,20 +349,8 @@ class PaymentController extends Controller
             }        
         //Si el pago es menor se cancelan los recibos que se puedan con el monto dado por el ciudadano
         }else{
-            //PRIMER CHEQUEO: Cancela los recibos en orden cronologico
+            //Cancela los recibos en orden cronologico
             foreach ($invoices as $invoice) {
-                if($payment_amount >= $invoice->total){
-                    $invoice->payment_id = $payment->id;
-                    $invoice->status = 'C';
-                    $this->str_description = $this->str_description.' '.$invoice->month.'/'.$invoice->year;            
-                    $invoice->save();
-                    $months_canceled++;
-                    $payment_amount = $payment_amount - $invoice->total;
-                }
-            }
-            //SEGUNDO CHEQUEO: Cancela los recibos pendientes con montos mas pequeños
-            $invoices = $contract->invoices()->where('status', 'P')->orderBy('total')->get();
-                foreach ($invoices as $invoice) {
                 if($payment_amount >= $invoice->total){
                     $invoice->payment_id = $payment->id;
                     $invoice->status = 'C';
@@ -543,33 +558,6 @@ class PaymentController extends Controller
         $payment = Payment::find(Crypt::decrypt($id)); 
         return view('payments.show')->with('payment', $payment)
                                         ->with('company', $company);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $payment = Payment::find(Crypt::decrypt($id));
-        return view('payments.save')->with('payment', $payment);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(PaymentRequestUpdate $request, $id)
-    {
-        $payment = Payment::find($id);        
-        $payment->name= $request->input('name');
-        $payment->save();
-        return redirect()->route('payments.index')->with('notity', 'update');
     }
 
     /**

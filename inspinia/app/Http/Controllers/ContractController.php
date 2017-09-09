@@ -7,15 +7,19 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Requests\Contract\ContractRequestStore;
 use App\Http\Requests\Contract\ContractRequestUpdate;
+use App\Http\Requests\Contract\ContractRequestActivate;
 use App\Models\Contract;
 use App\Models\Citizen;
 use App\Models\Company;
 use App\Models\Rate;
 use App\Models\State;
+use App\Models\Movement;
+use App\Models\Payment;
 use App\Models\Administration;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use Auth;
+use Session;
 
 
 class ContractController extends Controller
@@ -29,9 +33,26 @@ class ContractController extends Controller
     public function index()
     {
         $company = Company::first();                  
-        $contracts = Contract::all();  
+        $current_year = Carbon::now()->year;
+
+        if(Session::get('filter_name')==''){
+            $contracts = Contract::all()->take(30);
+        }else{
+            $contracts = Contract::whereHas('Citizen', 
+                                function($q){
+                                    $q->where('name', 'LIKE', '%'.Session::get('filter_name').'%');
+                                })->get();                
+        }
+        
         return view('contracts.index')->with('contracts', $contracts)
+                                    ->with('current_year', $current_year)
                                     ->with('company', $company);  
+    }
+    
+    public function filter($name){
+        
+        Session::put('filter_name', $name);
+        return redirect()->route('contracts.index');
     }
     
     public function invoices($contract_id){
@@ -51,6 +72,66 @@ class ContractController extends Controller
                                     ->with('company', $company);
     }
     
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function initial_balance()
+    {
+        $company = Company::first();                  
+        $contracts = Contract::where('status', 'D')->get();  
+        return view('contracts.initial_balance')->with('company', $company)
+                                            ->with('contracts', $contracts); 
+    }
+    
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function activate($id)
+    {
+        $contract = Contract::find(Crypt::decrypt($id));
+        return view('contracts.save_activate')->with('contract', $contract);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function update_activate(ContractRequestActivate $request, $id)
+    {
+        $contract = Contract::find($id);
+        //1. Se registra en la tabla movimientos el saldo inicial        
+        $movement = new Movement();
+        $movement->date= (new ToolController)->format_ymd($request->input('date'));
+        $movement->contract_id = $contract->id;
+        $movement->citizen_id = $contract->citizen->id;
+        $movement->description = 'Saldo Inicial';
+        $movement->type = 'I';
+        $initial_balance = $request->input('initial_balance');
+        if ($initial_balance >= 0){
+            $movement->movement_type = 'D'; //Debito (saldo a favor del ciudadano)
+        }else if($initial_balance < 0 ){            
+            $movement->movement_type = 'C'; //Credito (deuda o cargo)
+        }
+        $movement->amount= abs($request->input('initial_balance'));
+        $movement->save();
+        //2. Se registra un pago inicial para guardar la fecha del ultimo pago
+        $payment = new Payment();
+        $payment->date= (new ToolController)->format_ymd($request->input('date_last_payment'));
+        $payment->citizen_id = $contract->citizen->id;
+        $payment->contract_id = $contract->id;
+        $payment->type= 'E';
+        $payment->observation = 'Ultimo Pago antes de arranque del Sistema';
+        $payment->amount =0;
+        $payment->save();
+        return redirect()->route('contracts.initial_balance', Crypt::encrypt($contract->citizen_id))->with('notity', 'update');
+
+    }
 
     /**
      * Display a listing of the resource.
@@ -107,7 +188,8 @@ class ContractController extends Controller
         $contract->number_ext= $request->input('number_ext');
         $contract->number_int= $request->input('number_int');
         $contract->postal_code= $request->input('postal_code');
-        $contract->status= 'A';
+        $contract->observation= $request->input('observation');
+        $contract->status= $request->input('status');
         $contract->save();
         return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'create');
     }
@@ -236,6 +318,8 @@ class ContractController extends Controller
         $contract->number_ext= $request->input('number_ext');
         $contract->number_int= $request->input('number_int');
         $contract->postal_code= $request->input('postal_code');
+        $contract->observation= $request->input('observation');
+        $contract->status= $request->input('status');
         $contract->save();
         return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'update');
     }

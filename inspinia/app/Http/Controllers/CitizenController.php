@@ -38,13 +38,24 @@ class CitizenController extends Controller
             return view('citizens.index2')->with('citizens', $citizens)
                                     ->with('company', $company);
         }else if(Session::get('citizens_view') == 'list'){
-            $citizens = Citizen::orderBy('name')->get();            
+            if(Session::get('filter_name')==''){
+                $citizens = Citizen::all()->take(30);
+            }else{
+                $citizens = Citizen::where('name', 'LIKE', '%'.Session::get('filter_name').'%')->orderBy('name')->get();                
+            }
+            
             $company = Company::first();
             return view('citizens.index')->with('citizens', $citizens)
                                     ->with('company', $company);
         }
     }
 
+    public function filter($name){
+        
+        Session::put('filter_name', $name);
+        return redirect()->route('citizens.index');
+    }
+    
     public function change_view($view){
 
         Session::put('citizens_view', $view);

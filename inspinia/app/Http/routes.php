@@ -26,6 +26,8 @@ Route::get('citizens.payments/{citizen_id}', ['as' => 'citizens.payments', 'uses
 Route::get('citizens.change_view/{view}', ['as' => 'citizens.change_view', 'uses' => 'CitizenController@change_view']);
 Route::get('citizens.status/{id}', ['as' => 'citizens.status', 'uses' => 'CitizenController@status']);
 Route::get('citizens.balance/{id}/{period}', ['as' => 'citizens.balance', 'uses' => 'CitizenController@balance']);
+Route::get('citizens.filter/{name}', ['as' => 'citizens.filter', 'uses' => 'CitizenController@filter']);
+
 
 //Company
 Route::resource("company","CompanyController");
@@ -41,11 +43,22 @@ Route::get('contracts.create/{id}', ['as' => 'contracts.create', 'uses' => 'Cont
 Route::get('contracts.status/{id}', ['as' => 'contracts.status', 'uses' => 'ContractController@status']);
 Route::get('contracts.citizen_contracts/{id}', ['as' => 'contracts.citizen_contracts', 'uses' => 'ContractController@citizen_contracts']);
 Route::get('contracts.balance/{id}/{period}', ['as' => 'contracts.balance', 'uses' => 'ContractController@balance']);
+Route::get('contracts.initial_balance', ['as' => 'contracts.initial_balance', 'uses' => 'ContractController@initial_balance']);
+Route::get('contracts.activate/{id}', ['as' => 'contracts.activate', 'uses' => 'ContractController@activate']);
+Route::put('contracts.activate/{id}', ['as' => 'contracts.activate', 'uses' => 'ContractController@update_activate']);
+Route::get('contracts.filter/{name}', ['as' => 'contracts.filter', 'uses' => 'ContractController@filter']);
+
 
 //Charge
 Route::resource("charges","ChargeController");
 Route::get('charges.iva', ['as' => 'charges.iva', 'uses' => 'ChargeController@iva']);
 Route::get('charges.status/{id}', ['as' => 'charges.status', 'uses' => 'ChargeController@status']);
+
+//Datatables
+Route::controller('datatables', 'DatatablesController', [
+    'anyData'  => 'datatables.data',
+    'getIndex' => 'datatables',
+]);
 
 //Discount
 Route::resource("discounts","DiscountController");
@@ -71,15 +84,15 @@ Route::get('inspectors.status/{id}', ['as' => 'inspectors.status', 'uses' => 'In
 Route::resource("invoices","InvoiceController");
 Route::get('invoices.index/{year}/{month}', ['as' => 'invoices.index', 'uses' => 'InvoiceController@index']);
 Route::get('invoices.index_group', ['as' => 'invoices.index_group', 'uses' => 'InvoiceController@index_group']);
+Route::get('invoices.print_invoices', ['as' => 'invoices.print_invoices', 'uses' => 'InvoiceController@print_invoices']);
 
 Route::get('invoices.routines', ['as' => 'invoices.routines', 'uses' => 'InvoiceController@routines']);
 Route::get('invoices.reverse_routine/{year}/{month}', ['as' => 'invoices.reverse_routine', 'uses' => 'InvoiceController@reverse_routine']);
 
 //PDF Reports Controller
 Route::get('invoices.inovice_pdf/{id}', ['as' => 'invoices.invoice_pdf', 'uses' => 'PDFController@invoice_pdf']);
-Route::get('invoices.invoices_pdf/{year}/{month}', ['as' => 'invoices.invoices_pdf', 'uses' => 'PDFController@invoices_pdf']);
+Route::post('invoices.invoices_pdf', ['as' => 'invoices.invoices_pdf', 'uses' => 'PDFController@invoices_pdf']);
 Route::get('payments.print_voucher/{id}', ['as' => 'payments.print_voucher', 'uses' => 'PDFController@print_voucher']);
-
 
 //Login
 Route::auth();
@@ -98,6 +111,7 @@ Route::get('payments.create/{id}', ['as' => 'payments.create', 'uses' => 'Paymen
 Route::get('payments.contracts_debt', ['as' => 'payments.contracts_debt', 'uses' => 'PaymentController@contracts_debt']);
 Route::get('payments.contracts_solvent', ['as' => 'payments.contracts_solvent', 'uses' => 'PaymentController@contracts_solvent']);
 Route::get('payments.future/{id}', ['as' => 'payments.future', 'uses' => 'PaymentController@future']);
+Route::get('payments.folio/{id}', ['as' => 'payments.folio', 'uses' => 'PaymentController@folio']);
 
 //Profile Controller
 Route::resource('profiles',"ProfileController");
@@ -121,6 +135,11 @@ Route::resource("settings","SettingController");
 //State
 Route::resource("states","StateController");
 Route::get('states.status/{id}', ['as' => 'states.status', 'uses' => 'StateController@status']);
+
+//UploadFile
+Route::get('uploadfile','UploadFileController@index');
+Route::post('uploadfile','UploadFileController@showUploadFile');
+Route::get('uploadfile.test_date', ['as' => 'uploadfile.test_date', 'uses' => 'UploadFileController@test_date']);
 
 //User
 Route::resource("users","UserController");

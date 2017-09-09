@@ -26,9 +26,10 @@
             </li>
             <!-- /Profile -->
             
-            <li class="{{ set_active(['home', '/']) }}">
-                <a href="{{ URL::to('home') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboard</span></a>
-            </li>
+        <li class="{{ set_active(['home', '/']) }}">
+            <a href="{{ URL::to('home') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboard</span></a>
+        </li>
+        
         <!-- Menu ADM Administrador -->
         @if(Session::get('user_role')=='ADM')                                
             <li class="{{ set_active(['states', 'municipalities', 'administrations', 'inspectors', 'authorizations']) }}">
@@ -67,7 +68,7 @@
                 <a href="{{URL::to('readings')}}"><i class="fa fa-pencil-square-o"></i> <span class="nav-label">Lecturas</span></a>
             </li>
             
-            <li class="{{ set_active(['charges.iva', 'rates.flat_rate', 'rates', 'charges', 'discounts', 'discounts.age', 'invoices.routines', 'invoices.index_group']) }}">
+            <li class="{{ set_active(['charges.iva', 'rates.flat_rate', 'rates', 'charges', 'discounts', 'discounts.age', 'invoices.routines']) }}">
                 <a href="index.html"><i class="fa fa-file-text-o"></i> <span class="nav-label">Recibos</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['charges.iva']) }}">
@@ -89,29 +90,42 @@
                         <a href="{{URL::to('discounts')}}">Otros Descuentos</a>
                     </li>                                                            
                     <li class="{{ set_active(['invoices.routines']) }}">
-                        <a href="{{URL::to('invoices.routines')}}">Generar</a>
+                        <a href="{{URL::to('invoices.routines')}}">Generar recibos</a>
                     </li>
-                    <li class="{{ set_active(['invoices.index_group']) }}">
-                        <a href="{{URL::to('invoices.index_group')}}">Consultar</a>
-                    </li>                    
+                    <li class="{{ set_active(['invoices.print_invoices']) }}">
+                        <a href="{{URL::to('invoices.print_invoices')}}">Imprimir recibos</a>
+                    </li>              
                 </ul>
             </li>
-            <li class="{{ set_active(['payments', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
-                <a href="index.html"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span> <span class="fa arrow"></span></a>
+            <li class="{{ set_active(['payments', 'invoices.index_group']) }}">
+                <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultar</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['payments']) }}">
-                        <a href="{{URL::to('payments')}}">Consultar</a>
+                        <a href="{{URL::to('payments')}}">Pagos</a>
                     </li>
-                    <li class="{{ set_active(['payments.contracts_debt']) }}">
-                        <a href="{{URL::to('payments.contracts_debt')}}">Pagar</a>
-                    </li>                    
-                    <li class="{{ set_active(['payments.contracts_solvent']) }}">
-                        <a href="{{URL::to('payments.contracts_solvent')}}">Pagar por Adelantado</a>
-                    </li>                                                            
+                    <li class="{{ set_active(['invoices.index_group']) }}">
+                        <a href="{{URL::to('invoices.index_group')}}">Recibos</a>
+                    </li>
                 </ul>
             </li>            
-            <li class="{{ set_active(['setting']) }}">
-                <a href="{{URL::to('settings')}}"><i class="fa fa-cogs"></i> <span class="nav-label">Configuración</span></a>
+            <li class="{{ set_active(['settings', 'uploadfile', 'contracts.initial_balance']) }}">
+                <a href="index.html"><i class="fa fa-cogs"></i> <span class="nav-label">Configuraciones</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['settings']) }}">
+                        <a href="{{URL::to('settings')}}">Datos Generales</a>
+                    </li>
+                    <li class="{{ set_active(['contracts.initial_balance']) }}">
+                        <a href="{{URL::to('contracts.initial_balance')}}">Saldos Iniciales</a>
+                    </li>                    
+                    <!--
+                    <li class="{{ set_active(['uploadfile']) }}">
+                        <a href="{{URL::to('uploadfile')}}">Subir Padrón</a>
+                    </li>
+                    <li class="{{ set_active(['datatables']) }}">
+                        <a href="{{URL::to('datatables')}}">Datatables Test</a>
+                    </li>
+                    -->                    
+                </ul>
             </li>
         @endif
         <!-- /Menu ADM Administrador -->
@@ -132,63 +146,61 @@
                 <a href="index.html"><i class="fa fa-file-text-o"></i> <span class="nav-label">Recibos</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['invoices.routines']) }}">
-                        <a href="{{URL::to('invoices.routines')}}">Generar</a>
+                        <a href="{{URL::to('invoices.routines')}}">Generar recibos</a>
                     </li>
                     <li class="{{ set_active(['invoices.index_group']) }}">
-                        <a href="{{URL::to('invoices.index_group')}}">Consultar</a>
+                        <a href="{{URL::to('invoices.index_group')}}">Consultar recibos</a>
                     </li>                    
+                    <li class="{{ set_active(['invoices.print_invoices']) }}">
+                        <a href="{{URL::to('invoices.print_invoices')}}">Imprimir recibos</a>
+                    </li>
                 </ul>
             </li>
-            <li class="{{ set_active(['payments', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
-                <a href="index.html"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span> <span class="fa arrow"></span></a>
+            <li class="{{ set_active(['payments', 'invoices.index_group']) }}">
+                <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultar</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['payments']) }}">
-                        <a href="{{URL::to('payments')}}">Consultar</a>
+                        <a href="{{URL::to('payments')}}">Pagos</a>
                     </li>
-                    <li class="{{ set_active(['payments.contracts_debt']) }}">
-                        <a href="{{URL::to('payments.contracts_debt')}}">Pagar</a>
-                    </li>                    
-                    <li class="{{ set_active(['payments.contracts_solvent']) }}">
-                        <a href="{{URL::to('payments.contracts_solvent')}}">Pagar por Adelantado</a>
-                    </li>                                                            
+                    <li class="{{ set_active(['invoices.index_group']) }}">
+                        <a href="{{URL::to('invoices.index_group')}}">Recibos</a>
+                    </li>
                 </ul>
             </li>            
         @endif
         <!-- /Menu OPE Operador -->
 
-        <!-- Menu CAJ Cajero -->
-        @if(Session::get('user_role')=='CAJ')
-            <li class="{{ set_active(['payments', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
-                <a href="index.html"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span> <span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
-                    <li class="{{ set_active(['payments']) }}">
-                        <a href="{{URL::to('payments')}}">Consultar</a>
-                    </li>
-                    <li class="{{ set_active(['payments.contracts_debt']) }}">
-                        <a href="{{URL::to('payments.contracts_debt')}}">Pagar</a>
-                    </li>                    
-                    <li class="{{ set_active(['payments.contracts_solvent']) }}">
-                        <a href="{{URL::to('payments.contracts_solvent')}}">Pagar por Adelantado</a>
-                    </li>                                                            
-                </ul>
+        <!-- Menu Tesoreria -->
+        @if(Session::get('user_role')=='TES')
+            <li class="{{ set_active(['citizens']) }}">
+                <a href="{{URL::to('citizens')}}"><i class="fa fa-address-book-o"></i> <span class="nav-label">Ciudadanos</span></a>
             </li>
-        <!-- /Menu CAJ Cajero -->
+            <li class="{{ set_active(['contracts']) }}">
+                <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span></a>
+            </li>
+            <li class="{{ set_active(['payments']) }}">
+                <a href="{{URL::to('payments')}}"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span></a>
+            </li>
+        <!-- /Menu Tesoreria -->
         @endif        
         
         <!-- Menu DDA Departamento de Aguas -->
         @if(Session::get('user_role')=='DDA')
-            <li class="{{ set_active(['payments', 'payments.contracts_debt', 'payments.contracts_solvent']) }}">
-                <a href="index.html"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span> <span class="fa arrow"></span></a>
+            <li class="{{ set_active(['citizens']) }}">
+                <a href="{{URL::to('citizens')}}"><i class="fa fa-address-book-o"></i> <span class="nav-label">Ciudadanos</span></a>
+            </li>
+            <li class="{{ set_active(['contracts']) }}">
+                <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span></a>
+            </li>                                    
+            <li class="{{ set_active(['payments', 'invoices.index_group']) }}">
+                <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultar</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['payments']) }}">
-                        <a href="{{URL::to('payments')}}">Consultar</a>
+                        <a href="{{URL::to('payments')}}">Pagos</a>
                     </li>
-                    <li class="{{ set_active(['payments.contracts_debt']) }}">
-                        <a href="{{URL::to('payments.contracts_debt')}}">Pagar</a>
-                    </li>                    
-                    <li class="{{ set_active(['payments.contracts_solvent']) }}">
-                        <a href="{{URL::to('payments.contracts_solvent')}}">Pagar por Adelantado</a>
-                    </li>                                                            
+                    <li class="{{ set_active(['invoices.index_group']) }}">
+                        <a href="{{URL::to('invoices.index_group')}}">Recibos</a>
+                    </li>
                 </ul>
             </li>
         <!-- / Menu DDA Departamento de Aguas -->

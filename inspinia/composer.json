@@ -31,7 +31,8 @@
         "laravelcollective/html": "^5.2.0",
         "intervention/image": "2.*",
         "barryvdh/laravel-dompdf": "^0.7.1",
-        "yajra/laravel-datatables-oracle": "^6.29"
+        "yajra/laravel-datatables-oracle": "^6.29",
+        "maatwebsite/excel": "~2.1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

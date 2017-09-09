@@ -88,8 +88,9 @@
                             </div>                            
                             <div class="form-group">
                                 <div class="input-group m-b">
-                                    <div class="i-checks"><label> {!! Form::radio('type', 'M',  ($discount->id)?($discount->type=='M'):true, ['id'=>'type']) !!} <i></i> Monto Fijo </label></div>
-                                    <div class="i-checks"><label> {!! Form::radio('type', 'P',  ($discount->id)?($discount->type=='P'):false, ['id'=>'type']) !!} <i></i> Porcentual </label></div>
+                                    <div class="i-checks"><label> {!! Form::radio('type', 'M',  ($discount->id)?($discount->type=='M'):true, []) !!} <i></i> Monto Fijo </label> <small> El sistema descontará un monto fijo a la deuda total del ciudadano.</small></div>
+                                    <div class="i-checks"><label> {!! Form::radio('type', 'P',  ($discount->id)?($discount->type=='P'):false, []) !!} <i></i> Porcentual </label><small> El sistema descontará un porcentaje del monto total de la deuda.</small></div>
+                                    <div class="i-checks"><label> {!! Form::radio('type', 'T',  ($discount->id)?($discount->type=='T'):false, []) !!} <i></i> Total </label><small> Al seleccionar este descuento el ciudadano sólo pagará el monto del descuento y saldará su deuda independientemente de la deuda anterior.</small></div>                                    
                                 </div>
                             </div>  
                         <div id='div_amount' style='display:solid;'>
@@ -202,7 +203,7 @@
         });
 
         //Seteo al actualizar
-        if('{{ $discount->type }}'=='M'){
+        if('{{ $discount->type }}'=='M' || '{{ $discount->type }}'=='T'){
           $('#div_amount').show();
           $('#div_percent').hide();            
         }else if ('{{ $discount->type }}'=='P'){
@@ -220,15 +221,16 @@
             radioClass: 'iradio_square-green',
         });
 
-        $('#type').on('ifChecked', function(event){ 
-          $('#div_amount').show();
-          $('#div_percent').hide();
+        $('input[name=type]').on('ifChanged', function(event){ 
+          if($(this).val() =='M' || $(this).val() =='T'){
+            $('#div_amount').show();
+            $('#div_percent').hide();
+          }else{
+            $('#div_amount').hide();
+            $('#div_percent').show();
+          }
         });       
 
-        $('#type').on('ifUnchecked', function(event){ 
-          $('#div_amount').hide();
-          $('#div_percent').show();
-        });       
 
         $('#temporary').on('ifChecked', function(event){ 
           $('#div_dates').show();

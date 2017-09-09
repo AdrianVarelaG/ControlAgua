@@ -37,8 +37,25 @@
                                 
           <!-- ibox-content- -->
           <div class="ibox-content">
+            <div class="row">    
+              
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+              {{ Form::close() }} 
+
+              <div class="col-sm-8">
+              </div>
+                                        
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <div class="input-group m-b">
+                    <span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
+                      {!! Form::text('filter_name', Session::get('filter_name'), ['id'=>'filter_name', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Buscar por nombre' ,'maxlength'=>'100']) !!}
+                  </div>
+                </div>
+              </div>
 
             @if($contracts->count())
+              <div class="col-md-12 col-sm-12 col-xs-12">    
                 <div class="table-responsive">
                     
                     @include('partials.errors')
@@ -63,32 +80,46 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
+                                  @if(Session::get('user_role') == 'ADM' || Session::get('user_role') == 'DDA')
+                                    @if($contract->balance > 0)
+                                      <!-- Si tiene deuda aparece el boton de pagar -->
+                                      <li><a href="{{ route('payments.create', Crypt::encrypt($contract->id)) }}"><i class="fa fa-money"></i> Pagar</a></li>
+                                      <li class="divider"></li>
+                                    @else
+                                      <!-- Si esta solvente y su ultimo recibo cancelado es antes de diciembre sale aparece el boton de pagar por adelantado -->
+                                      @if(($contract->last_invoice_canceled && $contract->last_invoice_canceled->year.$contract->last_invoice_canceled->month < $current_year.'12'))
+                                        <li><a href="{{ route('payments.future', Crypt::encrypt($contract->id)) }}"><i class="fa fa-money"></i> Pagar por adelantado</a></li>
+                                      @endif
+                                    @endif
+                                  @endif
                                     <li><a href="{{ route('contracts.balance', [Crypt::encrypt($contract->id), '3']) }}"><i class="fa fa-th-list"></i> Estado de Cuenta</a></li>
                                     <li><a href="{{ route('contracts.invoices', [Crypt::encrypt($contract->id)]) }}"><i class="fa fa-file-text-o"></i> Recibos</a></li>
                                     <li><a href="{{ route('contracts.payments', [Crypt::encrypt($contract->id)]) }}"><i class="fa fa-money"></i> Pagos</a></li>
-                                    <li class="divider"></li>                                    
+                                  @if(Session::get('user_role') == 'ADM')
+                                    <li class="divider"></li>                                               
                                     <li><a href="{{ route('contracts.edit', Crypt::encrypt($contract->id)) }}"><i class="fa fa-pencil"></i> Editar</a></li>
-                                    <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
-                                    <li class="divider"></li>
+                                    <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-ban"></i> Desactivar</a></li>
                                     <li>
                                         <!-- href para eliminar registro -->                            
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Contrato '.{{ $contract->number }}.' ?')) { return true } else {return false };">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Contrato {{ $contract->number }} ?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
+                                        <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i>&nbsp;&nbsp;Eliminar</a>
                                         </form>
                                         <br/><br/>
                                     </li>
-
+                                  @endif
                                 </ul>
                             </div>
                           @else                              
                             <div class="input-group-btn">
-                                <button data-toggle="dropdown" class="btn btn-xs btn-danger dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                <button data-toggle="dropdown" class="btn btn-xs btn-danger dropdown-toggle" type="button" title="Desactivado"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                  @if(Session::get('user_role') == 'ADM')
                                     <ul class="dropdown-menu">
-                                        <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-check"></i> Habilitar</a></li>
+                                        <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-check"></i> Activar</a></li>
                                     </ul>
+                                  @endif
                             </div>
                           @endif
                         <!-- /Split button -->
@@ -127,15 +158,20 @@
                     <br/>                    
                     <br/>
                 	</div>
-                @else
-                  <div class="alert alert-info">
-                    <ul>
-                      <i class="fa fa-info-circle"></i> No existen registros para mostrar!
-                    </ul>
-                  </div>                
-                @endif
                 </div>
-                <!-- /ibox-content- -->
+                @else
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert alert-info">
+                      <ul>
+                        <i class="fa fa-info-circle"></i> Ningún registro coincide con su criterio de busqueda!
+                      </ul>
+                    </div>
+                  </div>
+                @endif
+            
+              </div> <!-- /row- --> 
+            </div> <!-- /ibox-content- -->              
+          
           </div>
         </div>
     </div>
@@ -155,9 +191,9 @@
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
-                { "sWidth": "20%" }, // 2nd column width
-                { "sWidth": "20%" }, // 3nd column width
-                { "sWidth": "20%" }, // 4nd column width
+                { "sWidth": "15%" }, // 2nd column width
+                { "sWidth": "30%" }, // 3nd column width
+                { "sWidth": "15%" }, // 4nd column width
                 { "sWidth": "20%" }, // 4nd column width 
                 { "sWidth": "15%" }  // 5nd column width                
               ],              
@@ -228,6 +264,28 @@
                 },
               ]
             });
+        
+            //Filter Name
+            var timerid;    
+            $("#filter_name").on("input",function(e){
+              var value = $(this).val();
+              if($(this).data("lastval")!= value){
+
+                $(this).data("lastval",value);        
+                clearTimeout(timerid);
+
+                timerid = setTimeout(function() {
+                  //change action
+                  if(value!=''){
+                    url = `{{URL::to('contracts.filter/')}}/${e.target.value}`;
+                    $('#form').attr('action', url);
+                    $('#form').submit();
+                  }
+                },800);
+              };
+            });
+
+
         });
     </script>
 @endpush

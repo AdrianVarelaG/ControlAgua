@@ -35,12 +35,33 @@
                 </div>
                 <!-- /ibox-title -->
                     
-            <!-- ibox-content- -->
-            <div class="ibox-content">
-              <a href="{{URL::to('citizens.change_view', 'contact')}}" class="btn btn-sm btn-default" title="Vista Contactos"><i class="fa fa-th-large"></i></a>
-              <a href="{{ route('citizens.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Registrar</a><br/><br/>
+          <!-- ibox-content- -->
+          <div class="ibox-content">
+            <div class="row">    
               
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+              {{ Form::close() }} 
+
+              <div class="col-sm-8">
+                <a href="{{URL::to('citizens.change_view', 'contact')}}" class="btn btn-sm btn-default" title="Vista Contactos"><i class="fa fa-th-large"></i></a>
+                @if(Session::get('user_role') == 'ADM')
+                  <a href="{{ route('citizens.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Registrar</a><br/><br/>
+                @endif
+              </div>
+            
+                            
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <div class="input-group m-b">
+                    <span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
+                      {!! Form::text('filter_name', Session::get('filter_name'), ['id'=>'filter_name', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Buscar por nombre' ,'maxlength'=>'100']) !!}
+                  </div>
+                </div>
+              </div>
+
+
             @if($citizens->count())
+              <div class="col-md-12 col-sm-12 col-xs-12">  
                 <div class="table-responsive">
               
                   @include('partials.errors')
@@ -64,15 +85,16 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
+                                    <li><a href="{{ route('contracts.citizen_contracts', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-tachometer"></i> Contratos</a></li>
                                     <li><a href="{{ route('citizens.balance', [Crypt::encrypt($citizen->id), '3']) }}"><i class="fa fa-th-list"></i> Estado de Cuenta</a></li>
                                     <li><a href="{{ route('citizens.invoices', [Crypt::encrypt($citizen->id)]) }}"><i class="fa fa-file-text-o"></i> Recibos</a></li>
                                     <li><a href="{{ route('citizens.payments', [Crypt::encrypt($citizen->id)]) }}"><i class="fa fa-money"></i> Pagos</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="{{ route('contracts.citizen_contracts', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-tachometer"></i> Contratos</a></li>
-                                    <li><a href="{{ route('citizens.edit', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-pencil"></i> Editar perfil</a></li>
-                                    <li><a href="{{ route('citizens.status', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
-                                    <li class="divider"></li>
-                                    <li>
+                                    @if(Session::get('user_role') == 'ADM') 
+                                      <li><a href="{{ route('citizens.edit', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-pencil"></i> Editar perfil</a></li>
+                                      <li><a href="{{ route('citizens.status', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
+                                      <li class="divider"></li>
+                                      <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <form action="{{ route('citizens.destroy', $citizen->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el ciudadano?')) { return true } else {return false };">
@@ -81,8 +103,8 @@
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
                                         </form>
                                         <br/><br/>
-                                    </li>
-
+                                      </li>
+                                    @endif
                                 </ul>
                             </div>
                           @else                              
@@ -132,15 +154,18 @@
                     <br/>
                     <br/>
                 	</div>
-                @else
-                  <div class="alert alert-info">
-                    <ul>
-                      <i class="fa fa-info-circle"></i> No existen registros para mostrar!
-                    </ul>
-                  </div>                
-                @endif
                 </div>
-                <!-- /ibox-content- -->
+                @else
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert alert-info">
+                      <ul>
+                        <i class="fa fa-info-circle"></i> Ningún registro coincide con su criterio de busqueda!
+                      </ul>
+                    </div>
+                  </div>
+                @endif
+                </div><!-- /row- --> 
+              </div><!-- /ibox-content- -->
             </div>
         </div>
     </div>
@@ -156,7 +181,6 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
-              "aaSorting": [[1, "asc"]],
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "10%" }, // 1st column width 
@@ -251,6 +275,27 @@
                   toastr.success('Registro eliminado exitosamente', '{{ Session::get('app_name') }}');
                 }
             }, 1300);
+        
+            //Filter Name
+            var timerid;    
+            $("#filter_name").on("input",function(e){
+              var value = $(this).val();
+              if($(this).data("lastval")!= value){
+
+                $(this).data("lastval",value);        
+                clearTimeout(timerid);
+
+                timerid = setTimeout(function() {
+                  //change action
+                  if(value!=''){
+                    url = `{{URL::to('citizens.filter/')}}/${e.target.value}`;
+                    $('#form').attr('action', url);
+                    $('#form').submit();
+                  }
+                },800);
+              };
+            });
+
         });
     </script>
 @endpush

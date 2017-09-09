@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\State;
+namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
 
-class StateRequestUpdate extends Request
+class PaymentRequestUpdate extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,6 @@ class StateRequestUpdate extends Request
      */
     public function authorize()
     {
-        //return false;
         return true;
     }
 
@@ -25,13 +24,14 @@ class StateRequestUpdate extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
+            'folio' => 'required',
         ];
     }
 
     public function messages()
     {
         return [
+            'folio.required'  => 'El número del folio es obligatorio.',
         ];
     }
 

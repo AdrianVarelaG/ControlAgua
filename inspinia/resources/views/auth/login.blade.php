@@ -19,15 +19,22 @@
 
 </head>
 
+<style type="text/css">
+  .img-rounded {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+</style>
+
 <body class="gray-bg">
 
     <div class="middle-box text-center loginscreen animated fadeInDown">
         <div>
             <div>
-
-                <h1 class="logo-name">IN+</h1>
-
+                <h1 class="logo-name">
+                   <span><img style="max-height:160px; max-width:160px; border:2px solid white" class="img-rounded" src="{{ asset("img/logo_company.jpg") }}"/></span>
+                </h1>
             </div>
+            <br/>
             <h3>Bienvenido</h3>
             <p>Sistema de Gestión de Servicio de Agua.</p>
 

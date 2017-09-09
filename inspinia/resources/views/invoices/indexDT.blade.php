@@ -16,7 +16,7 @@
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-file-text-o" aria-hidden="true"></i> Consulta de Recibos</h5>
+                    <h5><i class="fa fa-file-text-o" aria-hidden="true"></i> Recibos {{ month_letter($month, 'lg') }} {{ $year }}</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -38,22 +38,17 @@
             <!-- ibox-content- -->
             <div class="ibox-content">
                 
-            @if($contract->invoices->count())
+            @if($invoices->count())
                 <div class="table-responsive">
               
                 @include('partials.errors')
                     
-                <div class="col-sm-7">
-                    <h2>Contrato Nro <strong>{{ $contract->number }}</strong></h2>
-                    <h3>{{ $contract->citizen->name }}</h3><br/>
-                </div>                  
-                
-                <div class="col-md-12 col-sm-12 col-xs-12">                    
                     <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
                         <th></th>
                         <th class="text-center">Recibo #</th>
+                        <th>Contrato</th>
                         <th>Facturación</th>
                         <th>Monto {{ Session::get('coin') }}</th>
                         <th>Vencimiento</th>
@@ -61,7 +56,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($contract->invoices()->orderBy('date', 'DESC')->get() as $invoice)
+                    @foreach($invoices as $invoice)
                     <tr class="gradeX">
                         <td class="text-center">                            
                         <!-- Split button -->
@@ -70,6 +65,18 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-eye"></i> Vista previa</a></li>
                                     <li><a href="{{ route('invoices.invoice_pdf', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-print"></i> Imprimir Recibo</a></li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <!-- href para eliminar registro -->                            
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Recibo #{{ $invoice->id }}?')) { return true } else {return false };">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
+                                        </form>
+                                        <br/><br/>
+                                    </li>
+
                                 </ul>
                             </div>
                         <!-- /Split button -->                          
@@ -77,7 +84,12 @@
                         <td class="text-center">
                           <a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}" class="client-link" title="Vista previa">{{ $invoice->id }}</a>
                         </td>
+                        <td>
+                          <strong>{{ $invoice->contract->number }}</strong><br/>
+                          <small>{{ $invoice->contract->citizen->name }}</small>
+                        </td>
                         <td>{{ $invoice->date->format('d/m/Y') }}</td>
+                        </td>
                         <td>{{ money_fmt($invoice->total) }}</td>
                         <td>{{ $invoice->date_limit->format('d/m/Y') }}</td>
                         @php
@@ -90,6 +102,7 @@
                     <tr>
                         <th></th>
                         <th class="text-center">Recibo #</th>
+                        <th>Contrato</th>
                         <th>Facturación</th>
                         <th>Monto {{ Session::get('coin') }}</th>
                         <th>Vencimiento</th>
@@ -98,7 +111,6 @@
                     </tfoot>
                     </table>
                 	</div>
-                </div>
                 @else
                   <div class="alert alert-info">
                     <ul>
@@ -108,7 +120,7 @@
                 @endif                
                   <div class="form-group pull-right">
                     <div class="col-md-12 col-sm-12 col-xs-12 ">
-                      <a href="{{URL::to('contracts')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                      <a href="{{URL::to('invoices.index_group')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                     </div>
                   </div>
                   <br/>
@@ -132,14 +144,16 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
+              "aaSorting": [[1, "asc"]],
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
                 { "sWidth": "15%" }, // 2nd column width
-                { "sWidth": "15%", "sType": "date-uk" }, // 3nd column width
-                { "sWidth": "15%" }, // 4nd column width
-                { "sWidth": "15%", "sType": "date-uk" }, // 5nd column width
-                { "sWidth": "20%" }  // 6nd column width
+                { "sWidth": "20%" }, // 3nd column width
+                { "sWidth": "15%", "sType": "date-uk" }, // 4nd column width
+                { "sWidth": "15%" }, // 5nd column width
+                { "sWidth": "15%", "sType": "date-uk" }, // 6nd column width
+                { "sWidth": "15%" }  // 7nd column width
               ],              
               responsive: false,              
               dom: '<"html5buttons"B>lTfgitp',
@@ -149,10 +163,10 @@
                   text: '<i class="fa fa-file-excel-o"></i>',
                   titleAttr: 'Exportar a Excel',
                   //Titulo
-                  title: 'Recibos del Contrato {{ $contract->number }}',                  
+                  title: 'Recibos {{ month_letter($month, 'lg') }} {{ $year }}',                  
                   className: "btn-sm",
                   exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6],
+                    columns: [1, 2, 3, 4, 5],
                   }                                    
                 },
                 {
@@ -160,12 +174,12 @@
                   text: '<i class="fa fa-file-pdf-o"></i>',
                   pageSize: 'LETTER',
                   titleAttr: 'Exportar a PDF',
-                  title: 'Recibos del Contrato {{ $contract->number }}',                  
+                  title: 'Recibos {{ month_letter($month, 'lg') }} {{ $year }}',                  
                   className: "btn-sm",
                   //Sub titulo
                   message: '',
                   exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6],
+                    columns: [1, 2, 3, 4, 5],
                   },
                   customize: function ( doc ) {
                     //Tamaño de la fuente del body

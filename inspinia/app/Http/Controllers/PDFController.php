@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Company;
+use App\Http\Requests\Invoice\InvoiceRequestPrint;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Crypt;
 use File;
@@ -30,27 +31,25 @@ class PDFController extends Controller
             'logo' => 'data:image/png;base64, '.$company->logo 
         ];
         $pdf = PDF::loadView('reports/invoice', $data);
-        return $pdf->download('Invoice.pdf');
+        return $pdf->download('Recibo Nro '.Crypt::decrypt($id).'.pdf');
 
     }
 
     /*
      * Download file from DB  
     */ 
-    public function invoices_pdf($year, $month)
+    public function invoices_pdf(InvoiceRequestPrint $request)
     {
-        //return "Todos los recibos";
         $company = Company::first();
-        $invoices = Invoice::where('year', Crypt::decrypt($year))
-                            ->where('month', Crypt::decrypt($month))->get();
+        $invoices = Invoice::where('id', '>=' , $request->input('invoice_from'))
+                            ->where('id', '<=' , $request->input('invoice_to'))->get();
         $data=[
             'company' => $company,
             'invoices' => $invoices,
-            //'root' => realpath(base_path()), 
             'logo' => 'data:image/png;base64, '.$company->logo
         ];
         $pdf = PDF::loadView('reports/invoice_all', $data);
-        return $pdf->download('InvoicesAll.pdf');
+        return $pdf->download('Recibos del Nro '.$request->input('invoice_from').' al Nro '.$request->input('invoice_to').'.pdf');
 
     }
 

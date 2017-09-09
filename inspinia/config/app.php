@@ -177,7 +177,12 @@ return [
         /*
          * Provider para DataTables Side Server
          */
-        Yajra\Datatables\DatatablesServiceProvider::class
+        Yajra\Datatables\DatatablesServiceProvider::class,
+
+        /*
+         * Provider para Import Export Excel Files
+         */
+        Maatwebsite\Excel\ExcelServiceProvider::class
     
 
     ],
@@ -243,7 +248,12 @@ return [
         /*
          * DataTable Sisde Server Aliases...
          */
-        'Datatables' => Yajra\Datatables\Facades\Datatables::class
+        'Datatables' => Yajra\Datatables\Facades\Datatables::class,
+
+        /*
+         * DataTable Sisde Server Aliases...
+         */
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class
     
     ],
 

@@ -131,12 +131,23 @@
                                 @php($count_od=0)
                                 @foreach($other_discounts as $discount)
                                     @if($discount->show_temporary())
-                                        <div class="i-checks">
-                                            <p>{!! Form::radio('other_discount[]', $discount->type,  false, ['id'=>'other_discount['.$count_od.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
-                                            {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$count_od.']']) !!}
-                                            {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$count_od.']']) !!}
-                                            {!! Form::hidden('other_discount_id',  $discount->id , ['id'=>'other_discount_id['.$count_od++.']']) !!}
-                                        </div>                             
+                                        <!-- Descuentos No Especiales Totales -->
+                                        @if($discount->type != 'T')
+                                            <div class="i-checks">
+                                                <p>{!! Form::radio('other_discount[]', $discount->type,  false, ['id'=>'other_discount['.$count_od.']']) !!} <strong>{{ $discount->type_description }}</strong>. {{ $discount->description }}. {{ ($discount->type=='M' || $discount->type=='T')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
+                                                {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$count_od.']']) !!}
+                                                {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$count_od.']']) !!}
+                                                {!! Form::hidden('other_discount_id',  $discount->id , ['id'=>'other_discount_id['.$count_od++.']']) !!}
+                                            </div>                             
+                                        <!-- Descuentos Especiales Totales con Deuda Mayor al Monto-->
+                                        @elseif($discount->type == 'T' && $contract->balance >= $discount->amount)
+                                            <div class="i-checks">
+                                                <p>{!! Form::radio('other_discount[]', $discount->type,  false, ['id'=>'other_discount['.$count_od.']']) !!} <strong>{{ $discount->type_description }}</strong>. {{ $discount->description }}. {{ ($discount->type=='M' || $discount->type=='T')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
+                                                {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$count_od.']']) !!}
+                                                {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$count_od.']']) !!}
+                                                {!! Form::hidden('other_discount_id',  $discount->id , ['id'=>'other_discount_id['.$count_od++.']']) !!}
+                                            </div>                                                               
+                                        @endif
                                     @endif
                                 @endforeach
                             @endif
@@ -164,17 +175,17 @@
                                         <h3 id='total_monto'>{{ money_fmt($contract->balance) }} {{ Session::get('coin') }}</h3>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr id='tr_other_amount' style='display:solid;'>
                                     <td width="10%">
                                         <div class="i-checks">
                                             {!! Form::radio('select_amount', 'other', false, ['id'=>'select_amount']) !!}
                                         </div>
+                                        </td>
+                                        <td width="60%"><strong>OTRO MONTO</strong></td>
+                                        <td width="30%" class="text-center">
+                                            {!! Form::text('other_amount', null, ['id'=>'other_amount', 'class'=>'form-control', 'type'=>'number', 'min'=>'0' ,'placeholder'=>'', 'required', 'disabled']) !!}
                                     </td>
-                                    <td width="60%"><strong>OTRO MONTO</strong></td>
-                                    <td width="30%" class="text-center">
-                                    {!! Form::text('other_amount', null, ['id'=>'other_amount', 'class'=>'form-control', 'type'=>'number', 'min'=>'0' ,'placeholder'=>'', 'required', 'disabled']) !!}
-                                    </td>
-                                </tr>                            
+                                </tr>
                             </tbody>
                         </table>                            
                                     
@@ -194,7 +205,7 @@
                                     <button type="button" id="btn_confirm" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#myModal4" style='display:none;'>Pagar</button>
                                     <button type="submit" id="btn_submit" class="btn btn-sm btn-primary" style='display:solid;'>Pagar</button>
                                     <button type="reset" id="btn_reset" class="btn btn-sm btn-default">Reset</button>
-                                    <a href="{{URL::to('payments.contracts_debt/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                                    <a href="{{URL::to('contracts')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                                 </div>
                     </div>
                 </div>                                                
@@ -349,6 +360,11 @@
 
         $("input[id^='other_discount']").on('ifChanged', function(event){ 
             calcula_total();
+            if($(this).val()=='T'){                
+                $('#tr_other_amount').hide();
+            }else{
+                $('#tr_other_amount').show();
+            }
         });
         
         $('#btn_reset').on('click', function(event){ 
@@ -386,12 +402,12 @@
             discount_id = $("#age_discount_id").val();
             //console.log ("Entro por EDAD");
             if($("#age_discount").val()=='P'){
-                percent = $("#age_discount_percent").val();
+                percent = parseFloat($("#age_discount_percent").val());
                 discount = total*(percent/100);
                 tot_invoices = total;
                 total = total - (discount);
             }else if($("#age_discount").val()=='M'){
-                amount = $("#age_discount_amount").val();
+                amount = parseFloat($("#age_discount_amount").val());
                 discount = amount;
                 tot_invoices = total;
                 total = total - discount;
@@ -415,7 +431,11 @@
                 discount = amount;
                 tot_invoices = total;
                 total = total - discount;
-            }        
+            }else if(type == 'T'){
+                discount = (tot_invoices-amount);
+                tot_invoices = total;
+                total = total - discount;
+            }       
         }
         $('#hdd_discount_id').val(discount_id);
         $('#hdd_net_debt').val(total);
@@ -425,10 +445,9 @@
         document.getElementById("total_desglose").innerHTML = "Total Saldo Actual - Descuento ("+money_fmt(tot_invoices)+" - "+money_fmt(discount)+")";        
     }       
     
-    function money_fmt(num){
+    function money_fmt(num){        
         num_fmt = num.toFixed(2).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-        return num_fmt;
-        //console.log (num_fmt);
+        return num_fmt;        
     }
 
     });

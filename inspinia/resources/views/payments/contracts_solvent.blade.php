@@ -58,7 +58,7 @@
                     @if($contract->balance <= 0)
                       <tr class="gradeX">
                         <td class="text-center">                            
-                            @if(($contract->last_invoice_canceled && $contract->last_invoice_canceled->year.$contract->last_invoice_canceled->month < $current_year.'12'))
+                          @if(($contract->last_invoice_canceled && $contract->last_invoice_canceled->year.$contract->last_invoice_canceled->month < $current_year.'12'))
                             <!-- Split button -->
                             <a href="{{ route('payments.future', Crypt::encrypt($contract->id)) }}" class="btn btn-xs btn-default"><i class="fa fa-money" title="Pagar"></i></a>
                             <!-- /Split button -->                          

@@ -11,11 +11,11 @@
     function money_fmt($value)
 	{
     	if (Session::get('money_format') == 'PC2'){
-    		return number_format($value,2,',','.');
+    		return number_format(round($value,2),2,',','.');
     	}else if (Session::get('money_format') == 'CP2'){
-    		return number_format($value,2,'.',',');    	
+    		return number_format(round($value,2),2,'.',',');    	
     	}else{
-    		return number_format($value,2,',','.');
+    		return number_format(round($value,2),2,',','.');
     	}
 	}
 

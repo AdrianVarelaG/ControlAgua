@@ -45,13 +45,13 @@
                     
                   @include('partials.errors')
 
-                    <table class="table table-striped table-hover dataTables-example" >
+                    <table class="table table-striped table-hover" >
                     <thead>
                     <tr>
                         <th></th>
                         <th>Contrato</th>
                         <th>Período</th>
-                        <th>Fecha</th>
+                        <th>Registrado</th>
                         <th>Lecturas (Ant - Act)</th>
                         <th>Consumo m3</th>
                         <th>Inspector</th>
@@ -61,6 +61,7 @@
                     @foreach($readings as $reading)
                     <tr class="gradeX">
                         <td class="text-center">                            
+                        @if(Session::get('user_role') == 'ADM' || (Session::get('user_role') == 'OPE' && $reading->date->format('Ym') == \Carbon\Carbon::now()->format('Ym')))
                         <!-- Split button -->
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
@@ -80,7 +81,8 @@
 
                                 </ul>
                             </div>
-                        <!-- /Split button -->                          
+                        <!-- /Split button -->
+                        @endif                          
                         </td>                          
                         <td><strong>{{ $reading->contract->number }}</strong></td>
                         <td>{{ $reading->month }}/{{ $reading->year }}</td>
@@ -96,13 +98,18 @@
                         <th></th>
                         <th>Contrato</th>
                         <th>Período</th>
-                        <th>Fecha</th>
+                        <th>Registrado</th>
                         <th>Lecturas (Ant - Act)</th>
                         <th>Consumo m3</th>
                         <th>Inspector</th>
                     </tr>
                     </tfoot>
                     </table>
+                    
+                    <div class="text-right">
+                      {{ $readings->links() }}
+                    </div>
+
                     <br/>
                     <br/>
                     <br/>
@@ -135,6 +142,7 @@
         $(document).ready(function(){
             $('.dataTables-example').DataTable({
               "oLanguage":{"sUrl":path_str_language},
+              "aaSorting": [[3, "desc"]],
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 

@@ -133,7 +133,7 @@
                                     @foreach($other_discounts as $discount)
                                         @if($discount->show_temporary())
                                             <div class="i-checks">
-                                                <p>{!! Form::radio('other_discount[]', $discount->id,  false, ['id'=>'other_discount['.$count_od.']']) !!} {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
+                                                <p>{!! Form::radio('other_discount[]', $discount->id,  false, ['id'=>'other_discount['.$count_od.']']) !!} <strong>{{ $discount->type_description }}</strong>. {{ $discount->description }}. {{ ($discount->type=='M')?money_fmt($discount->amount).' '.Session::get('coin'):'('.money_fmt($discount->percent).' %) del total a pagar' }}. {!! ($discount->temporary=='Y')?'<small>(Desde '.$discount->initial_date->format('d/m/Y').' Hasta '.$discount->final_date->format('d/m/Y').')</small>':'' !!}</p>
                                                 {!! Form::hidden('other_discount_amount',  $discount->amount , ['id'=>'other_discount_amount['.$count_od.']']) !!}
                                                 {!! Form::hidden('other_discount_percent',  $discount->percent , ['id'=>'other_discount_percent['.$count_od.']']) !!}
                                                 {!! Form::hidden('other_discount_type',  $discount->type , ['id'=>'other_discount_type['.$count_od++.']']) !!}
@@ -212,7 +212,7 @@
                                 <button type="button" id="btn_confirm" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#myModal4" style='display:none;'>Pagar</button>
                                     <button type="submit" id="btn_submit" class="btn btn-sm btn-primary" style='display:solid;'>Pagar</button>
                                 <button type="reset" id="btn_reset" class="btn btn-sm btn-default">Reset</button>
-                                <a href="{{URL::to('payments.contracts_solvent/')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                                <a href="{{URL::to('contracts')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                             </div>
                         </div>
                     </div>                                                
@@ -446,11 +446,12 @@
         if ('{{ $contract->citizen->age_discount() }}'=='1' && document.getElementById("age_discount").checked){
             discount_id = $("#age_discount_id").val();
             if($("#age_discount").val()=='P'){
-                percent = $("#age_discount_percent").val();
+                percent = parseFloat($("#age_discount_percent").val());
                 discount = total*(percent/100);
             }else if($("#age_discount").val()=='M'){
-                amount = $("#age_discount_amount").val();
+                amount = parseFloat($("#age_discount_amount").val());
                 discount = amount;
+                console.log ("Descuento fijo: "+discount);
             }
         //Otros Descuentos
         }else{
@@ -483,7 +484,7 @@
     function money_fmt(num){
         num_fmt = num.toFixed(2).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
         return num_fmt;
-        //console.log (num_fmt);
+        
     }
 
     });

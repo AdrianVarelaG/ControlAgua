@@ -9,6 +9,7 @@ class Movement extends Model
 {
     protected $table = 'movements';
     protected $dates = ['date'];
+    protected $guarded = ['id'];
 
     //*** Relations ***    
     public function citizen()

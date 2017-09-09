@@ -46,9 +46,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {        
-        if(!Auth::check()){
-            return redirect('login')->withErrors(array('global' => 'Su sesión ha expirado. Por favor inicie sesión nuevamente.'));            
-        }
+        //if(!Auth::check()){
+        //    return redirect('login')->withErrors(array('global' => 'Su sesión ha expirado. Por favor inicie sesión nuevamente.'));            
+        //}
         
         return parent::render($request, $e);
 

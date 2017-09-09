@@ -97,7 +97,7 @@
                           <small>Autoriza: {{ $discount->authorization->name }}</small>
                         </td>
                         <td>{{ $discount->type_description }}</td>
-                        <td>{{ ($discount->type=='M')?$discount->amount:'' }}</td>
+                        <td>{{ ($discount->type=='M' || $discount->type=='T')?$discount->amount:'' }}</td>
                         <td class="text-center">{{ ($discount->type=='P')?$discount->percent:'' }}</td>
                         <td class="text-center">{{ ($discount->initial_date)?$discount->initial_date->format('d/m/Y'):'' }}</td>
                         <td class="text-center">{{ ($discount->final_date)?$discount->final_date->format('d/m/Y'):'' }}</td>

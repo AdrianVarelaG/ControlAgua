@@ -35,12 +35,22 @@ class InvoiceController extends Controller
     public function index($year, $month)
     {
         $invoices = Invoice::whereYear('date', '=', Crypt::decrypt($year))
-                            ->whereMonth('date', '=', Crypt::decrypt($month))->get();
+                            ->whereMonth('date', '=', Crypt::decrypt($month))->paginate(10);
         $company = Company::first();          
         return view('invoices.index')->with('invoices', $invoices)
                                     ->with('company', $company)
                                     ->with('year', Crypt::decrypt($year))
                                     ->with('month', Crypt::decrypt($month));
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function print_invoices()
+    {
+        return view('invoices.print');
     }
 
     /**
@@ -56,7 +66,7 @@ class InvoiceController extends Controller
                                 ->groupby('month')
                                 ->groupby('year')
                                 ->orderby('year', 'DESC')
-                                ->orderby('month', 'DESC')->get();
+                                ->orderby('month', 'DESC')->paginate(10);
         
         return view('invoices.index_group')->with('invoices_groups', $invoices_groups)
                                     ->with('company', $company);     

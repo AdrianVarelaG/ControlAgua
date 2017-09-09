@@ -61,7 +61,7 @@
                 </div>
                 <div class="ibox-content">
                     <h1 class="no-margins">{{ money_fmt($sum_invoices_month_pending) }}</h1>
-                    <div class="stat-percent font-bold text-navy">{{ ($count_invoices_month!=0)?($count_invoices_month_pending/$count_invoices_month)*100:0 }}% </div>
+                    <div class="stat-percent font-bold text-navy">{{ ($count_invoices_month!=0)?round(($count_invoices_month_pending/$count_invoices_month*100),2):0 }}% </div>
                     <small>Recibos Pendientes {{ $count_invoices_month_pending }} de {{ $count_invoices_month }}</small>
                 </div>
             </div>
@@ -88,10 +88,6 @@
                                         <li>
                                             <h2 class="no-margins">{{ money_fmt($sum_invoices_year) }}</h2>
                                             <small>Recibos en {{ $current_year }}: <strong>{{ $count_invoices_year }}</strong></small>
-                                            <div class="stat-percent">48% <i class="fa fa-level-up text-navy"></i></div>
-                                            <div class="progress progress-mini">
-                                                <div style="width: 48%;" class="progress-bar"></div>
-                                            </div>
                                         </li>
                                         <li>
                                             <h2 class="no-margins ">{{ money_fmt($sum_invoices_year_pending) }}</h2>
@@ -450,7 +446,6 @@
                 },
                 yaxes: [{
                     position: "left",
-                    max: 1070,
                     color: "#d5d5d5",
                     axisLabelUseCanvas: true,
                     axisLabelFontSizePixels: 12,

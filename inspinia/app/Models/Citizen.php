@@ -9,6 +9,7 @@ class Citizen extends Model
 {
     protected $table = 'citizens';
     protected $dates = ['birthdate'];
+    protected $guarded = ['id'];
 
 
     //*** Relations ***    

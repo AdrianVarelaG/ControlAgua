@@ -31,6 +31,7 @@ class CreateContractsTable extends Migration
             $table->string('number_int',20);
             $table->string('neighborhood',100);            
             $table->string('postal_code',20);
+            $table->string('observation',400);
             $table->char('status',1);                        
             $table->timestamps();
         });

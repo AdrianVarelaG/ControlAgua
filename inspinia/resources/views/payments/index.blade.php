@@ -39,38 +39,40 @@
                 </div>
                 <!-- /ibox-title -->
                     
-            <!-- ibox-content- -->
-            <div class="ibox-content">
+          <!-- ibox-content- -->
+          <div class="ibox-content">
+            <div class="row">
                 
-            {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
-            {{ Form::close() }} 
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+              {{ Form::close() }} 
+            
+              <div class="col-sm-7">
+                  <h4>{{ $period_title }}</h4>
+              </div>
+                
+              <div class="col-sm-5">
+                  <div class="form-group">
+                      <label>Consultar otro período</label>
+                      <div class="input-group">
+                          <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                          {{ Form::select('period', ['1' => 'Ultimo mes', '3' => 'Ultimos 3 meses', '6' => 'Ultimos 6 meses', '12' => 'Ultimo 12 meses', 'all' => 'Completo'],  $period, ['id'=>'period', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>''])}}
+                      </div>
+                  </div>
+              </div>
             
             @if($payments->count())
-                <div class="table-responsive">
-                    
-                  @include('partials.errors')
+              <div class="col-md-12 col-sm-12 col-xs-12">              
 
-                <div class="col-sm-7">
-                    <h4>{{ $period_title }}</h4>
-                </div>
+                @include('partials.errors')
                 
-                <div class="col-sm-5">
-                    <div class="form-group">
-                        <label>Consultar otro período</label>
-                        <div class="input-group">
-                            <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-                            {{ Form::select('period', ['1' => 'Ultimo mes', '3' => 'Ultimos 3 meses', '6' => 'Ultimos 6 meses', '12' => 'Ultimo 12 meses', 'all' => 'Completo'],  $period, ['id'=>'period', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>''])}}
-                        </div>
-                    </div>
-                </div>
-                    
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <table class="table table-striped table-hover dataTables-example" >
+                <div class="table-responsive">                                        
+                    <table class="table table-striped table-hover" >
                     <thead>
                     <tr>
                         <th></th>
-                        <th>Contrato</th>
                         <th>Fecha</th>
+                        <th>Contrato</th>
+                        <th>Folio</th>
                         <th>Tipo</th>
                         <th>Descripción</th>
                         <th>Monto {{ Session::get('coin') }}</th>
@@ -84,29 +86,34 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
+                                    @if(Session::get('user_role') == 'ADM' || Session::get('user_role') == 'TES')
+                                      <li><a href="{{ route('payments.edit', Crypt::encrypt($payment->id)) }}"><i class="fa fa-pencil-square-o"></i> Registrar Folio</a></li>
+                                    @endif
                                     <li><a href="{{ route('payments.show', Crypt::encrypt($payment->id)) }}"><i class="fa fa-eye"></i> Vista previa</a></li>
                                     <li><a href="{{ route('payments.print_voucher', Crypt::encrypt($payment->id)) }}"><i class="fa fa-print"></i> Imprimir Comprobante</a></li>
-                                    <li class="divider"></li>
-                                    <li>
-                                        <!-- href para eliminar registro -->                                        
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <form action="{{ route('payments.destroy', $payment->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el pago?')) { return true } else {return false };">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
-                                        </form>
-                                        <br/><br/>
-                                    </li>
-
+                                    @if(Session::get('user_role') == 'ADM' || Session::get('user_role') == 'DDA')
+                                      <li class="divider"></li>
+                                        <li>
+                                          <!-- href para eliminar registro -->    
+                                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                          <form action="{{ route('payments.destroy', $payment->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el pago?')) { return true } else {return false };">
+                                          <input type="hidden" name="_method" value="DELETE">
+                                          <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                          <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i> Eliminar</a>
+                                          </form>
+                                          <br/><br/>
+                                      </li>
+                                    @endif
                                 </ul>
                             </div>
                         <!-- /Split button -->                          
                         </td>
+                        <td>{{ $payment->date->format('d/m/Y') }}</td>                        
                         <td>
                           <strong>{{ $payment->contract->number }}</strong><br/>
                           <small>{{ $payment->contract->citizen->name }}</small>
                         </td>                          
-                        <td>{{ $payment->date->format('d/m/Y') }}</td>
+                        <td>{{ $payment->folio }}</td>
                         <td>{{ $payment->type_description }}</td>
                         <td><small>{{ $payment->description }}</small></td>
                         <td>{{ money_fmt($payment->amount) }}</td>
@@ -116,31 +123,39 @@
                     <tfoot>
                     <tr>
                         <th></th>
-                        <th>Contrato</th>
                         <th>Fecha</th>
+                        <th>Contrato</th>
+                        <th>Folio</th>
                         <th>Tipo</th>
                         <th>Descripción</th>
                         <th>Monto {{ Session::get('coin') }}</th>
                     </tr>
                     </tfoot>
                     </table>
+                    
+                    <div class="text-right">
+                      {{ $payments->links() }}
+                    </div>
+
                     <br/>
                     <br/>
                     <br/>
                     <br/>                    
                     <br/>
                 	</div>
-                </div>
+                </div> <!-- /table-responsive- -->
                 @else
-                  <div class="alert alert-info">
-                    <ul>
-                      <i class="fa fa-info-circle"></i> No existen registros para mostrar!
-                    </ul>
-                  </div>                
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert alert-info">
+                      <ul>
+                        <i class="fa fa-info-circle"></i> No existen registros para mostrar!
+                      </ul>
+                    </div>
+                  </div>
                 @endif
-                
-                </div>
-                <!-- /ibox-content- -->
+              </div> <!-- /row- -->
+            </div> <!-- /ibox-content- -->                            
+
             </div>
         </div>
     </div>
@@ -166,11 +181,12 @@
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" },  // 1st column width 
+                { "sWidth": "10%", "sType": "date-uk" }, // 3nd column width
                 { "sWidth": "20%" }, // 2nd column width
-                { "sWidth": "15%", "sType": "date-uk" }, // 3nd column width
-                { "sWidth": "15%" }, // 4nd column width
-                { "sWidth": "25%" }, // 5nd column width
-                { "sWidth": "20%" }  // 6nd column width                
+                { "sWidth": "10%" }, // 4nd column width
+                { "sWidth": "10%" }, // 4nd column width
+                { "sWidth": "30%" }, // 5nd column width
+                { "sWidth": "15%" }  // 6nd column width                
               ],              
               responsive: false,
               paging: true,
