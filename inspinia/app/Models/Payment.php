@@ -8,6 +8,7 @@ class Payment extends Model
 {
     protected $table = 'payments';
     protected $dates = ['date'];
+    protected $guarded = ['id'];
 
     //*** Relations ***    
     public function citizen()

@@ -22,6 +22,9 @@ use App\Models\PaymentDetail;
 use Illuminate\Support\Facades\Crypt;
 use DB;
 use Auth;
+use Carbon\Carbon;
+use Session;
+use PDF;
 
 
 class InvoiceController extends Controller
@@ -32,17 +35,41 @@ class InvoiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($year, $month)
+    public function index()
     {
-        $invoices = Invoice::whereYear('date', '=', Crypt::decrypt($year))
-                            ->whereMonth('date', '=', Crypt::decrypt($month))->paginate(10);
+        
         $company = Company::first();          
+        
+        $from = (new Carbon(Session::get('from')))->format('d/m/Y');
+        $to = (new Carbon(Session::get('to')))->format('d/m/Y');
+
+        $invoices = Invoice::whereDate('date', '>=', Session::get('from'))
+                            ->whereDate('date', '<=' , Session::get('to'))
+                            ->orderBy('date');
+
+        $invoices_count = $invoices->count();
+        $invoices_total = $invoices->sum('total');
+
+        $invoices = $invoices->paginate(10);
+        
         return view('invoices.index')->with('invoices', $invoices)
+                                    ->with('invoices_count', $invoices_count)
+                                    ->with('invoices_total', $invoices_total)
                                     ->with('company', $company)
-                                    ->with('year', Crypt::decrypt($year))
-                                    ->with('month', Crypt::decrypt($month));
+                                    ->with('from', $from)
+                                    ->with('to', $to);                                    
     }
 
+    public function change_period(Request $request){
+                        
+        $from = (new ToolController)->format_ymd($request->input('from'));
+        $to = (new ToolController)->format_ymd($request->input('to'));
+
+        Session::put('from', $from);
+        Session::put('to', $to);
+        return redirect()->route('invoices.index');
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -397,6 +424,32 @@ class InvoiceController extends Controller
             $invoice_pending->delete();            
             return false;
         }
+
+    }
+
+
+    /*
+     * Download file from DB  
+    */     
+    public function report_period(Request $request)
+    {
+        $company = Company::first();
+        $from = (new Carbon(Session::get('from')))->format('d/m/Y');
+        $to = (new Carbon(Session::get('to')))->format('d/m/Y');
+        
+        $invoices = Invoice::whereDate('date', '>=', Session::get('from'))
+                            ->whereDate('date', '<=' , Session::get('to'))
+                            ->orderBy('date')->get();
+
+
+
+        $data=[
+            'company' => $company,
+            'invoices' => $invoices,
+            'logo' => 'data:image/png;base64, '.$company->logo 
+        ];
+        $pdf = PDF::loadView('reports/invoices_period', $data);
+        return $pdf->download('Recibos desde '.$from.' hasta '.$to.'.pdf');
 
     }
 

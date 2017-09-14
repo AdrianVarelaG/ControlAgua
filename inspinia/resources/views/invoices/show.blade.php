@@ -13,21 +13,21 @@
         <!-- ibox-content -->
         <div class="ibox-content p-xl">
         
-            <div class="row">
-                <div class="text-right well m-t">
-                    <div class="col-md-6 col-sm-12 col-xs-12 text-left">
-                        <img alt="image" style="max-height:120px; max-width:120px;" class="img-thumbnail" src="{{ url('company_logo/'.$company->id) }}"/>
-                    </div>
-                    <div class="col-md-6 col-sm-12 col-xs-12">
-                        <strong>{{ $company->name }}</strong><br>
-                        <small> {{ $company->company_phone }} {{ $company->company_email }}</small>
-                    </div>
-                    <br/>
-                    <br/>
-                    <br/>
-                    <br/>
-                </div>
-            </div>
+        <!-- Header -->
+        <table class="table" width="100%">
+            <tbody>
+                <tr>
+                    <td class="text-left">
+                        <img alt="image" class="img-thumbnail" style="max-height:110px; max-width:110px;" src="{{ url('company_logo/'.$company->id) }}"/>
+                    </td>
+                    <td class="text-right">
+                        <h3><strong>{{ $company->name }}</strong></h3>
+                        <small>{{ $company->company_phone }}, {{ $company->company_email }}</small>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- /Header -->
 
             <!-- Header -->
             <div class="row">

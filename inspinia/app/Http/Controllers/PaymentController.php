@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Crypt;
 use DB;
 use Carbon\Carbon;
 use Session;
+use PDF;
 
 
 class PaymentController extends Controller
@@ -37,60 +38,33 @@ class PaymentController extends Controller
     {
         $payments = Payment::all();
         $company = Company::first();
-        $period = Session::get('payments_period');          
+        $from = (new Carbon(Session::get('from')))->format('d/m/Y');
+        $to = (new Carbon(Session::get('to')))->format('d/m/Y');
         
-        switch ($period) 
-        {
-            case '1':
-                $period_title = 'Pagos último mes';
-                break;            
-            case '3':
-                $period_title = 'Pagos últimos 3 meses';
-                break;
-            case '6':
-                $period_title = 'Pagos últimos 6 meses';
-                break;
-            case '12':
-                $period_title = 'Pagos últimos 12 meses';
-                break;
-            case 'all':
-                $period_title = 'Todos los Pagos';
-                break;
-        }        
-        if($period == '1'){
-            $payments = Payment::whereYear('date','=',Carbon::now()->year)
-                                ->whereMonth('date','=',Carbon::now()->month)
-                                ->orderBy('date')->paginate(10);
-        }
-        else if($period == '3'){
-            $initial_date = Carbon::now()->subMonths(2)->startOfMonth();
-            $payments = Payment::where('date','>=',$initial_date)
-                                    ->orderBy('date')->paginate(10);
-        }        
-        else if($period == '6'){
-            $initial_date = Carbon::now()->subMonths(5)->startOfMonth();
-            $payments = Payment::where('date','>=',$initial_date)
-                                    ->orderBy('date')->paginate(10);
-        }
-        else if($period == '12'){
-            $initial_date = Carbon::now()->subMonths(11)->startOfMonth();
-            $payments = Payment::where('date','>=',$initial_date)
-                                    ->orderBy('date')->paginate(10);
-        }
-        else if($period == 'all'){
-            $initial_date = Carbon::now();
-            $payments = Payment::orderBy('date')->paginate(10);
-        }
+        $payments = Payment::whereDate('date', '>=', Session::get('from'))
+                            ->whereDate('date', '<=' , Session::get('to'))
+                            ->orderBy('date');
+
+        $payments_count = $payments->count();
+        $payments_total = $payments->sum('amount');
+
+        $payments = $payments->paginate(10);
 
         return view('payments.index')->with('payments', $payments)
+                                    ->with('payments_count', $payments_count)
+                                    ->with('payments_total', $payments_total)
                                     ->with('company', $company)
-                                    ->with('period', $period) 
-                                    ->with('period_title', $period_title);  
+                                    ->with('from', $from)
+                                    ->with('to', $to);  
     }
 
-    public function change_period($period){
-        
-        Session::put('payments_period', $period);
+    public function change_period(Request $request){
+                        
+        $from = (new ToolController)->format_ymd($request->input('from'));
+        $to = (new ToolController)->format_ymd($request->input('to'));
+
+        Session::put('from', $from);
+        Session::put('to', $to);
         return redirect()->route('payments.index');
     }
     
@@ -146,6 +120,12 @@ class PaymentController extends Controller
                                     ->with('current_year', $current_year)
                                     ->with('company', $company);  
     }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
 
     /**
      * Show the form for creating a new resource.
@@ -600,4 +580,41 @@ class PaymentController extends Controller
         $payment->save();
         return redirect()->route('payments.index');
     }
+
+    /*
+     * Download file from DB  
+    */     
+    public function report_period(Request $request)
+    {
+        $company = Company::first();
+        $from = (new Carbon(Session::get('from')))->format('d/m/Y');
+        $to = (new Carbon(Session::get('to')))->format('d/m/Y');
+        
+        $payments = Payment::whereDate('date', '>=', Session::get('from'))
+                            ->whereDate('date', '<=' , Session::get('to'))
+                            ->orderBy('date')->get();
+        
+        $payments_by_municipality = DB::table('payments')
+                                    ->join('contracts', 'payments.contract_id', '=', 'contracts.id')
+                                    ->join('municipalities', 'contracts.municipality_id', '=', 'municipalities.id')
+                                    ->select('municipalities.name as municipality', DB::raw('sum(payments.amount) as amount'))
+                                    ->whereDate('payments.date', '>=', Session::get('from'))
+                                    ->whereDate('payments.date', '<=' , Session::get('to'))
+                                    ->groupBy('municipality_id')
+                                    ->orderBy('payments.date')
+                                    ->get();        
+        
+        $data=[
+            'company' => $company,
+            'payments' => $payments,
+            'from' => $from,
+            'to' => $to,
+            'payments_by_municipality' => $payments_by_municipality,
+            'logo' => 'data:image/png;base64, '.$company->logo 
+        ];
+        $pdf = PDF::loadView('reports/payments_period', $data);
+        return $pdf->download('Pagos desde '.$from.' hasta '.$to.'.pdf');
+
+    }
+
 }

@@ -82,10 +82,9 @@ Route::get('inspectors.status/{id}', ['as' => 'inspectors.status', 'uses' => 'In
 
 //Invoice
 Route::resource("invoices","InvoiceController");
-Route::get('invoices.index/{year}/{month}', ['as' => 'invoices.index', 'uses' => 'InvoiceController@index']);
-Route::get('invoices.index_group', ['as' => 'invoices.index_group', 'uses' => 'InvoiceController@index_group']);
+Route::get('invoices.change_period', ['as' => 'invoices.change_period', 'uses' => 'InvoiceController@change_period']);
+Route::get('invoices.report_period', ['as' => 'invoices.report_period', 'uses' => 'InvoiceController@report_period']);
 Route::get('invoices.print_invoices', ['as' => 'invoices.print_invoices', 'uses' => 'InvoiceController@print_invoices']);
-
 Route::get('invoices.routines', ['as' => 'invoices.routines', 'uses' => 'InvoiceController@routines']);
 Route::get('invoices.reverse_routine/{year}/{month}', ['as' => 'invoices.reverse_routine', 'uses' => 'InvoiceController@reverse_routine']);
 
@@ -105,13 +104,14 @@ Route::get('municipalities.status/{id}', ['as' => 'municipalities.status', 'uses
 //Payments
 Route::resource("payments","PaymentController");
 Route::get('payments.preview/{id}', ['as' => 'payments.preview', 'uses' => 'PaymentController@preview']);
-Route::get('payments.change_period/{period}', ['as' => 'payments.change_period', 'uses' => 'PaymentController@change_period']);
+Route::get('payments.change_period', ['as' => 'payments.change_period', 'uses' => 'PaymentController@change_period']);
 Route::post('payments.payment_future', ['as' => 'payments.payment_future', 'uses' => 'PaymentController@payment_future']);
 Route::get('payments.create/{id}', ['as' => 'payments.create', 'uses' => 'PaymentController@create']);
 Route::get('payments.contracts_debt', ['as' => 'payments.contracts_debt', 'uses' => 'PaymentController@contracts_debt']);
 Route::get('payments.contracts_solvent', ['as' => 'payments.contracts_solvent', 'uses' => 'PaymentController@contracts_solvent']);
 Route::get('payments.future/{id}', ['as' => 'payments.future', 'uses' => 'PaymentController@future']);
 Route::get('payments.folio/{id}', ['as' => 'payments.folio', 'uses' => 'PaymentController@folio']);
+Route::get('payments.report_period', ['as' => 'payments.report_period', 'uses' => 'PaymentController@report_period']);
 
 //Profile Controller
 Route::resource('profiles',"ProfileController");

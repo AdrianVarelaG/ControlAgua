@@ -45,6 +45,7 @@
                         {!! Form::hidden('hdd_contract_id', $contract->id, ['id'=>'hdd_contract_id']) !!}
                         {!! Form::hidden('hdd_discount_id', 0, ['id'=>'hdd_discount_id']) !!}
                         {!! Form::hidden('hdd_net_debt', $contract->balance, ['id'=>'hdd_net_debt']) !!}
+                        {!! Form::hidden('hdd_select_amount', 'total', ['id'=>'hdd_select_amount']) !!}
                         @if($payment->id)
                             {{ Form::hidden ('_method', 'PUT') }}
                         @endif
@@ -183,9 +184,14 @@
                                         </td>
                                         <td width="60%"><strong>OTRO MONTO</strong></td>
                                         <td width="30%" class="text-center">
-                                            {!! Form::text('other_amount', null, ['id'=>'other_amount', 'class'=>'form-control', 'type'=>'number', 'min'=>'0' ,'placeholder'=>'', 'required', 'disabled']) !!}
+                                            {!! Form::text('other_amount', null, ['id'=>'other_amount', 'class'=>'form-control', 'type'=>'number', 'min'=>'0' ,'placeholder'=>'', 'required', 'disabled', 'onkeyup'=>'calcula_saldo()']) !!}
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td width="10%"></td>
+                                    <td width="60%"><strong>SALDO RESTANTE</strong></td>
+                                    <td width="30%" class="text-center"><h3 id="saldo">0,00 {{ Session::get('coin') }}</h3></td>
+                                </tr>                                
                             </tbody>
                         </table>                            
                                     
@@ -196,8 +202,6 @@
                     </div>
                 </div>
                 <!-- /2dn Row -->
-
-
 
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="form-group pull-right">
@@ -282,7 +286,8 @@
           avatar_preview
         ]      
       });            
-    
+
+
     $(document).ready(function() {
                 
         // Validation
@@ -329,11 +334,15 @@
         $('#select_amount').on('ifChecked', function(event) {
             $('#other_amount').val('');
             $('#other_amount').attr('disabled', true);
+            $('#hdd_select_amount').val('total');
+            document.getElementById("saldo").innerHTML = '0,00';
         });
 
         $('#select_amount').on('ifUnchecked', function(event) {
             $('#other_amount').attr('disabled', false);
             $('#other_amount').focus();
+            $('#hdd_select_amount').val('other');            
+            document.getElementById("saldo").innerHTML = money_fmt(parseFloat($('#hdd_net_debt').val()))+ " {{ Session::get('coin') }} ";
         });    
 
         
@@ -382,7 +391,7 @@
         $("#btn_no").on('click', function(event) {
             $("#age_discount").iCheck('uncheck');
         });
-
+    
 
     //Rutina para el calculo del monto a pagar
     function calcula_total(){
@@ -442,15 +451,34 @@
         
 
         document.getElementById("total_monto").innerHTML = money_fmt(total)+" {{ Session::get('coin') }}";
-        document.getElementById("total_desglose").innerHTML = "Total Saldo Actual - Descuento ("+money_fmt(tot_invoices)+" - "+money_fmt(discount)+")";        
+        document.getElementById("total_desglose").innerHTML = "Total Saldo Actual - Descuento ("+money_fmt(tot_invoices)+" - "+money_fmt(discount)+")";
+        calcula_saldo();
     }       
+    
+    });
     
     function money_fmt(num){        
         num_fmt = num.toFixed(2).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
         return num_fmt;        
     }
+    
+    //Rutina para el calculo del saldo
+      function calcula_saldo(){
+        if($('#hdd_select_amount').val()=='other'){
+            total =  parseFloat($('#hdd_net_debt').val());
+            if($('#other_amount').val()!= ''){
+                other_amount = parseFloat($('#other_amount').val());
+                saldo = total - other_amount;                       
+            }else{
+                saldo = total;                
+            }
+        }else{
+            saldo = 0;
+        }
+        
+        document.getElementById("saldo").innerHTML = money_fmt(saldo)+" {{ Session::get('coin') }}";
+      }
 
-    });
     </script>
 
 @endpush

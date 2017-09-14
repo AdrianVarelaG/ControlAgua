@@ -3,6 +3,9 @@
 @push('stylesheets')
   <!-- CSS Datatables -->
   <link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
+<!-- DatePicker -->
+<link href="{{ URL::asset('css/plugins/datapicker/datepicker3.css') }}" rel="stylesheet">
+
 @endpush
 
 @section('page-header')
@@ -14,9 +17,10 @@
 	<div class="row">
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
+                
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-file-text-o" aria-hidden="true"></i> Recibos {{ month_letter($month, 'lg') }} {{ $year }}</h5>
+                    <h5><i class="fa fa-file-text-o" aria-hidden="true"></i> Consulta de Recibos</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -35,14 +39,44 @@
                 </div>
                 <!-- /ibox-title -->
                     
-            <!-- ibox-content- -->
-            <div class="ibox-content">
+        <!-- ibox-content- -->
+        <div class="ibox-content">
+          <div class="row">
                 
+              <div class="col-sm-5">
+                  <h4>Total Recibos: {{ $invoices_count }}</h4>
+                  <h4>Total {{ Session::get('coin') }}: {{ money_fmt($invoices_total) }}</h4>
+              </div>
+                
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}              
+              <div class="col-md-7">                
+                <div class="col-sm-5">
+                  <div class="form-group" id="data_1">
+                      <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                          {{ Form::text ('from', $from, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
+                      </div>
+                  </div>
+                </div>
+                <div class="col-sm-5">
+                  <div class="form-group" id="data_2">
+                      <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                          {{ Form::text ('to', $to, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'31/01/2017', 'required']) }}
+                      </div>
+                  </div>
+                </div>
+                <button type="button" id="btn_change" class="btn btn-sm btn-default" title="Refrescar"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                <button type="button" id="btn_print" class="btn btn-sm btn-default" title="Imprimir PDF"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
+              </div>
+              {{ Form::close() }}           
+
             @if($invoices->count())
-              <div class="table-responsive">
-              
+              <div class="col-md-12 col-sm-12 col-xs-12">                            
+                
                 @include('partials.errors')
-                    
+
+                <div class="table-responsive">                    
                     <table class="table table-striped table-hover" >
                     <thead>
                     <tr>
@@ -116,13 +150,16 @@
                   </div>
                   
                   </div>
+                </div>
                                   
                 @else
-                  <div class="alert alert-info">
-                    <ul>
-                      <i class="fa fa-info-circle"></i> No existen registros para mostrar!
-                    </ul>
-                  </div>                
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert alert-info">
+                      <ul>
+                        <i class="fa fa-info-circle"></i> No existen registros para mostrar!
+                      </ul>
+                    </div>
+                  </div>
                 @endif                
                   <div class="form-group pull-right">
                     <div class="col-md-12 col-sm-12 col-xs-12 ">
@@ -131,8 +168,9 @@
                   </div>
                   <br/>
                   <br/>
-                </div>
-                <!-- /ibox-content- -->
+              </div> <!-- /row- -->
+            </div> <!-- /ibox-content- -->
+                
             </div>
         </div>
     </div>
@@ -142,6 +180,10 @@
 @push('scripts')
 <script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
 <script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
+<!-- DatePicker --> 
+<script src="{{ URL::asset('js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+<script src="{{ URL::asset('js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
+
 
 
     <!-- Page-Level Scripts -->
@@ -169,7 +211,7 @@
                   text: '<i class="fa fa-file-excel-o"></i>',
                   titleAttr: 'Exportar a Excel',
                   //Titulo
-                  title: 'Recibos {{ month_letter($month, 'lg') }} {{ $year }}',                  
+                  title: 'Consulta de Recibos',                  
                   className: "btn-sm",
                   exportOptions: {
                     columns: [1, 2, 3, 4, 5],
@@ -180,7 +222,7 @@
                   text: '<i class="fa fa-file-pdf-o"></i>',
                   pageSize: 'LETTER',
                   titleAttr: 'Exportar a PDF',
-                  title: 'Recibos {{ month_letter($month, 'lg') }} {{ $year }}',                  
+                  title: 'Consulta de Recibos',                  
                   className: "btn-sm",
                   //Sub titulo
                   message: '',
@@ -248,5 +290,37 @@
                 }
             }, 1300);        
         });
+    
+        //Datepicker fecha del contrato
+        var date_input_1=$('#data_1 .input-group.date');
+        date_input_1.datepicker({
+            format: 'dd/mm/yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            language: 'es',
+        })
+
+        //Datepicker fecha del contrato
+        var date_input_2=$('#data_2 .input-group.date');
+        date_input_2.datepicker({
+            format: 'dd/mm/yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            language: 'es',
+        })
+
+      $('#btn_change').on("click", function (e) { 
+        url = `{{URL::to('invoices.change_period')}}`;
+        $('#form').attr('action', url);
+        $('#form').submit();
+      });
+
+      $('#btn_print').on("click", function (e) { 
+        url = `{{URL::to('invoices.report_period')}}`;
+        $('#form').attr('action', url);
+        $('#form').submit();
+      });
+
+
     </script>
 @endpush

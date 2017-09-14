@@ -3,9 +3,8 @@
 @push('stylesheets')
 <!-- CSS Datatables -->
 <link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
-<!-- Select2 -->
-<link href="{{ URL::asset('js/plugins/select2/dist/css/select2.min.css') }}" rel="stylesheet">
-<link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
+<!-- DatePicker -->
+<link href="{{ URL::asset('css/plugins/datapicker/datepicker3.css') }}" rel="stylesheet">
 
 @endpush
 
@@ -18,6 +17,7 @@
 	<div class="row">
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
+                
                 <!-- ibox-title -->
                 <div class="ibox-title">
                     <h5><i class="fa fa-money" aria-hidden="true"></i> Pagos</h5>
@@ -43,22 +43,35 @@
           <div class="ibox-content">
             <div class="row">
                 
-              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
-              {{ Form::close() }} 
             
-              <div class="col-sm-7">
-                  <h4>{{ $period_title }}</h4>
+              <div class="col-sm-5">
+                  <h4>Total Pagos: {{ $payments_count }}</h4>
+                  <h4>Total {{ Session::get('coin') }}: {{ money_fmt($payments_total) }}</h4>
               </div>
                 
-              <div class="col-sm-5">
-                  <div class="form-group">
-                      <label>Consultar otro período</label>
-                      <div class="input-group">
-                          <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-                          {{ Form::select('period', ['1' => 'Ultimo mes', '3' => 'Ultimos 3 meses', '6' => 'Ultimos 6 meses', '12' => 'Ultimo 12 meses', 'all' => 'Completo'],  $period, ['id'=>'period', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>''])}}
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}              
+              <div class="col-md-7">                
+                <div class="col-sm-5">
+                  <div class="form-group" id="data_1">
+                      <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                          {{ Form::text ('from', $from, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                       </div>
                   </div>
+                </div>
+                <div class="col-sm-5">
+                  <div class="form-group" id="data_2">
+                      <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                          {{ Form::text ('to', $to, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'31/01/2017', 'required']) }}
+                      </div>
+                  </div>
+                </div>
+                <button type="button" id="btn_change" class="btn btn-sm btn-default" title="Refrescar"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                <button type="button" id="btn_print" class="btn btn-sm btn-default" title="Imprimir PDF"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
               </div>
+              {{ Form::close() }} 
+
             
             @if($payments->count())
               <div class="col-md-12 col-sm-12 col-xs-12">              
@@ -70,12 +83,14 @@
                     <thead>
                     <tr>
                         <th></th>
-                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Tarifa</th>
                         <th>Contrato</th>
+                        <th>Domicilio</th>
+                        <th>Fecha</th>
+                        <th class="text-right">Monto {{ Session::get('coin') }}</th>
                         <th>Folio</th>
-                        <th>Tipo</th>
                         <th>Descripción</th>
-                        <th>Monto {{ Session::get('coin') }}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -108,27 +123,28 @@
                             </div>
                         <!-- /Split button -->                          
                         </td>
-                        <td>{{ $payment->date->format('d/m/Y') }}</td>                        
-                        <td>
-                          <strong>{{ $payment->contract->number }}</strong><br/>
-                          <small>{{ $payment->contract->citizen->name }}</small>
-                        </td>                          
-                        <td>{{ $payment->folio }}</td>
-                        <td>{{ $payment->type_description }}</td>
+                        <td><small><strong>{{ $payment->contract->citizen->name }}</strong></small></td>
+                        <td><small>{{ $payment->contract->rate->name }}</small></td>                        
+                        <td><small><strong>{{ $payment->contract->number }}</strong></small></td>
+                        <td><small>{{ $payment->contract->address }}</small></td>
+                        <td><small>{{ $payment->date->format('d/m/Y') }}</small></td>
+                        <td class="text-right"><small>{{ money_fmt($payment->amount) }}</small></td>
+                        <td><small>{{ $payment->folio }}</small></td>
                         <td><small>{{ $payment->description }}</small></td>
-                        <td>{{ money_fmt($payment->amount) }}</td>
                     </tr>
                     @endforeach
                     </tbody>
                     <tfoot>
                     <tr>
                         <th></th>
-                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Tarifa</th>
                         <th>Contrato</th>
-                        <th>Folio</th>
-                        <th>Tipo</th>
-                        <th>Descripción</th>
+                        <th>Domicilio</th>
+                        <th>Fecha</th>
                         <th>Monto {{ Session::get('coin') }}</th>
+                        <th>Folio</th>
+                        <th>Descripción</th>
                     </tr>
                     </tfoot>
                     </table>
@@ -142,8 +158,8 @@
                     <br/>
                     <br/>                    
                     <br/>
-                	</div>
-                </div> <!-- /table-responsive- -->
+                	</div> <!-- /table-responsive- -->
+                </div> 
                 @else
                   <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="alert alert-info">
@@ -165,10 +181,9 @@
 @push('scripts')
 <script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
 <script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
-
-<!-- Select2 -->
-<script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>
-<script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>
+<!-- DatePicker --> 
+<script src="{{ URL::asset('js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+<script src="{{ URL::asset('js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
 
     <!-- Page-Level Scripts -->
     <script>
@@ -180,13 +195,14 @@
               "bLengthChange": true, //Habilitar o deshabilitar el nro de registros por paginacion
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
-                { "sWidth": "5%" },  // 1st column width 
+                { "sWidth": "5%" },  // 1st column width
+                { "sWidth": "5%" },  // 2st column width 
                 { "sWidth": "10%", "sType": "date-uk" }, // 3nd column width
-                { "sWidth": "20%" }, // 2nd column width
-                { "sWidth": "10%" }, // 4nd column width
-                { "sWidth": "10%" }, // 4nd column width
-                { "sWidth": "30%" }, // 5nd column width
-                { "sWidth": "15%" }  // 6nd column width                
+                { "sWidth": "20%" }, // 4nd column width
+                { "sWidth": "10%" }, // 5nd column width
+                { "sWidth": "10%" }, // 6nd column width
+                { "sWidth": "25%" }, // 7nd column width
+                { "sWidth": "15%" }  // 8nd column width                
               ],              
               responsive: false,
               paging: true,
@@ -277,22 +293,35 @@
             }, 1300);        
         });
           
-        // Select2 
-        $("#period").select2({
-          language: "es",
-          placeholder: "Seleccione un período",
-          minimumResultsForSearch: 10,
-          allowClear: false,
-          width: '100%'
-        });
+        //Datepicker fecha del contrato
+        var date_input_1=$('#data_1 .input-group.date');
+        date_input_1.datepicker({
+            format: 'dd/mm/yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            language: 'es',
+        })
 
-      $('#period').on("change", function (e) { 
-        console.log("Cambio "+$('#period').val());
-        url = `{{URL::to('payments.change_period/')}}/${e.target.value}`;
+        //Datepicker fecha del contrato
+        var date_input_2=$('#data_2 .input-group.date');
+        date_input_2.datepicker({
+            format: 'dd/mm/yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            language: 'es',
+        })
+
+      $('#btn_change').on("click", function (e) { 
+        url = `{{URL::to('payments.change_period')}}`;
         $('#form').attr('action', url);
         $('#form').submit();
       });
 
+      $('#btn_print').on("click", function (e) { 
+        url = `{{URL::to('payments.report_period')}}`;
+        $('#form').attr('action', url);
+        $('#form').submit();
+      });
 
     </script>
 @endpush

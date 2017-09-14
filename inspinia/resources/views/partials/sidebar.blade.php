@@ -97,14 +97,14 @@
                     </li>              
                 </ul>
             </li>
-            <li class="{{ set_active(['payments', 'invoices.index_group']) }}">
-                <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultar</span> <span class="fa arrow"></span></a>
+            <li class="{{ set_active(['payments', 'invoices']) }}">
+                <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultas</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['payments']) }}">
                         <a href="{{URL::to('payments')}}">Pagos</a>
                     </li>
-                    <li class="{{ set_active(['invoices.index_group']) }}">
-                        <a href="{{URL::to('invoices.index_group')}}">Recibos</a>
+                    <li class="{{ set_active(['invoices']) }}">
+                        <a href="{{URL::to('invoices')}}">Recibos</a>
                     </li>
                 </ul>
             </li>            
@@ -117,14 +117,14 @@
                     <li class="{{ set_active(['contracts.initial_balance']) }}">
                         <a href="{{URL::to('contracts.initial_balance')}}">Saldos Iniciales</a>
                     </li>                    
-                    <!--
+                    <!-- Men
                     <li class="{{ set_active(['uploadfile']) }}">
                         <a href="{{URL::to('uploadfile')}}">Subir Padrón</a>
                     </li>
                     <li class="{{ set_active(['datatables']) }}">
                         <a href="{{URL::to('datatables')}}">Datatables Test</a>
                     </li>
-                    -->                    
+                    -->
                 </ul>
             </li>
         @endif
@@ -156,14 +156,14 @@
                     </li>
                 </ul>
             </li>
-            <li class="{{ set_active(['payments', 'invoices.index_group']) }}">
+            <li class="{{ set_active(['payments', 'invoices']) }}">
                 <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultar</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['payments']) }}">
                         <a href="{{URL::to('payments')}}">Pagos</a>
                     </li>
-                    <li class="{{ set_active(['invoices.index_group']) }}">
-                        <a href="{{URL::to('invoices.index_group')}}">Recibos</a>
+                    <li class="{{ set_active(['invoices']) }}">
+                        <a href="{{URL::to('invoices')}}">Recibos</a>
                     </li>
                 </ul>
             </li>            
@@ -192,14 +192,14 @@
             <li class="{{ set_active(['contracts']) }}">
                 <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span></a>
             </li>                                    
-            <li class="{{ set_active(['payments', 'invoices.index_group']) }}">
+            <li class="{{ set_active(['payments', 'invoices']) }}">
                 <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultar</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['payments']) }}">
                         <a href="{{URL::to('payments')}}">Pagos</a>
                     </li>
-                    <li class="{{ set_active(['invoices.index_group']) }}">
-                        <a href="{{URL::to('invoices.index_group')}}">Recibos</a>
+                    <li class="{{ set_active(['invoices']) }}">
+                        <a href="{{URL::to('invoices')}}">Recibos</a>
                     </li>
                 </ul>
             </li>

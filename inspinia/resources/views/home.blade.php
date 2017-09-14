@@ -1,6 +1,15 @@
 @extends('layouts.app')
 
 @push('stylesheets')
+<style>
+    .flot-x-axis .flot-tick-label {
+    white-space: nowrap;
+    transform: translate(-9px, 0) rotate(-60deg);
+    text-indent: -100%;
+    transform-origin: top right;
+    text-align: right !important;
+}
+</style>
 @endpush
 
 @section('page-header')
@@ -24,6 +33,13 @@
         $sum_invoices_month_canceled =  $invoices_month->where('status', 'C')->sum('total');
         $count_invoices_month_canceled =  $invoices_month->where('status', 'C')->count();
 
+        //Pagos del Año
+        $sum_payments_year = $debits_year->where('type', 'P')->sum('amount');
+        $count_payments_year = $debits_year->where('type', 'P')->count();
+
+        //Descuentos del Año
+        $sum_discounts_year = $debits_year->where('type', 'D')->sum('amount');
+        $count_discounts_year = $debits_year->where('type', 'D')->count();
     @endphp
     <!-- Widgets -->
     <div class="row">
@@ -69,268 +85,68 @@
     </div>
     <!-- /Widgets -->
     
+    
     <!-- Graph -->
     <div class="row">
-                    <div class="col-lg-12">
-                        <div class="ibox float-e-margins">
-                            <div class="ibox-title">
-                                <h5>Gestión de Cobro {{ $current_year }}</h5>
-                            </div>
-                            <div class="ibox-content">
-                                <div class="row">
-                                <div class="col-lg-9">
-                                    <div class="flot-chart">
-                                        <div class="flot-chart-content" id="flot-dashboard-chart"></div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3">
-                                    <ul class="stat-list">
-                                        <li>
-                                            <h2 class="no-margins">{{ money_fmt($sum_invoices_year) }}</h2>
-                                            <small>Recibos en {{ $current_year }}: <strong>{{ $count_invoices_year }}</strong></small>
-                                        </li>
-                                        <li>
-                                            <h2 class="no-margins ">{{ money_fmt($sum_invoices_year_pending) }}</h2>
-                                            <small>Pendientes en {{ $current_year }}: <strong>{{ $count_invoices_year_pending }}</strong></small>
-                                            <div class="stat-percent">{{ ($count_invoices_year>0)?round(($count_invoices_year_pending/$count_invoices_year)*100,2):0.00 }}% <i class="fa fa-level-down text-navy"></i></div>
-                                            <div class="progress progress-mini">
-                                                <div style="width: {{ ($count_invoices_year>0)?round(($count_invoices_year_pending/$count_invoices_year)*100, 2):0.00 }}%;" class="progress-bar progress-bar-warning"></div>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <h2 class="no-margins ">{{ money_fmt($sum_invoices_year_canceled) }}</h2>
-                                            <small>Cancelados en {{ $current_year }}: <strong>{{ $count_invoices_year_canceled }}</strong></small>
-                                            <div class="stat-percent">{{ ($count_invoices_year>0)?round(($count_invoices_year_canceled/$count_invoices_year)*100, 2):0.00 }}% <i class="fa fa-bolt text-navy"></i></div>
-                                            <div class="progress progress-mini">
-                                                <div style="width: {{ ($count_invoices_year>0)?round(($count_invoices_year_canceled/$count_invoices_year)*100, 2):0.00 }}%;" class="progress-bar progress-bar-success"></div>
-                                            </div>
-                                        </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                </div>
-
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Gestión de Cobro {{ $current_year }}</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <div class="flot-chart">
+                                <div class="flot-chart-content" id="flot-dashboard-chart"></div>
                             </div>
                         </div>
+                        <div class="col-lg-3">
+                            <ul class="stat-list">
+                                <li>
+                                    <h2 class="no-margins ">{{ money_fmt($sum_invoices_year_pending) }} {{ Session::get('coin') }}</h2>
+                                    <small>Por pagar en {{ $current_year }}: <strong>{{ $count_invoices_year_pending }} recibos</strong></small>
+                                </li>
+                                <li>
+                                    <h2 class="no-margins ">{{ money_fmt($sum_payments_year) }} {{ Session::get('coin') }}</h2>
+                                    <small>Pagos en {{ $current_year }}: <strong>{{ $count_payments_year }}</strong></small>
+                                </li>
+                                <li>
+                                    <h2 class="no-margins">{{ money_fmt($sum_discounts_year) }} {{ Session::get('coin') }}</h2>
+                                    <small>Descuentos en {{ $current_year }}: <strong>{{ $count_discounts_year }}</strong></small>
+                                </li>                                        
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- /Graph -->
 
-
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="ibox float-e-margins">
-                            <div class="ibox-title">
-                                <h5>Messages</h5>
-                                <div class="ibox-tools">
-                                    <a class="collapse-link">
-                                        <i class="fa fa-chevron-up"></i>
-                                    </a>
-                                    <a class="close-link">
-                                        <i class="fa fa-times"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="ibox-content ibox-heading">
-                                <h3><i class="fa fa-envelope-o"></i> New messages</h3>
-                                <small><i class="fa fa-tim"></i> You have 22 new messages and 16 waiting in draft folder.</small>
-                            </div>
-                            <div class="ibox-content">
-                                <div class="feed-activity-list">
-
-                                    <div class="feed-element">
-                                        <div>
-                                            <small class="pull-right text-navy">1m ago</small>
-                                            <strong>Monica Smith</strong>
-                                            <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</div>
-                                            <small class="text-muted">Today 5:60 pm - 12.06.2014</small>
-                                        </div>
-                                    </div>
-
-                                    <div class="feed-element">
-                                        <div>
-                                            <small class="pull-right">2m ago</small>
-                                            <strong>Jogn Angel</strong>
-                                            <div>There are many variations of passages of Lorem Ipsum available</div>
-                                            <small class="text-muted">Today 2:23 pm - 11.06.2014</small>
-                                        </div>
-                                    </div>
-
-                                    <div class="feed-element">
-                                        <div>
-                                            <small class="pull-right">5m ago</small>
-                                            <strong>Jesica Ocean</strong>
-                                            <div>Contrary to popular belief, Lorem Ipsum</div>
-                                            <small class="text-muted">Today 1:00 pm - 08.06.2014</small>
-                                        </div>
-                                    </div>
-
-                                    <div class="feed-element">
-                                        <div>
-                                            <small class="pull-right">5m ago</small>
-                                            <strong>Monica Jackson</strong>
-                                            <div>The generated Lorem Ipsum is therefore </div>
-                                            <small class="text-muted">Yesterday 8:48 pm - 10.06.2014</small>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="feed-element">
-                                        <div>
-                                            <small class="pull-right">5m ago</small>
-                                            <strong>Anna Legend</strong>
-                                            <div>All the Lorem Ipsum generators on the Internet tend to repeat </div>
-                                            <small class="text-muted">Yesterday 8:48 pm - 10.06.2014</small>
-                                        </div>
-                                    </div>
-                                    <div class="feed-element">
-                                        <div>
-                                            <small class="pull-right">5m ago</small>
-                                            <strong>Damian Nowak</strong>
-                                            <div>The standard chunk of Lorem Ipsum used </div>
-                                            <small class="text-muted">Yesterday 8:48 pm - 10.06.2014</small>
-                                        </div>
-                                    </div>
-                                    <div class="feed-element">
-                                        <div>
-                                            <small class="pull-right">5m ago</small>
-                                            <strong>Gary Smith</strong>
-                                            <div>200 Latin words, combined with a handful</div>
-                                            <small class="text-muted">Yesterday 8:48 pm - 10.06.2014</small>
-                                        </div>
-                                    </div>
-
-                                </div>
+    <!-- Graph -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Gestión de Cobro {{ $current_year }} por Colonias</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="flot-chart">
+                                <div class="flot-chart-content" id="flot-neighborhood"></div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-lg-8">
-
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="ibox float-e-margins">
-                                    <div class="ibox-title">
-                                        <h5>User project list</h5>
-                                        <div class="ibox-tools">
-                                            <a class="collapse-link">
-                                                <i class="fa fa-chevron-up"></i>
-                                            </a>
-                                            <a class="close-link">
-                                                <i class="fa fa-times"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="ibox-content">
-                                        <table class="table table-hover no-margins">
-                                            <thead>
-                                            <tr>
-                                                <th>Status</th>
-                                                <th>Date</th>
-                                                <th>User</th>
-                                                <th>Value</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr>
-                                                <td><small>Pending...</small></td>
-                                                <td><i class="fa fa-clock-o"></i> 11:20pm</td>
-                                                <td>Samantha</td>
-                                                <td class="text-navy"> <i class="fa fa-level-up"></i> 24% </td>
-                                            </tr>
-                                            <tr>
-                                                <td><span class="label label-warning">Canceled</span> </td>
-                                                <td><i class="fa fa-clock-o"></i> 10:40am</td>
-                                                <td>Monica</td>
-                                                <td class="text-navy"> <i class="fa fa-level-up"></i> 66% </td>
-                                            </tr>
-                                            <tr>
-                                                <td><small>Pending...</small> </td>
-                                                <td><i class="fa fa-clock-o"></i> 01:30pm</td>
-                                                <td>John</td>
-                                                <td class="text-navy"> <i class="fa fa-level-up"></i> 54% </td>
-                                            </tr>
-                                            <tr>
-                                                <td><small>Pending...</small> </td>
-                                                <td><i class="fa fa-clock-o"></i> 02:20pm</td>
-                                                <td>Agnes</td>
-                                                <td class="text-navy"> <i class="fa fa-level-up"></i> 12% </td>
-                                            </tr>
-                                            <tr>
-                                                <td><small>Pending...</small> </td>
-                                                <td><i class="fa fa-clock-o"></i> 09:40pm</td>
-                                                <td>Janet</td>
-                                                <td class="text-navy"> <i class="fa fa-level-up"></i> 22% </td>
-                                            </tr>
-                                            <tr>
-                                                <td><span class="label label-primary">Completed</span> </td>
-                                                <td><i class="fa fa-clock-o"></i> 04:10am</td>
-                                                <td>Amelia</td>
-                                                <td class="text-navy"> <i class="fa fa-level-up"></i> 66% </td>
-                                            </tr>
-                                            <tr>
-                                                <td><small>Pending...</small> </td>
-                                                <td><i class="fa fa-clock-o"></i> 12:08am</td>
-                                                <td>Damian</td>
-                                                <td class="text-navy"> <i class="fa fa-level-up"></i> 23% </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="ibox float-e-margins">
-                                    <div class="ibox-title">
-                                        <h5>Small todo list</h5>
-                                        <div class="ibox-tools">
-                                            <a class="collapse-link">
-                                                <i class="fa fa-chevron-up"></i>
-                                            </a>
-                                            <a class="close-link">
-                                                <i class="fa fa-times"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="ibox-content">
-                                        <ul class="todo-list m-t small-list">
-                                            <li>
-                                                <a href="#" class="check-link"><i class="fa fa-check-square"></i> </a>
-                                                <span class="m-l-xs todo-completed">Buy a milk</span>
-
-                                            </li>
-                                            <li>
-                                                <a href="#" class="check-link"><i class="fa fa-square-o"></i> </a>
-                                                <span class="m-l-xs">Go to shop and find some products.</span>
-
-                                            </li>
-                                            <li>
-                                                <a href="#" class="check-link"><i class="fa fa-square-o"></i> </a>
-                                                <span class="m-l-xs">Send documents to Mike</span>
-                                                <small class="label label-primary"><i class="fa fa-clock-o"></i> 1 mins</small>
-                                            </li>
-                                            <li>
-                                                <a href="#" class="check-link"><i class="fa fa-square-o"></i> </a>
-                                                <span class="m-l-xs">Go to the doctor dr Smith</span>
-                                            </li>
-                                            <li>
-                                                <a href="#" class="check-link"><i class="fa fa-check-square"></i> </a>
-                                                <span class="m-l-xs todo-completed">Plan vacation</span>
-                                            </li>
-                                            <li>
-                                                <a href="#" class="check-link"><i class="fa fa-square-o"></i> </a>
-                                                <span class="m-l-xs">Create new stuff</span>
-                                            </li>
-                                            <li>
-                                                <a href="#" class="check-link"><i class="fa fa-square-o"></i> </a>
-                                                <span class="m-l-xs">Call to Anna for dinner</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- /Graph -->                
 </div>
 @endsection
 
@@ -385,97 +201,184 @@
                 }
             }, 1300);
 
-            //Flot Chart
-            var data1 = {!! $total_incomes_year !!}
+    //Flot Chart Gestion de Cobro
+    var data1 = {!! $total_incomes_year !!}
+    var data2 = {!! $total_invoices_year !!}
 
-            var data2 = {!! $total_invoices_year !!}
+    var dataset = [
+        {
+            label: "Ingreso Esperado",
+            data: data2,
+            color: "#1ab394",
+            bars: {
+                show: true,
+                align: "center",
+                barWidth: 0.7,
+                lineWidth:0
+            }
 
-
-            var dataset = [
-                {
-                    label: "Ingreso Esperado",
-                    data: data2,
-                    color: "#1ab394",
-                    bars: {
-                        show: true,
-                        align: "center",
-                        barWidth: 0.7,
-                        lineWidth:0
-                    }
-
-                }, {
-                    label: "Ingreso Real",
-                    data: data1,
-                    yaxis: 2,
-                    color: "#1C84C6",
-                    lines: {
-                        lineWidth:1,
-                            show: true,
-                            fill: true,
-                        fillColor: {
-                            colors: [{
-                                opacity: 0.2
-                            }, {
-                                opacity: 0.4
-                            }]
-                        }
-                    },
-                    splines: {
-                        show: false,
-                        tension: 0.6,
-                        lineWidth: 1,
-                        fill: 0.1
-                    },
+        }, {
+            label: "Ingreso Real",
+            data: data1,
+            yaxis: 2,
+            color: "#1C84C6",
+            lines: {
+                lineWidth:1,
+                    show: true,
+                    fill: true,
+                fillColor: {
+                    colors: [{
+                        opacity: 0.2
+                    }, {
+                        opacity: 0.4
+                    }]
                 }
-            ];
+            },
+            splines: {
+                show: false,
+                tension: 0.6,
+                lineWidth: 1,
+                fill: 0.1
+            },
+        }
+    ];
 
-            var ticks = [
-                [1, "Ene"], [2, "Feb"], [3, "Mar"], [4, "Abr"], [5, "May"], [6, "Jun"], 
-                [7, "Jul"], [8, "Ago"], [9, "Sep"], [10, "Oct"], [11, "Nov"], [12, "Dic"],
-            ];
+    var ticks = [
+        [1, "Ene"], [2, "Feb"], [3, "Mar"], [4, "Abr"], [5, "May"], [6, "Jun"], 
+        [7, "Jul"], [8, "Ago"], [9, "Sep"], [10, "Oct"], [11, "Nov"], [12, "Dic"],
+    ];
 
-            var options = {
-                xaxis: {
-                    ticks: ticks,
-                    tickLength: 0,                    
-                    axisLabelUseCanvas: true,
-                    axisLabelFontSizePixels: 12,
-                    axisLabelFontFamily: 'Arial',
-                    axisLabelPadding: 10,
-                    color: "#d5d5d5"
-                },
-                yaxes: [{
-                    position: "left",
-                    color: "#d5d5d5",
-                    axisLabelUseCanvas: true,
-                    axisLabelFontSizePixels: 12,
-                    axisLabelFontFamily: 'Arial',
-                    axisLabelPadding: 3
-                }, {
-                    position: "right",
-                    clolor: "#d5d5d5",
-                    axisLabelUseCanvas: true,
-                    axisLabelFontSizePixels: 12,
-                    axisLabelFontFamily: ' Arial',
-                    axisLabelPadding: 67
-                }
-                ],
-                legend: {
-                    noColumns: 1,
-                    labelBoxBorderColor: "#000000",
-                    position: "nw"
-                },
-                grid: {
-                    hoverable: true,
-                    borderWidth: 0
-                },
-            };
+    var options = {
+        xaxis: {
+            ticks: ticks,
+            tickLength: 0,                    
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Arial',
+            axisLabelPadding: 10,
+            color: "#d5d5d5"
+        },
+        yaxes: [{
+            position: "left",
+            color: "#d5d5d5",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Arial',
+            axisLabelPadding: 3
+        }, {
+            position: "right",
+            clolor: "#d5d5d5",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: ' Arial',
+            axisLabelPadding: 67
+        }
+        ],
+        legend: {
+            noColumns: 1,
+            labelBoxBorderColor: "#000000",
+            position: "nw"
+        },
+        grid: {
+            hoverable: true,
+            borderWidth: 0
+        },
+    };
             
-            $.plot($("#flot-dashboard-chart"), dataset, options);
-            $("#flot-dashboard-chart").UseTooltip();
+    $.plot($("#flot-dashboard-chart"), dataset, options);
+    $("#flot-dashboard-chart").UseTooltip();
+    // FIN Flot Chart Gestion de Cobro
 
-        });
-    
+
+    // INICIO Flot Gestion de Cobro por Colonia
+    var data3 = {!! $incomes_by_neighborhood !!}
+    var data4 = {!! $invoices_by_neighborhood !!}
+
+    var dataset_neighborhood = [
+        {
+            label: "Ingreso Esperado",
+            data: data4,
+            color: "#1ab394",
+            bars: {
+                show: true,
+                align: "center",
+                barWidth: 0.7,
+                lineWidth:0
+            }
+
+        }, {
+            label: "Ingreso Real",
+            data: data3,
+            yaxis: 2,
+            color: "#1C84C6",
+            lines: {
+                lineWidth:1,
+                    show: true,
+                    fill: true,
+                fillColor: {
+                    colors: [{
+                        opacity: 0.2
+                    }, {
+                        opacity: 0.4
+                    }]
+                }
+            },
+            splines: {
+                show: false,
+                tension: 0.6,
+                lineWidth: 1,
+                fill: 0.1
+            },
+        }
+    ];
+
+    var ticks_neighborhood = {!! $ticks_neighborhood !!}
+
+    var options_neighborhood = {
+        xaxis: {
+            ticks: ticks_neighborhood,
+            tickLength: 0,                    
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Arial',
+            axisLabelPadding: 10,
+            color: "#d5d5d5"
+        },
+        yaxes: [{
+            position: "left",
+            color: "#d5d5d5",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Arial',
+            axisLabelPadding: 3
+        }, {
+            position: "right",
+            clolor: "#d5d5d5",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: ' Arial',
+            axisLabelPadding: 67
+        }
+        ],
+        legend: {
+            noColumns: 1,
+            labelBoxBorderColor: "#000000",
+            position: "nw"
+        },
+        grid: {
+            hoverable: true,
+            borderWidth: 0
+        },
+    };
+            
+    $.plot($("#flot-neighborhood"), dataset_neighborhood, options_neighborhood);
+    $("#flot-neighborhood").UseTooltip();
+    //Flot FIN Gestion de Cobro por Colonias
+
+    });
+
+
+        
         var previousPoint = null, previousLabel = null;
 
         $.fn.UseTooltip = function () {

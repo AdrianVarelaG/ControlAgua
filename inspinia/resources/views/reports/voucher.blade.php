@@ -22,6 +22,7 @@
 
                                 <div class="col-sm-6 text-right">
                                     <h3>Comprobante de Pago No. <strong>{{ $payment->id }}</strong></h3>
+                                    <h4>Contrato No. <strong>{{ $payment->contract->number }}</strong></h4>
                                     <address>
                                         <strong>{{ $payment->contract->citizen->name }}</strong><br>
                                         {{ $payment->contract->citizen->neighborhood }}, {{ $payment->contract->citizen->street }}<br>

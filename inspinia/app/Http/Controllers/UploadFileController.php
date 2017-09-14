@@ -11,6 +11,7 @@ use App\Models\Padron;
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use App\Models\Payment;
+use App\Models\PaymentDetail;
 use App\Models\Reading;
 use App\Models\Contract;
 use App\Models\Citizen;
@@ -40,23 +41,30 @@ class UploadFileController extends Controller
 		   //Storage::put('PADRON.xls', $resource );
       //2. Se limpia la tabla padron
          //Padron::truncate();
-      //2. Se importa la data a la tabla Padron de la BD      
+      //3. Se importa la data a la tabla Padron de la BD      
          //$this->import_chunk();
-      //3. Se actualiza a estatus DESACTIVO registros que tengan ultimo_mes y adeudo null
+      //4. Se actualiza a estatus DESACTIVO registros que tengan ultimo_mes y adeudo null
          //Padron::where('ultimo_mes', null)
          //      ->where('adeudo', null)
          //      ->where('status', '')
          //      ->update(['status' => 'DESACTIVO']);
-      //4. Se limpian las tablas antes de la insercion
+      //5. Se actualiza a estatus ACTIVO registros que tengan ultimo_mes y adeudo y estatus vacio 
+         //Padron::where('ultimo_mes', '!=', null)
+         //      ->where('adeudo', '!=', null)
+         //      ->where('status', '')
+         //      ->update(['status' => 'ACTIVO']);
+      //6. Se limpian las tablas antes de la insercion
       ini_set('max_execution_time', 300);
       DB::statement("SET foreign_key_checks=0");
       Invoice::truncate();
-      Movement::truncate();
+      InvoiceDetail::truncate();
       Payment::truncate();
+      PaymentDetail::truncate();
+      Movement::truncate();      
       Reading::truncate();
       Contract::truncate();
       Citizen::truncate();
-      //5. Se recorre la tabla padron con la logica
+      //7. Se recorre la tabla padron con la logica
       $ciudadanos = Padron::orderBy('nombre')->get();
       $ciudadano_anterior='';
       $file = public_path()."/img/avatar_default.png";  
@@ -64,7 +72,7 @@ class UploadFileController extends Controller
       $avatar = base64_encode((new ImgController)->resize_image($img, 'jpg', 200, 200));
       foreach ($ciudadanos as $ciudadano) {
          if($ciudadano->nombre != $ciudadano_anterior){            
-            //5.1 Se registra el ciudadano
+            //7.1 Se registra el ciudadano
             $citizen = new Citizen();        
             $citizen->avatar = $avatar;         
             $citizen->ID_number = '';
@@ -84,7 +92,7 @@ class UploadFileController extends Controller
             $citizen->postal_code = '';
             $citizen->status = 'A';
             $citizen->save();
-            //5.2 Se registra el Contrato
+            //7.2 Se registra el Contrato
             $contract = new Contract();
             $contract->citizen_id= $citizen->id;
             $contract->number = $ciudadano->contrato;
@@ -102,9 +110,9 @@ class UploadFileController extends Controller
             $contract->status= $ciudadano->status;
             $contract->save();
             if ($ciudadano->ultimo_recibo != null){
-               //5.3 Se registra ultimo recibo cancelado y el recibo con la deuda total  y adeudo
+               //7.3 Se registra ultimo recibo cancelado y el recibo con la deuda total  y adeudo
                $this->register_last_invoice_canceled($ciudadano, $citizen, $contract);
-               //5.4 Se genera el recibo con deuda total 
+               //7.4 Se genera el recibo con deuda total 
                if($ciudadano->adeudo > 0 ){
                   $invoice = new Invoice();
                   $invoice->date = '2017-10-01';
@@ -129,11 +137,11 @@ class UploadFileController extends Controller
                   $invoice_detail->sub_total = abs($ciudadano->adeudo);
                   $invoice_detail->save();                  
                }                              
-               //5.5 Se registra el movimiento contable del adeudo
+               //7.5 Se registra el movimiento contable del adeudo
                $this->register_movement($ciudadano, $citizen, $contract, $invoice);
             } 
          }else{
-            //5.2 Solo se registra el Contrato
+            //7.2 Solo se registra el Contrato
             $contract = new Contract();
             $contract->citizen_id= $citizen->id;
             $contract->number = $ciudadano->contrato;
@@ -151,9 +159,9 @@ class UploadFileController extends Controller
             $contract->status= $ciudadano->status;
             $contract->save();
             if ($ciudadano->ultimo_recibo != null){
-               //5.3 Se registra ultimo recibo cancelado (Recibo de Arranque) y adeudo
+               //7.3 Se registra ultimo recibo cancelado (Recibo de Arranque) y adeudo
                $this->register_last_invoice_canceled($ciudadano, $citizen, $contract);
-               //5.4 Se genera el recibo con deuda total 
+               //7.4 Se genera el recibo con deuda total 
                if($ciudadano->adeudo > 0 ){
                   $invoice = new Invoice();
                   $invoice->date = '2017-10-01';
@@ -178,7 +186,7 @@ class UploadFileController extends Controller
                   $invoice_detail->sub_total = abs($ciudadano->adeudo);
                   $invoice_detail->save();
                }               
-               //5.5 Se registra el movimiento contable del adeudo
+               //7.5 Se registra el movimiento contable del adeudo
                $this->register_movement($ciudadano, $citizen, $contract, $invoice);
             }             
          }
@@ -209,6 +217,20 @@ class UploadFileController extends Controller
          'message' => 'Ultimo Recibo Cancelado',
          'status' => 'C',
          'previous_debt' => 0
+      ]);      
+   }
+   
+   public function register_last_payment($ciudadano, $citizen, $contract){
+                  
+      //Ultimo pago
+      Payment::create([         
+        'date' => $ciudadano->ultimo_recibo,
+        'citizen_id' => $citizen->id,
+        'contract_id' => $contract->id,
+        'type' => 'EF',
+        'description' => 'Ultimo pago',
+        'observation' => 'Ultimo pago para corte del nuevo sistema',
+        'amount' => 0
       ]);      
    }
    

@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Setting;
 use App\User;
 use Session;
+use Carbon\Carbon;
 
 
 class Authenticate
@@ -49,7 +50,8 @@ class Authenticate
                 Session::put('coin', $setting->coin);
                 Session::put('money_format', $setting->money_format);
                 Session::put('state_id', 1);
-                Session::put('payments_period', 1);
+                Session::put('from', Carbon::now()->format('Y-m-01'));
+                Session::put('to', Carbon::now()->format('Y-m-t'));
                 Session::put('create_notification', $setting->create_notification);
                 Session::put('update_notification', $setting->update_notification);
                 Session::put('delete_notification', $setting->delete_notification);         

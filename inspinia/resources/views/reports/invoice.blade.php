@@ -124,6 +124,5 @@
             <small>{{ $invoice->message }}</small>
         </div>
         <!-- /Message -->
-
 @endsection
 

@@ -220,5 +220,15 @@ class Contract extends Model
         return $last_payment;
     }
 
+    public function getAddressAttribute(){
+        
+        $address = '';
+        ($this->street != '')?$address = $this->street:'';
+        ($this->number_ext != '')?$address = $address.' # '.$this->number_ext:'';
+        ($this->number_int != '')?$address = $address.' - '.$this->number_int:'';
+        ($this->neighborhood != '')?$address = $address.' '.$this->neighborhood:'';
+                 
+        return $address;
+    }
 
 }
