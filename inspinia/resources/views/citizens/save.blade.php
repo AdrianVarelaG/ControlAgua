@@ -48,14 +48,14 @@
                                 <input id="avatar" name="avatar" class="file" type="file">
                             </div>
                             <div class="form-group">
-                                <label>Nro de Identificación *</label>
+                                <label>CURP *</label><small class="hidden-xs"> Clave Unica de Registro de Población</small>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
-                                    {!! Form::text('ID_number', $citizen->ID_number, ['id'=>'ID_number', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 123456789', 'maxlength'=>'50', 'required']) !!}
+                                    {!! Form::text('ID_number', $citizen->ID_number, ['id'=>'ID_number', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. BADD110313HCMLNS09', 'maxlength'=>'18']) !!}
                                 </div>
                             </div>                            
                             <div class="form-group">
-                                <label>RFC *</label><small> Registro Federal del Contribuyente</small>
+                                <label>RFC *</label><small class="hidden-xs"> Registro Federal del Contribuyente</small>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
                                     {!! Form::text('RFC', $citizen->RFC, ['id'=>'RFC', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. MELM8305281H0', 'maxlength'=>'50', 'required']) !!}
@@ -141,17 +141,17 @@
                                 </div>
                             </div>                            
                             <div class="form-group">
-                                <label>Número interno *</label>
+                                <label>Número interno</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                    {!! Form::text('number_int', $citizen->number_int, ['id'=>'number_int', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #1500', 'maxlength'=>'25', 'required']) !!}
+                                    {!! Form::text('number_int', $citizen->number_int, ['id'=>'number_int', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #1500', 'maxlength'=>'25']) !!}
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Código Postal *</label>
+                                <label>Código Postal</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-location-arrow" aria-hidden="true"></i></span>
-                                    {!! Form::text('postal_code', $citizen->postal_code, ['id'=>'postal_code', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 21150', 'maxlength'=>'10', 'number', 'required']) !!}
+                                    {!! Form::text('postal_code', $citizen->postal_code, ['id'=>'postal_code', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 21150', 'maxlength'=>'10', 'number']) !!}
                                 </div>
                             </div>                            
                             <div class="form-group pull-right">

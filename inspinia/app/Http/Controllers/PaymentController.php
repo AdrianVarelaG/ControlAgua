@@ -231,6 +231,7 @@ class PaymentController extends Controller
         $payment->type= $request->input('type');
         $payment->observation = $request->input('observation');
         $payment->amount =0;
+        $payment->debt = $request->input('hdd_debt');
         $tot_debt= $contract->balance;
         $payment->save();
         //2. Se calcula monto del descuento si el cajero ha seleccionado alguno       
@@ -269,13 +270,13 @@ class PaymentController extends Controller
         }elseif($request->input('select_amount')=='other'){
             $this->cancel_invoices($contract, $payment, $request->input('hdd_net_debt'), floatval($request->input('other_amount'))+$tot_discount);
         }        
-        //5. Se actualiza el monto del pago
+        //5. Se actualiza el monto del pago y la deuda restante
         $payment->description = $this->str_description;
         if($request->input('select_amount')=='total'){
             $payment->amount= $tot_debt-$tot_discount;
         }else if($request->input('select_amount')=='other'){
             $payment->amount= $request->input('other_amount');
-        }
+        }        
         $payment->save();
         //6. Se registra el movimiento del pago
         $movement = new Movement();
@@ -373,6 +374,7 @@ class PaymentController extends Controller
         $payment->type= $request->input('type');
         $payment->observation = $request->input('observation');
         $payment->amount= 0;
+        $payment->debt = 0;
         $payment->save();
         //2. Se generan los recibos del periodo selecionado (Incluye cargos e IVA).        
         for ($i= $initial_month; $i <= $final_month ; $i++) { 

@@ -117,7 +117,7 @@
                     <li class="{{ set_active(['contracts.initial_balance']) }}">
                         <a href="{{URL::to('contracts.initial_balance')}}">Saldos Iniciales</a>
                     </li>                    
-                    <!-- Men
+                    <!--
                     <li class="{{ set_active(['uploadfile']) }}">
                         <a href="{{URL::to('uploadfile')}}">Subir Padrón</a>
                     </li>

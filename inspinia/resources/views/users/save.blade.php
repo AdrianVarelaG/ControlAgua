@@ -70,7 +70,7 @@
                                 <label>Rol *</label>
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-male" aria-hidden="true"></i></span>
-                                    {{ Form::select('role', ['ADM' => 'Admnistrador', 'OPE' => 'Operador', 'TES' => 'Tesorería', 'DDA'=>'Departamento de Aguas'], $user->role, ['id'=>'role', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
+                                    {{ Form::select('role', ['ADM' => 'Admnistrador', 'OPE' => 'Operador', 'TES' => 'Tesorería', 'DDA'=>'Departamento de Aguas'], $user->role, ['id'=>'role', 'class'=>'form-control select2', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
                                 </div>
                             </div>                                                                                    
                             @if($user->id)

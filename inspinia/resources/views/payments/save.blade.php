@@ -44,6 +44,7 @@
                         {{ Form::open(array('url' => 'payments/' . $payment->id, 'id'=>'form'), ['class'=>'form-horizontal'])}}
                         {!! Form::hidden('hdd_contract_id', $contract->id, ['id'=>'hdd_contract_id']) !!}
                         {!! Form::hidden('hdd_discount_id', 0, ['id'=>'hdd_discount_id']) !!}
+                        {!! Form::hidden('hdd_debt', 0, ['id'=>'hdd_debt']) !!}
                         {!! Form::hidden('hdd_net_debt', $contract->balance, ['id'=>'hdd_net_debt']) !!}
                         {!! Form::hidden('hdd_select_amount', 'total', ['id'=>'hdd_select_amount']) !!}
                         @if($payment->id)
@@ -475,7 +476,7 @@
         }else{
             saldo = 0;
         }
-        
+        $('#hdd_debt').val(saldo);
         document.getElementById("saldo").innerHTML = money_fmt(saldo)+" {{ Session::get('coin') }}";
       }
 

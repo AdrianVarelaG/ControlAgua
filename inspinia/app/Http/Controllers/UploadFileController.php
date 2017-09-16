@@ -35,26 +35,28 @@ class UploadFileController extends Controller
    
    public function showUploadFile(Request $request){
       
+      /*
       //1. Se sube el archivo a la carpeta storage
-         //$file = $request->file('file_xls');
-     	   //$resource = fopen( $file->getRealPath(), 'r');
-		   //Storage::put('PADRON.xls', $resource );
+         $file = $request->file('file_xls');
+     	   $resource = fopen( $file->getRealPath(), 'r');
+		   Storage::put('PADRON.xls', $resource );
       //2. Se limpia la tabla padron
-         //Padron::truncate();
+         Padron::truncate();
       //3. Se importa la data a la tabla Padron de la BD      
-         //$this->import_chunk();
+         $this->import_chunk();
       //4. Se actualiza a estatus DESACTIVO registros que tengan ultimo_mes y adeudo null
-         //Padron::where('ultimo_mes', null)
-         //      ->where('adeudo', null)
-         //      ->where('status', '')
-         //      ->update(['status' => 'DESACTIVO']);
+         Padron::where('ultimo_mes', null)
+               ->where('adeudo', null)
+               ->where('status', '')
+               ->update(['status' => 'DESACTIVO']);
       //5. Se actualiza a estatus ACTIVO registros que tengan ultimo_mes y adeudo y estatus vacio 
-         //Padron::where('ultimo_mes', '!=', null)
-         //      ->where('adeudo', '!=', null)
-         //      ->where('status', '')
-         //      ->update(['status' => 'ACTIVO']);
+         Padron::where('ultimo_mes', '!=', null)
+               ->where('adeudo', '!=', null)
+               ->where('status', '')
+               ->update(['status' => 'ACTIVO']);
       //6. Se limpian las tablas antes de la insercion
-      ini_set('max_execution_time', 300);
+      */
+      ini_set('max_execution_time', 500);
       DB::statement("SET foreign_key_checks=0");
       Invoice::truncate();
       InvoiceDetail::truncate();
@@ -85,10 +87,10 @@ class UploadFileController extends Controller
             $citizen->email = '';
             $citizen->phone = '';
             $citizen->mobile = '';
-            $citizen->street = ($ciudadano->calle != null)?$ciudadano->calle:'';
-            $citizen->neighborhood = ($ciudadano->barrio != null)?$ciudadano->barrio:'';
-            $citizen->number_ext = ($ciudadano->numero_ext != null)?$ciudadano->numero_ext:'';
-            $citizen->number_int = ($ciudadano->numero_int != null)?$ciudadano->numero_int:'';
+            $citizen->street = ($ciudadano->calle != '')?$ciudadano->calle:'';
+            $citizen->neighborhood = ($ciudadano->barrio != '')?$ciudadano->barrio:'';
+            $citizen->number_ext = $ciudadano->nro_ext;
+            $citizen->number_int = $ciudadano->nro_int;
             $citizen->postal_code = '';
             $citizen->status = 'A';
             $citizen->save();
@@ -101,10 +103,10 @@ class UploadFileController extends Controller
             $contract->administration_id = 1;       
             $contract->state_id= 24;
             $contract->municipality_id= 1835;
-            $contract->street= ($ciudadano->calle != null)?$ciudadano->calle:'';
-            $contract->neighborhood= ($ciudadano->barrio != null)?$ciudadano->barrio:'';
-            $contract->number_ext= ($ciudadano->numero_ext != null)?$ciudadano->numero_ext:'';
-            $contract->number_int= ($ciudadano->numero_int != null)?$ciudadano->numero_int:'';
+            $contract->street= ($ciudadano->calle != '')?$ciudadano->calle:'';
+            $contract->neighborhood= ($ciudadano->barrio != '')?$ciudadano->barrio:'';
+            $contract->number_ext= $ciudadano->nro_ext;
+            $contract->number_int= $ciudadano->nro_int;
             $contract->postal_code= '';
             $contract->observation= $ciudadano->nota;
             $contract->status= $ciudadano->status;
@@ -150,10 +152,10 @@ class UploadFileController extends Controller
             $contract->administration_id = 1;       
             $contract->state_id= 24;
             $contract->municipality_id= 1835;
-            $contract->street= ($ciudadano->calle != null)?$ciudadano->calle:'';
-            $contract->neighborhood= ($ciudadano->barrio != null)?$ciudadano->barrio:'';
-            $contract->number_ext= ($ciudadano->numero_ext != null)?$ciudadano->numero_ext:'';
-            $contract->number_int= ($ciudadano->numero_int != null)?$ciudadano->numero_int:'';
+            $contract->street= ($ciudadano->calle != '')?$ciudadano->calle:'';
+            $contract->neighborhood= ($ciudadano->barrio != '')?$ciudadano->barrio:'';
+            $contract->number_ext= $ciudadano->nro_ext;
+            $contract->number_int= $ciudadano->nro_int;
             $contract->postal_code= '';
             $contract->observation= $ciudadano->nota;
             $contract->status= $ciudadano->status;

@@ -147,16 +147,15 @@
                         <th>Descripción</th>
                     </tr>
                     </tfoot>
-                    </table>
-                    
+                    </table>                    
                     <div class="text-right">
                       {{ $payments->links() }}
                     </div>
-
                     <br/>
                     <br/>
                     <br/>
                     <br/>                    
+                    <br/>
                     <br/>
                 	</div> <!-- /table-responsive- -->
                 </div> 

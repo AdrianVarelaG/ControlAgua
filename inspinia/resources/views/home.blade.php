@@ -220,7 +220,7 @@
         }, {
             label: "Ingreso Real",
             data: data1,
-            yaxis: 2,
+            //yaxis: 2,  //Para manejar ejes Y para cada serie
             color: "#1C84C6",
             lines: {
                 lineWidth:1,
@@ -309,7 +309,7 @@
         }, {
             label: "Ingreso Real",
             data: data3,
-            yaxis: 2,
+            //yaxis: 2, //Para manejar ejes Y para cada serie.
             color: "#1C84C6",
             lines: {
                 lineWidth:1,

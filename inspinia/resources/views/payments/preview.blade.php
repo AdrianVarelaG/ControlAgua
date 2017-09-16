@@ -73,6 +73,7 @@
                                 </tr>
                                 </tbody>
                             </table>
+                            <div><strong>Saldo Restante: </strong>{{ $payment->debt }} {{ Session::get('coin') }}</div>
                             <div class="well m-t"><strong>Observación</strong>
                                 {{ $payment->observation }}
                             </div>

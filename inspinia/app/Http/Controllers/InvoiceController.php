@@ -274,6 +274,7 @@ class InvoiceController extends Controller
                         $payment->description = 'Pago Automatico Servicio de Agua Mes '.$month.'/'.$year;
                         $payment->observation = 'Pago Automatico. Se debita de su saldo a favor.'.abs($contract_initial_balance).' - '.$invoice->total.' Saldo final: '.(abs($contract_initial_balance) - $invoice->total);
                         $payment->amount =$invoice->total;
+                        $payment->debt = $contract_initial_balance + $invoice->total;
                         $payment->save();
                         //7.2 Se registra el detalle del pago
                         $payment_detail = new PaymentDetail();
