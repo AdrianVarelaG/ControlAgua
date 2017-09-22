@@ -27,7 +27,6 @@ class CitizenRequestUpdate extends Request
         return [
             'ID_number' => 'max:18',
             'name' => 'required|min:3|max:50',            
-            'RFC' => 'required',
             'email' => 'email|max:50',
             'state' => 'required',
             'municipality' => 'required',
@@ -42,7 +41,6 @@ class CitizenRequestUpdate extends Request
         return [
             'name.required'  => 'El nombre del ciudadano es obligatorio.',
             'ID_number.max'  => 'El CURP debe tener un máximo de 18 caracteres.',
-            'RFC.required'  => 'El RFC es obligatorio.',
             'state.required'  => 'Debe seleccionar un estado.',
             'municipality.required'  => 'Debe seleccionar un municipio.',
             'neighborhood.required'  => 'El Bario o Colonia es obligatorio.',            

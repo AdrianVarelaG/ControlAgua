@@ -4,37 +4,38 @@
 <style type="text/css">
     small {
     font-size: smaller;
-}
+    }
+    table { border-collapse:collapse; }
+    table thead th { border-bottom: 0.5px solid #e3e3e3; }
 </style>    
 @endpush
 
 @section('content')
-    <div class="row">
-        <div class="col-sm-6">
-            <strong>{{ $company->name }}</strong><br>
-            {{ $company->address }}<br>
-            Teléfono: {{ $company->company_phone }}
-        </div>
-        <div class="col-sm-6 text-right">
-            <h2>Comprobante de Pago No. <strong>{{ $payment->id }}</strong></h2>
-            <h3>Contrato No. <strong>{{ $payment->contract->number }}</strong></h3>
-                <strong>{{ $payment->contract->citizen->name }}</strong><br>
-                {{ $payment->contract->citizen->neighborhood }}, {{ $payment->contract->citizen->street }}<br>
-                {{ $payment->contract->citizen->municipality->name }}, {{ $payment->contract->citizen->state->name }}<br>
-                Teléfono: {{ $payment->contract->citizen->phone }}
-                <p>
-                    <span><strong>Fecha:</strong> {{ $payment->date->format('d/m/Y') }}</span><br/>
-                </p>
-        </div>
+    <div class="row">        
+        <table width="100%" class="table">
+            <tbody>
+                <tr>
+                    <td class="text-left">
+                        <strong>{{ $company->name }}</strong><br/>
+                        {{ $company->address }}<br>
+                        Teléfono: {{ $company->company_phone }}
+                    </td>
+                    <td align="right">
+                        <h2>Comprobante de Pago No. <strong>{{ $payment->id }}</strong></h2>
+                        <h3>Contrato No. <strong>{{ $payment->contract->number }}</strong></h3>
+                        <strong>{{ $payment->contract->citizen->name }}</strong><br>
+                        {{ $payment->contract->citizen->neighborhood }}, {{ $payment->contract->citizen->street }}<br>
+                        {{ $payment->contract->citizen->municipality->name }}, {{ $payment->contract->citizen->state->name }}<br>
+                        <p><span><strong>Fecha:</strong> {{ $payment->date->format('d/m/Y') }}</span></p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <br/><br/>
     <table class="table" width="100%">
         <thead>
             <tr>
                 <th class="text-left">Item</th>
-                <th></th>
-                <th></th>
-                <th></th>
                 <th align="right">Total {{ Session::get('coin') }}</th>
             </tr>
         </thead>
@@ -42,9 +43,6 @@
             @foreach($payment->payment_details()->orderBy('type')->get() as $detail)
             <tr>
                 <td class="text-left"><small>{{ $detail->description }}</small></td>
-                <td></td>
-                <td></td>
-                <td></td>
                 <td class="text-right">
                     {{ money_fmt($detail->amount) }}
                 </td>
@@ -68,7 +66,7 @@
     
     <br/>
     <div>
-        <strong>Saldo Restante:</strong> {{ $payment->debt }} {{ Session::get('coin') }}
+        <strong>Saldo Restante:</strong> {{ money_fmt($payment->debt) }} {{ Session::get('coin') }}
     </div>
     <br/><br/>    
     <div class="well m-t"><strong>Observación</strong>

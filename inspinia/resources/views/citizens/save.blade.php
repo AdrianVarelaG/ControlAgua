@@ -55,10 +55,10 @@
                                 </div>
                             </div>                            
                             <div class="form-group">
-                                <label>RFC *</label><small class="hidden-xs"> Registro Federal del Contribuyente</small>
+                                <label>RFC</label><small class="hidden-xs"> Registro Federal del Contribuyente</small>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
-                                    {!! Form::text('RFC', $citizen->RFC, ['id'=>'RFC', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. MELM8305281H0', 'maxlength'=>'50', 'required']) !!}
+                                    {!! Form::text('RFC', $citizen->RFC, ['id'=>'RFC', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. MELM8305281H0', 'maxlength'=>'50']) !!}
                                 </div>
                             </div>                            
                             <div class="form-group">
@@ -226,7 +226,7 @@
         $("#form").validate({
             rules: {
                 RFC: {
-                    required: true,
+                    //required: true,
                     //regex: /^[0-9]+$/,
                 },
             },

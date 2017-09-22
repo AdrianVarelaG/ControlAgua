@@ -33,9 +33,7 @@ class ContractRequestStore extends Request
             'municipality' => 'required',
             'neighborhood' => 'required',
             'street' => 'required',
-            'number_ext' => 'required',
-            'number_int' => 'required',
-            'postal_code' => 'required'            
+            'number_ext' => 'required'
         ];
     }
 
@@ -50,9 +48,7 @@ class ContractRequestStore extends Request
             'municipality.required'  => 'Debe seleccionar un municipio.',
             'neighborhood.required'  => 'El barrio o colonia es obligatorio.',
             'street.required'  => 'La calle es obligatoria.',
-            'number_ext.required'  => 'El número externo es obligatorio.',
-            'number_int.required'  => 'El número interno es obligatorio.',
-            'postal_code.required'  => 'El código postal es obligatorio.'            
+            'number_ext.required'  => 'El número externo es obligatorio.'
         ];
     }
 

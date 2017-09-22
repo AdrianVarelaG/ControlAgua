@@ -157,6 +157,8 @@ return [
         App\Providers\RouteServiceProvider::class,
 	
 		Thomaswelton\LaravelGravatar\LaravelGravatarServiceProvider::class,
+        
+
         Collective\Html\HtmlServiceProvider::class,
 
         /*
@@ -232,9 +234,10 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
 		'Gravatar' => Thomaswelton\LaravelGravatar\Facades\Gravatar::class,
+        
         'Form' => Collective\Html\FormFacade::class,
         'Html' => Collective\Html\HtmlFacade::class,
-
+        
         /*
          * Intervention Image Aliases...
          */

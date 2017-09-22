@@ -31,6 +31,8 @@ class PDFController extends Controller
             'logo' => 'data:image/png;base64, '.$company->logo 
         ];
         $pdf = PDF::loadView('reports/invoice', $data);
+        //setPaper(0,0, alto, ancho) en ptos 1 mm = 2.83465 ptos
+        $pdf->setPaper([0, 0, 420, 595], 'landscape');         
         return $pdf->download('Recibo Nro '.Crypt::decrypt($id).'.pdf');
 
     }
@@ -49,6 +51,8 @@ class PDFController extends Controller
             'logo' => 'data:image/png;base64, '.$company->logo
         ];
         $pdf = PDF::loadView('reports/invoice_all', $data);
+        //setPaper(0,0, alto, ancho) en ptos 1 mm = 2.83465 ptos
+        $pdf->setPaper([0, 0, 420, 595], 'landscape'); 
         return $pdf->download('Recibos del Nro '.$request->input('invoice_from').' al Nro '.$request->input('invoice_to').'.pdf');
 
     }
@@ -65,7 +69,9 @@ class PDFController extends Controller
             'payment' => $payment,
         ];
         $pdf = PDF::loadView('reports/voucher', $data);
-        return $pdf->download('Voucher.pdf');
+        //setPaper(0,0, alto, ancho) en ptos 1 mm = 2.83465 ptos
+        $pdf->setPaper([0, 0, 420, 595], 'landscape'); 
+        return $pdf->download('Comprobante #'.$payment->id.'.pdf');
 
     }
 

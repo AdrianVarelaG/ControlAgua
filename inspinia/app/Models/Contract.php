@@ -56,7 +56,7 @@ class Contract extends Model
     	return $this->belongsTo('App\Models\State');
     }    
     
-    //Methods
+    // *** Methods ***
     public function debits()
     {        
         return $this->movements()->where('movement_type', 'D');

@@ -121,17 +121,17 @@
                                 </div>
                             </div>                            
                             <div class="form-group">
-                                <label>Número interno *</label>
+                                <label>Número interno</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                    {!! Form::text('number_int', ($contract->id)?$contract->number_int:$citizen->number_int, ['id'=>'number_int', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #1500', 'maxlength'=>'25', 'required']) !!}
+                                    {!! Form::text('number_int', ($contract->id)?$contract->number_int:$citizen->number_int, ['id'=>'number_int', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #1500', 'maxlength'=>'25']) !!}
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Código Postal *</label>
+                                <label>Código Postal</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-location-arrow" aria-hidden="true"></i></span>
-                                    {!! Form::text('postal_code', ($contract->id)?$contract->postal_code:$citizen->postal_code, ['id'=>'postal_code', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 21150', 'maxlength'=>'10', 'number', 'required']) !!}
+                                    {!! Form::text('postal_code', ($contract->id)?$contract->postal_code:$citizen->postal_code, ['id'=>'postal_code', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 21150', 'maxlength'=>'10', 'number']) !!}
                                 </div>
                             </div>                            
                             <div class="form-group">

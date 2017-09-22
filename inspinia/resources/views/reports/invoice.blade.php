@@ -1,6 +1,16 @@
 
 @extends('layouts.blank_report')
 
+@push('stylesheets')
+<style>
+    @page {
+        margin-top: 1.0em;
+        margin-right: 5.0em;
+        margin-left: 5.0em;
+    }
+</style>
+@endpush
+
 @section('content')
 
         <!-- Header -->
@@ -8,7 +18,7 @@
             <tbody>
                 <tr>
                     <td class="text-left">
-                        <img alt="image" style="max-height:110px; max-width:110px;" src="{{ $logo }}"/>
+                        <img alt="image" style="max-height:70px; max-width:70px;" src="{{ $logo }}"/>
                     </td>
                     <td class="text-right">
                         <h2><strong>{{ $company->name }}</strong></h2>
@@ -32,8 +42,6 @@
                             {{ $invoice->contract->citizen->neighborhood }}. {{ $invoice->contract->citizen->street }}.<br/> 
                             # Int {{ $invoice->contract->citizen->number_int }}/ # Ext {{ $invoice->contract->citizen->number_ext }}<br/>
                             {{ $invoice->contract->citizen->municipality->name }}, {{ $invoice->contract->citizen->state->name }}<br/> 
-                            <strong>Teléfono: </strong> {{ $invoice->contract->citizen->phone }}<br/>
-                            <strong>Correo electrónico: </strong> {{ $invoice->contract->citizen->email }}<br/>
                             <br/>
                         </td>
                         <td class="text-right">

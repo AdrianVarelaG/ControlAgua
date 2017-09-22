@@ -23,6 +23,7 @@ class CreatePaymentsTable extends Migration
             $table->date('date');
             $table->string('description', 400);
             $table->float('amount',11,2);
+            $table->float('debt',11,2);
             $table->string('observation', 400);
             $table->timestamps();
         });

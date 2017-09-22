@@ -31,7 +31,6 @@
                                         <strong>{{ $payment->contract->citizen->name }}</strong><br>
                                         {{ $payment->contract->citizen->neighborhood }}, {{ $payment->contract->citizen->street }}<br>
                                         {{ $payment->contract->citizen->municipality->name }}, {{ $payment->contract->citizen->state->name }}<br>
-                                        <abbr>Teléfono:</abbr> {{ $payment->contract->citizen->phone }}
                                     </address>
                                     <p>
                                         <span><strong>Fecha:</strong> {{ $payment->date->format('d/m/Y') }}</span><br/>
@@ -74,7 +73,7 @@
                                 </tbody>
                             </table>
                             <div>
-                                <strong>Saldo Restante: </strong>{{ $payment->debt }} {{ Session::get('coin') }}
+                                <strong>Saldo Restante: </strong>{{ money_fmt($payment->debt) }} {{ Session::get('coin') }}
                             </div>
                             <div class="well m-t"><strong>Observación</strong>
                                 {{ $payment->observation }}
