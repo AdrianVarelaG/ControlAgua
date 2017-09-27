@@ -6,9 +6,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <title> SmartCond | Tu Condominio Inteligente </title>
-    
+
+    <title>Sistema de Aguas</title>
+
     <!-- Bootstrap -->
     <link href="{{ asset("css/bootstrap.min.css") }}" rel="stylesheet">
     <!-- Font Awesome -->
@@ -24,7 +24,7 @@
 <div>
     <a class="hiddenanchor" id="signup"></a>
     <a class="hiddenanchor" id="signin"></a>
-    
+
     <div class="login_wrapper">
         <div class="animate form login_form">
             <section class="login_content">
@@ -36,7 +36,7 @@
                 <form class="form-horizontal" role="form" method="POST" action="{{ url('/password/email') }}">
                     <h2>Resetear Contraseña</h2>
                     {{ csrf_field() }}
-                    
+
                     <div class="form-group has-feedback {{ $errors->has('email') ? ' has-error' : '' }}">
                         <input type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="Coloque su correo electrónico">
                         <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
@@ -46,7 +46,7 @@
                         </span>
                         @endif
                     </div>
-                                        
+
                     <div class="form-group">
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-default btn-block">
@@ -54,7 +54,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div>
                         <i class="fa fa-info-circle"></i> <small><b>Importante!</b> Revise la carpeta de correos no deseados o spam si observa que nuestro correo no llega inmediatamente.</small>
                     </div>
@@ -64,7 +64,7 @@
                             <h1><i class="fa fa-paw"></i> Smart<strong>Cond</strong></h1>
                             <p>
                                 © 2017 Todos los derechos reservados.<br/>
-                                Desarrollado por<br/> 
+                                Desarrollado por<br/>
                                 <small><i class="fa fa-coffee"></i><b> GuayoyoSoftware</b></small>
                             </p>
                         </div>
