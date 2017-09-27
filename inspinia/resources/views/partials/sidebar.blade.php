@@ -108,7 +108,7 @@
                     </li>
                 </ul>
             </li>            
-            <li class="{{ set_active(['settings', 'uploadfile', 'contracts.initial_balance']) }}">
+            <li class="{{ set_active(['settings', 'uploadfile', 'contracts.initial_balance', 'user_manual']) }}">
                 <a href="index.html"><i class="fa fa-cogs"></i> <span class="nav-label">Configuraciones</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li class="{{ set_active(['settings']) }}">
@@ -127,6 +127,10 @@
                     -->
                 </ul>
             </li>
+            <li class="{{ set_active(['user_manual']) }}">
+                <a href="{{URL::to('user_manual', 'adm_manual.pdf')}}"><i class="fa fa-book"></i> <span class="nav-label">Manual de Usuario</span></a>
+            </li>                    
+        
         @endif
         <!-- /Menu ADM Administrador -->
 
@@ -167,6 +171,9 @@
                     </li>
                 </ul>
             </li>            
+            <li class="{{ set_active(['user_manual']) }}">
+                <a href="{{URL::to('user_manual', 'ope_manual.pdf')}}"><i class="fa fa-book"></i> <span class="nav-label">Manual de Usuario</span></a>
+            </li>        
         @endif
         <!-- /Menu OPE Operador -->
 
@@ -181,6 +188,12 @@
             <li class="{{ set_active(['payments']) }}">
                 <a href="{{URL::to('payments')}}"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span></a>
             </li>
+            <li class="{{ set_active(['user_manual']) }}">
+                <a href="{{URL::to('user_manual', 'adm_manual.pdf')}}"><i class="fa fa-book"></i> <span class="nav-label">Manual de Usuario</span></a>
+            </li>        
+            <li class="{{ set_active(['user_manual']) }}">
+                <a href="{{URL::to('user_manual', 'tes_manual.pdf')}}"><i class="fa fa-book"></i> <span class="nav-label">Manual de Usuario</span></a>
+            </li>        
         <!-- /Menu Tesoreria -->
         @endif        
         
@@ -203,6 +216,9 @@
                     </li>
                 </ul>
             </li>
+            <li class="{{ set_active(['user_manual']) }}">
+                <a href="{{URL::to('user_manual', 'dda_manual.pdf')}}"><i class="fa fa-book"></i> <span class="nav-label">Manual de Usuario</span></a>
+            </li>            
         <!-- / Menu DDA Departamento de Aguas -->
         @endif        
 

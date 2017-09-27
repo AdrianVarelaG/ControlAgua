@@ -59,9 +59,12 @@ class ContractController extends Controller
 
         $company = Company::first();        
         $contract = Contract::find(Crypt::decrypt($contract_id));        
+        $invoices = $contract->invoices()->where('total', '>', 0)
+                                        ->orderBy('date', 'DESC')->get();
             
         return view('contracts.invoices')->with('contract', $contract)
-                                    ->with('company', $company);            
+                                        ->with('invoices', $invoices)
+                                        ->with('company', $company);            
     }
     
     public function payments($contract_id){

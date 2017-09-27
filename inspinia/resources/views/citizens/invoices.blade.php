@@ -38,7 +38,7 @@
             <!-- ibox-content- -->
             <div class="ibox-content">
                 
-            @if($citizen->invoices->count())
+            @if($invoices->count())
                 <div class="table-responsive">
               
                 @include('partials.errors')
@@ -61,7 +61,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($citizen->invoices()->orderBy('date', 'DESC')->get() as $invoice)
+                    @foreach($invoices as $invoice)
                     <tr class="gradeX">
                         <td class="text-center">                            
                         <!-- Split button -->

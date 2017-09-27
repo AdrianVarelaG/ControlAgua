@@ -66,8 +66,12 @@ class CitizenController extends Controller
     public function invoices($citizen_id){
 
         $company = Company::first();        
-        $citizen = Citizen::find(Crypt::decrypt($citizen_id));        
+        $citizen = Citizen::find(Crypt::decrypt($citizen_id));
+        $invoices = $citizen->invoices()->where('total', '>', 0)
+                                        ->orderBy('date', 'DESC')->get();        
+        
         return view('citizens.invoices')->with('citizen', $citizen)
+                                        ->with('invoices', $invoices)
                                     ->with('company', $company);
     }
     

@@ -75,5 +75,15 @@ class PDFController extends Controller
 
     }
 
+ 
+    public function user_manual($document)
+    {
+        $path = public_path('documents/'.$document);
+
+        return Response::make(file_get_contents($path), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$document.'"'
+        ]);
+    }
 
 }

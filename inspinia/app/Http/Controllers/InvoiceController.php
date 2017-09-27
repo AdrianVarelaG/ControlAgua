@@ -45,6 +45,7 @@ class InvoiceController extends Controller
 
         $invoices = Invoice::whereDate('date', '>=', Session::get('from'))
                             ->whereDate('date', '<=' , Session::get('to'))
+                            ->where('total', '>', 0)
                             ->orderBy('date');
 
         $invoices_count = $invoices->count();
@@ -77,7 +78,9 @@ class InvoiceController extends Controller
      */
     public function print_invoices()
     {
-        return view('invoices.print');
+        $routines = Routine::orderBy('year', 'DES')
+                            ->orderBy('month', 'DESC')->take(10)->get();
+        return view('invoices.print')->with('routines', $routines);
     }
 
     /**
@@ -152,6 +155,9 @@ class InvoiceController extends Controller
         $flat_rate = Rate::find(1);
         $iva = Charge::find(1);
         $amount_consume =0;
+        $i=0;
+        $start_invoice = 0;
+        $end_invoice = 0;
         //Mes y Año de Consumo
         $month_consume = substr($request->input('date_consume'),0,2);
         $year_consume = substr($request->input('date_consume'),3,4);
@@ -159,11 +165,23 @@ class InvoiceController extends Controller
         $month = substr($request->input('date'),3,2);
         $year = substr($request->input('date'),6,4);
         if(!$this->routine_exist($year, $month)){
+            //Paso0. Se crea el registro de control, se hace de 1ro para evitar multiples submits
+            $routine = new Routine();
+            $routine->year = substr($request->input('date'),6,4);
+            $routine->month = substr($request->input('date'),3,2);
+            $routine->year_consume = $year_consume;
+            $routine->month_consume = $month_consume;
+            $routine->rate_type = $request->input('type');
+            $routine->start = 0;
+            $routine->end = 0;
+            $routine->created_by = Auth::user()->name;
+            $routine->save();            
             //Paso 1. Hacer el ciclo con todos los contratos ACTIVOS
             $contracts = Contract::where('status', 'A')->get();
             foreach($contracts as $contract){            
                 //Crea el recibo si no existe uno previo CANCELADO para ese periodo, si el recibo existe PENDIENTE lo sobre escribe.
                 if(!$this->invoice_canceled_exist($contract, $year, $month)){
+                    $i++;
                     $contract_initial_balance = $contract->balance;
                     //Paso 2. Registrar los datos generales del recibo
                     $invoice = new Invoice();
@@ -179,6 +197,9 @@ class InvoiceController extends Controller
                     $invoice->status = 'P';
                     $invoice->previous_debt = $invoice->contract->balance;
                     $invoice->save();
+                    if($i == 1){
+                        $start_invoice = $invoice->id;
+                    }
                     //Paso 3. Registrar el detalle del recibo
             
                     //Paso 3.1 Incluir Tarifas
@@ -300,17 +321,13 @@ class InvoiceController extends Controller
                         $invoice->save();                    
                     }
 
-                }//endif
+                }//endif invoice exist
+                $end_invoice = $invoice->id;
             }//foreach
                 
-            //Paso5. Registrar la rutina en la tabla control (routines)
-            $routine = new Routine();
-            $routine->year = substr($request->input('date'),6,4);
-            $routine->month = substr($request->input('date'),3,2);
-            $routine->year_consume = $year_consume;
-            $routine->month_consume = $month_consume;
-            $routine->rate_type = $request->input('type');
-            $routine->created_by = Auth::user()->name;
+            //Paso5. Actualizar el registro en la tabla control (routines)
+            $routine->start = $start_invoice;
+            $routine->end = $end_invoice;
             $routine->save();
         
             return redirect()->route('invoices.routines')->with('notity', 'create');;

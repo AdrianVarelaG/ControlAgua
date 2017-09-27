@@ -56,6 +56,7 @@ class UploadFileController extends Controller
                ->update(['status' => 'ACTIVO']);
       //6. Se limpian las tablas antes de la insercion
       */
+      
       ini_set('max_execution_time', 500);
       DB::statement("SET foreign_key_checks=0");
       Invoice::truncate();
@@ -195,7 +196,7 @@ class UploadFileController extends Controller
          $ciudadano_anterior = $ciudadano->nombre; 
       }
       DB::statement("SET foreign_key_checks=1");
-
+      
       return "Ciudadanos registrados exitosamente";
    }
 

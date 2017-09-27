@@ -92,6 +92,7 @@ Route::get('invoices.reverse_routine/{year}/{month}', ['as' => 'invoices.reverse
 Route::get('invoices.inovice_pdf/{id}', ['as' => 'invoices.invoice_pdf', 'uses' => 'PDFController@invoice_pdf']);
 Route::post('invoices.invoices_pdf', ['as' => 'invoices.invoices_pdf', 'uses' => 'PDFController@invoices_pdf']);
 Route::get('payments.print_voucher/{id}', ['as' => 'payments.print_voucher', 'uses' => 'PDFController@print_voucher']);
+Route::get('user_manual/{document}', ['as' => 'user_manual', 'uses' => 'PDFController@user_manual']);
 
 //Login
 Route::auth();

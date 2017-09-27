@@ -84,7 +84,6 @@
                     </tr>
                     <tr>
                         <td class="text-center">
-                            Aqui va el grafico de consumo
                         </td>
                         <td>
         

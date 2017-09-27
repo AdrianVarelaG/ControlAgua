@@ -28,28 +28,21 @@
             </tbody>
         </table>
         <!-- /Header -->
-        <br/>
         <!-- Body -->
         <table class="table" width="100%">
                 <tbody>
                     <tr>
-                        <td colspan="2" class="well text-center"><strong>DATOS DEL USUARIO</strong></td>
-                    </tr>
-                    <tr>
                         <td class="text-left">                                
-                            <br/>
                             Para: <strong>{{ $invoice->contract->citizen->name }}</strong><br/>
                             {{ $invoice->contract->citizen->neighborhood }}. {{ $invoice->contract->citizen->street }}.<br/> 
                             # Int {{ $invoice->contract->citizen->number_int }}/ # Ext {{ $invoice->contract->citizen->number_ext }}<br/>
                             {{ $invoice->contract->citizen->municipality->name }}, {{ $invoice->contract->citizen->state->name }}<br/> 
-                            <br/>
                         </td>
                         <td class="text-right">
                             <h2>RECIBO No. {{ $invoice->id }}</h2>
                             <strong>Fecha:</strong> {{ $invoice->date->format('d/m/Y') }}</span><br/>
                             <strong>Contrato: {{ $invoice->contract->number }}</strong><br/> 
                             Tarifa: {{ $invoice->rate_description}}<br/>
-                            <br/>
                         </td>
                     </tr>                    
                     <tr class="text-center">
@@ -58,17 +51,13 @@
                     </tr>                                            
                     <tr>
                         <td>
-                            <br/>
                             <strong>Vencimiento:</strong> {{ $invoice->date_limit->format('d/m/Y') }}<br/>
                             <strong>Período de Consumo:</strong> {{ month_letter($invoice->month_consume, 'lg') }} {{ $invoice->year_consume }}<br/>
-                            <br/>
                         </td>
                         <td class="text-right">
-                            <br/>
                             <strong>Lectura Anterior:</strong> {{ ($invoice->reading_id)?$invoice->reading->previous_reading:'00000' }}<br/>
                             <strong>Lectura Actual:</strong> {{ ($invoice->reading_id)?$invoice->reading->current_reading:'00000' }}<br/>
                             <strong>Consumo:</strong> {{ ($invoice->reading_id)?$invoice->reading->consume:'00000' }}</span><br/>
-                            <br/>                        
                         </td>
                     </tr>
                     <tr class="text-center">
@@ -126,7 +115,6 @@
                 </tbody>
         </table>
         <!-- /Body -->
-        <br/><br/>
         <!-- Message -->        
         <div class="well"><strong>Mensaje al ciudadano:</strong><br/>
             <small>{{ $invoice->message }}</small>

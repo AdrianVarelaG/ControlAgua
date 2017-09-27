@@ -19,6 +19,8 @@ class CreateRoutinesTable extends Migration
             $table->char('year', 4);            
             $table->char('month_consume', 2);
             $table->char('year_consume', 4);
+            $table->bigInteger('start');
+            $table->bigInteger('end');
             $table->string('created_by');
             $table->timestamps();
         });

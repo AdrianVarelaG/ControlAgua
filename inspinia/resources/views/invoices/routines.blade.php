@@ -51,6 +51,8 @@
                         <th>Facturación</th>
                         <th>Consumo</th>
                         <th>Tarifa Aplicada</th>
+                        <th># Desde</th>
+                        <th># Hasta</th>
                         <th>Generados por</th>
                         <th>Fecha</th>
                     </tr>
@@ -66,6 +68,8 @@
                         <td>{{ $ruotine->month}}/{{ $ruotine->year }}</td>
                         <td>{{ $ruotine->month_consume }}/{{ $ruotine->year_consume }}</td>
                         <td>{{ $ruotine->type_description }}</td>
+                        <td>{{ $ruotine->start }}</td>
+                        <td>{{ $ruotine->end }}</td>
                         <td>{{ $ruotine->created_by }}</td>
                         <td>{{ $ruotine->created_at->format('d/m/Y H:m') }}</td>
                     </tr>
@@ -76,7 +80,9 @@
                         <th></th>
                         <th>Facturación</th>
                         <th>Consumo</th>
-                        <th>Tarifa Aplicada</th>                        
+                        <th>Tarifa Aplicada</th>
+                        <th># Desde</th>
+                        <th># Hasta</th>
                         <th>Generados por</th>
                         <th>Fecha</th>
                     </tr>
@@ -117,10 +123,12 @@
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
                 { "sWidth": "5%" }, // 1st column width 
-                { "sWidth": "20%" }, // 2nd column width
-                { "sWidth": "20%" }, // 3nd column width
-                { "sWidth": "20%" }, // 4nd column width
-                { "sWidth": "20%" }, // 5nd column width
+                { "sWidth": "15%" }, // 2nd column width
+                { "sWidth": "15%" }, // 3nd column width
+                { "sWidth": "15%" }, // 3nd column width
+                { "sWidth": "10%" }, // 3nd column width
+                { "sWidth": "10%" }, // 4nd column width
+                { "sWidth": "15%" }, // 5nd column width
                 { "sWidth": "15%", "sType": "date-uk" } // 6nd column width
 
               ],              

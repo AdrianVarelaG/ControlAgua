@@ -289,7 +289,6 @@
                 onFinished: function (event, currentIndex)
                 {
                     var form = $(this);
-
                     // Submit form input
                     form.submit();
                 }
