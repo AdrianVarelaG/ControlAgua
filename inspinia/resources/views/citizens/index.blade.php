@@ -1,8 +1,7 @@
 @extends('layouts.app')
 
 @push('stylesheets')
-  <!-- CSS Datatables -->
-  <link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
+
 @endpush
 
 @section('page-header')
@@ -48,31 +47,32 @@
                   <a href="{{ route('citizens.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Registrar</a><br/><br/>
                 @endif
               </div>
-            
-                            
+                                        
               <div class="col-sm-4">
-                <div class="form-group">
+                <div class="col-sm-10">
                   <div class="input-group m-b">
                     <span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
                       {!! Form::text('filter_name', Session::get('filter_name'), ['id'=>'filter_name', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Buscar por nombre' ,'maxlength'=>'100']) !!}
                   </div>
                 </div>
+                <button type="button" id="btn_print" class="btn btn-sm btn-default" title="Imprimir PDF"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
+              </div>
+
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                @include('partials.errors')
               </div>
 
 
             @if($citizens->count())
               <div class="col-md-12 col-sm-12 col-xs-12">  
-                <div class="table-responsive">
-              
-                  @include('partials.errors')
-                    
-                    <table class="table dataTables-example table-striped table-hover">
+                <div class="table-responsive">                                
+                  <table class="table dataTables-example table-striped table-hover">
                     <thead>
                     <tr>
                         <th></th>
                         <th>Nombre</th>
                         <th>RFC</th>
-                        <th>Deuda {{ Session::get('coin') }}</th>
+                        <th class="text-right">Deuda {{ Session::get('coin') }}</th>
                         <th>Estatus</th>
                     </tr>
                     </thead>
@@ -125,7 +125,7 @@
                             </div>
                         </td>
                         <td>{{ $citizen->RFC }}</td>
-                        <td>
+                        <td class="text-right">
                           @if($citizen->balance>=0)
                             {{ money_fmt($citizen->balance) }}
                           @else
@@ -143,11 +143,14 @@
                         <th></th>
                         <th>Nombre</th>
                         <th>RFC</th>
-                        <th>Deuda {{ Session::get('coin') }}</th>
+                        <th class="text-rigth">Deuda {{ Session::get('coin') }}</th>
                         <th>Estatus</th>
                     </tr>
                     </tfoot>
                     </table>
+                    <div class="text-right">
+                      {{ $citizens->links() }}
+                    </div>                    
                     <br/>
                     <br/>
                     <br/>
@@ -170,132 +173,88 @@
         </div>
     </div>
 </div>
+
+            <!-- Modal advertencia para imprimir-->
+            <div class="modal inmodal" id="myModal1" tabindex="-1" role="dialog"  aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content animated fadeIn">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"><i class="fa fa-exclamation-triangle"></i><strong> Atención!</strong></h4>
+                        </div>
+                        <div class="modal-body">
+                          <p>Debido a la gran cantidad de registros. Primero debido filtrar los registros para poder imprimirlos. Gracias!</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="btn_close" class="btn btn-sm btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal advertencia para reverso de ventas-->
+
+
 @endsection
 
 @push('scripts')
-	<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
+  
+<script>        
+  
+  //Notifications
+  setTimeout(function() {
+    toastr.options = {
+      closeButton: true,
+      progressBar: true,
+      showMethod: 'slideDown',
+      timeOut: 2000
+    };
+    if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
+      toastr.success('Registro añadido exitosamente', '{{ Session::get('app_name') }}');
+    }
+    if('{{ Session::get('notity') }}'=='update' &&  '{{ Session::get('update_notification') }}'=='1'){
+      toastr.success('Registro actualizado exitosamente', '{{ Session::get('app_name') }}');
+    }
+    if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
+      toastr.success('Registro eliminado exitosamente', '{{ Session::get('app_name') }}');
+    }
+   }, 1300);
 
-    <!-- Page-Level Scripts -->
-    <script>
-        path_str_language = "{{URL::asset('js/plugins/dataTables/es_ES.txt')}}";
-        $(document).ready(function(){
-            $('.dataTables-example').DataTable({
-              "oLanguage":{"sUrl":path_str_language},
-              "bAutoWidth": false, // Disable the auto width calculation
-              "aoColumns": [
-                { "sWidth": "10%" }, // 1st column width 
-                { "sWidth": "30%" }, // 2nd column width
-                { "sWidth": "20%" }, // 3th column width
-                { "sWidth": "20%" }, // 4th column width
-                { "sWidth": "20%" } // 5th column width
-              ],              
-              responsive: false,              
-              dom: '<"html5buttons"B>lTfgitp',
-              buttons: [
-                {
-                  extend: "excel",
-                  text: '<i class="fa fa-file-excel-o"></i>',
-                  titleAttr: 'Exportar a Excel',
-                  //Titulo
-                  title: 'Ciudadanos',                  
-                  className: "btn-sm",
-                  exportOptions: {
-                    columns: [1, 2, 3, 4],
-                  }                                    
-                },
-                {
-                  extend: "pdf",
-                  text: '<i class="fa fa-file-pdf-o"></i>',
-                  pageSize: 'LETTER',
-                  titleAttr: 'Exportar a PDF',
-                  title: 'Ciudadanos',                  
-                  className: "btn-sm",
-                  //Sub titulo
-                  message: '',
-                  exportOptions: {
-                    columns: [1, 2, 3, 4],
-                  },
-                  customize: function ( doc ) {
-                    //Tamaño de la fuente del body
-                    doc.defaultStyle.fontSize = 8;
-                    //Tamaño de la fuente del header
-                    doc.styles.tableHeader.fontSize = 9;
-                    //Configuracion de margenes de la pagina
-                    doc.pageMargins = [30, 30, 30, 30 ];
-                    //Codigo para el footer
-                    var cols = [];
-                    doc['footer']=(function(page, pages) {
-                      cols[0] = {text: new Date().toLocaleString(), alignment: 'left', margin:[30] };
-                      cols[1] = {text: '© '+new Date().getFullYear()+' {{ Session::get('app_name') }} . Todos los derechos reservados.', alignment: 'center', bold:true, margin:[0, 0,0] };
-                      cols[2] = {text: 'Página '+page.toString()+ 'de'+pages.toString(), alignment: 'right', italics: true, margin:[0,0,30] };                    
-                    return {
-                      alignment:'center',
-                      fontSize: 7,
-                      columns: cols,
-                    }
-                    });
-                    //Codigo para el logo
-                    doc.content.splice( 0, 0, 
-                      {
-                        margin: [ 0, 0, 0, 2 ],
-                        alignment: 'center',
-                        fit: [100, 100],
-                        image: 'data:image/png;base64,{{ $company->logo }}'
-                      }                       
-                    );
-                    //Codigo para la leyenda del logo (Dirección del condominio)
-                    doc.content.splice( 1, 0, 
-                      {
-                        margin: [ 0, 0, 0, 10 ],
-                        fontSize: 7,
-                        alignment: 'center',
-                        text: '{{ $company->name }}',
-                      }                       
-                    );                    
-                  }
-                },
-              ]
-            });
         
-            //Notifications
-            setTimeout(function() {
-                toastr.options = {
-                    closeButton: true,
-                    progressBar: true,
-                    showMethod: 'slideDown',
-                    timeOut: 2000
-                };
-                if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
-                  toastr.success('Registro añadido exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='update' &&  '{{ Session::get('update_notification') }}'=='1'){
-                  toastr.success('Registro actualizado exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
-                  toastr.success('Registro eliminado exitosamente', '{{ Session::get('app_name') }}');
-                }
-            }, 1300);
-        
-            //Filter Name
-            var timerid;    
-            $("#filter_name").on("input",function(e){
-              var value = $(this).val();
-              if($(this).data("lastval")!= value){
+    //Filter Name
+    var timerid;    
+    $("#filter_name").on("input",function(e){
+      var value = $(this).val().trim();
+      if($(this).data("lastval")!= value){
 
-                $(this).data("lastval",value);        
-                clearTimeout(timerid);
+        $(this).data("lastval",value);        
+        clearTimeout(timerid);
 
-                timerid = setTimeout(function() {
-                  //change action
-                  if(value!=''){
-                    url = `{{URL::to('citizens.filter/')}}/${e.target.value}`;
-                    $('#form').attr('action', url);
-                    $('#form').submit();
-                  }
-                },800);
-              };
-            });
+        timerid = setTimeout(function() {
+          //change action
+          if(value!=''){
+          url = `{{URL::to('citizens.filter/')}}/${e.target.value}`;
+          }else{
+            {{ Session::put('filter_name', '') }}
+            url = `{{URL::to('citizens')}}`;
+          }
+          $('#form').attr('action', url);
+          $('#form').submit();
+        },800);
+      };
+    });
 
-        });
-    </script>
+    $('#btn_print').on("click", function (e) { 
+      filter = $("#filter_name").val().trim();
+      if(filter ==''){
+        $("#myModal1").modal("show"); 
+      }else{
+        url = `{{URL::to('citizens.rpt_citizens/')}}/${filter}`;
+        $('#form').attr('action', url);
+        $('#form').submit();
+      }
+    });
+
+
+</script>
 @endpush

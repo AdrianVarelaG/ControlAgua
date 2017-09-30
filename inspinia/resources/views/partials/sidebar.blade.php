@@ -117,10 +117,10 @@
                     <li class="{{ set_active(['contracts.initial_balance']) }}">
                         <a href="{{URL::to('contracts.initial_balance')}}">Saldos Iniciales</a>
                     </li>                    
-                    <!--
                     <li class="{{ set_active(['uploadfile']) }}">
                         <a href="{{URL::to('uploadfile')}}">Subir Padrón</a>
                     </li>
+                    <!--
                     <li class="{{ set_active(['datatables']) }}">
                         <a href="{{URL::to('datatables')}}">Datatables Test</a>
                     </li>
@@ -177,25 +177,66 @@
         @endif
         <!-- /Menu OPE Operador -->
 
-        <!-- Menu Tesoreria -->
-        @if(Session::get('user_role')=='TES')
+        <!-- Menu TES Tesoreria -->
+        @if(Session::get('user_role')=='TES')                                
+            <li class="{{ set_active(['states', 'municipalities', 'administrations', 'inspectors', 'authorizations']) }}">
+                <a href="index.html"><i class="fa fa-list-ul"></i> <span class="nav-label">Catálogos</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['states']) }}">
+                        <a href="{{URL::to('states')}}">Estados</a>
+                    </li>
+                    <li class="{{ set_active(['municipalities']) }}">
+                        <a href="{{URL::to('municipalities')}}">Municipios</a>
+                    </li>
+                    <li class="{{ set_active(['administrations']) }}">
+                        <a href="{{URL::to('administrations')}}">Administraciones</a>
+                    </li>
+                    <li class="{{ set_active(['inspectors']) }}">
+                        <a href="{{URL::to('inspectors')}}">Inspectores</a>
+                    </li>
+                    <li class="{{ set_active(['authorizations']) }}">
+                        <a href="{{URL::to('authorizations')}}">Autorizados</a>
+                    </li>
+                </ul>
+            </li>
             <li class="{{ set_active(['citizens']) }}">
                 <a href="{{URL::to('citizens')}}"><i class="fa fa-address-book-o"></i> <span class="nav-label">Ciudadanos</span></a>
             </li>
             <li class="{{ set_active(['contracts']) }}">
                 <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span></a>
+            </li>                        
+            <li class="{{ set_active(['readings']) }}">
+                <a href="{{URL::to('readings')}}"><i class="fa fa-pencil-square-o"></i> <span class="nav-label">Lecturas</span></a>
             </li>
-            <li class="{{ set_active(['payments']) }}">
-                <a href="{{URL::to('payments')}}"><i class="fa fa-money"></i> <span class="nav-label">Pagos</span></a>
+            
+            <li class="{{ set_active(['charges.iva', 'rates.flat_rate', 'rates', 'charges', 'discounts', 'discounts.age', 'invoices.routines']) }}">
+                <a href="index.html"><i class="fa fa-file-text-o"></i> <span class="nav-label">Recibos</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['invoices.routines']) }}">
+                        <a href="{{URL::to('invoices.routines')}}">Generar recibos</a>
+                    </li>
+                    <li class="{{ set_active(['invoices.print_invoices']) }}">
+                        <a href="{{URL::to('invoices.print_invoices')}}">Imprimir recibos</a>
+                    </li>              
+                </ul>
             </li>
+            <li class="{{ set_active(['payments', 'invoices']) }}">
+                <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultas</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['payments']) }}">
+                        <a href="{{URL::to('payments')}}">Pagos</a>
+                    </li>
+                    <li class="{{ set_active(['invoices']) }}">
+                        <a href="{{URL::to('invoices')}}">Recibos</a>
+                    </li>
+                </ul>
+            </li>            
             <li class="{{ set_active(['user_manual']) }}">
                 <a href="{{URL::to('user_manual', 'adm_manual.pdf')}}"><i class="fa fa-book"></i> <span class="nav-label">Manual de Usuario</span></a>
-            </li>        
-            <li class="{{ set_active(['user_manual']) }}">
-                <a href="{{URL::to('user_manual', 'tes_manual.pdf')}}"><i class="fa fa-book"></i> <span class="nav-label">Manual de Usuario</span></a>
-            </li>        
-        <!-- /Menu Tesoreria -->
-        @endif        
+            </li>                    
+        
+        @endif
+        <!-- /Menu TES Tesoreria -->
         
         <!-- Menu DDA Departamento de Aguas -->
         @if(Session::get('user_role')=='DDA')

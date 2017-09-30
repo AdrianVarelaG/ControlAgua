@@ -27,6 +27,9 @@ Route::get('citizens.change_view/{view}', ['as' => 'citizens.change_view', 'uses
 Route::get('citizens.status/{id}', ['as' => 'citizens.status', 'uses' => 'CitizenController@status']);
 Route::get('citizens.balance/{id}/{period}', ['as' => 'citizens.balance', 'uses' => 'CitizenController@balance']);
 Route::get('citizens.filter/{name}', ['as' => 'citizens.filter', 'uses' => 'CitizenController@filter']);
+Route::get('citizens.rpt_citizens/{filter}', ['as' => 'citizens.rpt_citizens', 'uses' => 'CitizenController@rpt_citizens']);
+Route::get('citizens.rpt_citizen_invoices/{id}', ['as' => 'citizens.rpt_citizen_invoices', 'uses' => 'CitizenController@rpt_citizen_invoices']);
+Route::get('citizens.rpt_citizen_payments/{id}', ['as' => 'citizens.rpt_citizen_payments', 'uses' => 'CitizenController@rpt_citizen_payments']);
 
 
 //Company
@@ -47,6 +50,12 @@ Route::get('contracts.initial_balance', ['as' => 'contracts.initial_balance', 'u
 Route::get('contracts.activate/{id}', ['as' => 'contracts.activate', 'uses' => 'ContractController@activate']);
 Route::put('contracts.activate/{id}', ['as' => 'contracts.activate', 'uses' => 'ContractController@update_activate']);
 Route::get('contracts.filter/{name}', ['as' => 'contracts.filter', 'uses' => 'ContractController@filter']);
+Route::get('contracts.rpt_contracts/{filter}', ['as' => 'contracts.rpt_contracts', 'uses' => 'ContractController@rpt_contracts']);
+Route::get('citizens.rpt_contract_invoices/{id}', ['as' => 'citizens.rpt_contract_invoices', 'uses' => 'ContractController@rpt_contract_invoices']);
+Route::get('citizens.rpt_contract_payments/{id}', ['as' => 'citizens.rpt_contract_payments', 'uses' => 'ContractController@rpt_contract_payments']);
+
+Route::get('initial_balance.filter/{name}', ['as' => 'initial_balance.filter', 'uses' => 'ContractController@initial_balance_filter']);
+
 
 
 //Charge

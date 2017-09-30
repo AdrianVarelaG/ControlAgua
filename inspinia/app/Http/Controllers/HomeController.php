@@ -34,12 +34,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $this->ticks_neighborhood();
 
         $current_year = Carbon::now()->year;
         $current_month = Carbon::now()->month;
-        $citizens = Citizen::all();
-        $contracts = Contract::all();
+        
         //Pagos
         $payments = Movement::where('movement_type', 'D')
                             ->where('type', 'P')
@@ -73,9 +71,7 @@ class HomeController extends Controller
         $incomes_by_neighborhood = $this->incomes_by_neighborhood($current_year);
         $invoices_by_neighborhood = $this->invoices_by_neighborhood($current_year);
 
-        return view('home')->with('citizens', $citizens)
-                            ->with('contracts', $contracts)
-                            ->with('current_year', $current_year)
+        return view('home')->with('current_year', $current_year)
                             ->with('current_month', $current_month)
                             ->with('debits_year', $debits_year)
                             ->with('credits_year', $credits_year)

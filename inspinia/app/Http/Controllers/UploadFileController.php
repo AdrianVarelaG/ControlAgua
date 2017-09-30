@@ -118,11 +118,11 @@ class UploadFileController extends Controller
                //7.4 Se genera el recibo con deuda total 
                if($ciudadano->adeudo > 0 ){
                   $invoice = new Invoice();
-                  $invoice->date = '2017-10-01';
-                  $invoice->date_limit = '2017-10-31';
-                  $invoice->month = '10';                    
+                  $invoice->date = '2017-09-01';
+                  $invoice->date_limit = '2017-09-30';
+                  $invoice->month = '09';                    
                   $invoice->year = '2017';
-                  $invoice->month_consume = '09';
+                  $invoice->month_consume = '08';
                   $invoice->year_consume = '2017';
                   $invoice->citizen_id = $citizen->id;
                   $invoice->contract_id = $contract->id;
@@ -167,11 +167,11 @@ class UploadFileController extends Controller
                //7.4 Se genera el recibo con deuda total 
                if($ciudadano->adeudo > 0 ){
                   $invoice = new Invoice();
-                  $invoice->date = '2017-10-01';
-                  $invoice->date_limit = '2017-10-31';
-                  $invoice->month = '10';                    
+                  $invoice->date = '2017-09-01';
+                  $invoice->date_limit = '2017-09-30';
+                  $invoice->month = '09';                    
                   $invoice->year = '2017';
-                  $invoice->month_consume = '09';
+                  $invoice->month_consume = '08';
                   $invoice->year_consume = '2017';
                   $invoice->citizen_id = $citizen->id;
                   $invoice->contract_id = $contract->id;

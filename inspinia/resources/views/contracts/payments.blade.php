@@ -1,11 +1,6 @@
 @extends('layouts.app')
 
 @push('stylesheets')
-<!-- CSS Datatables -->
-<link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
-<!-- Select2 -->
-<link href="{{ URL::asset('js/plugins/select2/dist/css/select2.min.css') }}" rel="stylesheet">
-<link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
 
 @endpush
 
@@ -39,32 +34,41 @@
                 </div>
                 <!-- /ibox-title -->
                     
-            <!-- ibox-content- -->
-            <div class="ibox-content">
-                            
-            @if($contract->payments->count())
-                <div class="table-responsive">
-                    
-                  @include('partials.errors')
+        <!-- ibox-content- -->
+        <div class="ibox-content">
+          <div class="row">      
+            
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+              {{ Form::close() }} 
 
-                <div class="col-sm-7">
-                    <h2>Contrato Nro <strong>{{ $contract->number }}</strong></h2>
-                    <h3>{{ $contract->citizen->name }}</h3><br/>
-                </div>                  
-                                    
-                <div class="col-md-12 col-sm-12 col-xs-12">
+              @include('partials.errors')
+              
+              <div class="col-sm-8">
+                <h2>Contrato Nro <strong>{{ $contract->number }}</strong></h2>
+                <h3>{{ $contract->citizen->name }}</h3><br/>
+              </div>
+                                        
+              <div class="col-sm-4">
+                <button type="button" id="btn_print" class="btn btn-sm btn-default pull-right" title="Imprimir PDF"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
+              </div>
+                            
+            
+            @if($contract->payments->count())
+              <div class="col-md-12 col-sm-12 col-xs-12">                
+                <div class="table-responsive">                
+                  <div class="col-md-12 col-sm-12 col-xs-12">                    
                     <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
                         <th></th>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Descripción</th>
-                        <th>Monto {{ Session::get('coin') }}</th>
+                        <th class="text-center">Fecha</th>
+                        <th class="text-left">Tipo</th>
+                        <th class="text-left">Descripción</th>
+                        <th class="text-right">Monto {{ Session::get('coin') }}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($contract->payments()->orderBy('date', 'DESC')->get() as $payment)
+                    @foreach($payments as $payment)
                     <tr class="gradeX">
                         <td class="text-center">                            
                         <!-- Split button -->
@@ -77,10 +81,10 @@
                             </div>
                         <!-- /Split button -->                          
                         </td>
-                        <td>{{ $payment->date->format('d/m/Y') }}</td>
-                        <td>{{ $payment->type_description }}</td>
-                        <td><small>{{ $payment->description }}</small></td>
-                        <td>{{ money_fmt($payment->amount) }}</td>
+                        <td class="text-center">{{ $payment->date->format('d/m/Y') }}</td>
+                        <td class="text-left">{{ $payment->type_description }}</td>
+                        <td class="text-left"><small>{{ $payment->description }}</small></td>
+                        <td class="text-right">{{ money_fmt($payment->amount) }}</td>
                     </tr>
                     @endforeach
                     </tbody>
@@ -94,24 +98,31 @@
                     </tr>
                     </tfoot>
                     </table>
-                	</div>
+                    <div class="text-right">
+                      {{ $payments->links() }}
+                    </div>                                        
+                  </div>
                 </div>
+              </div>
                 @else
-                  <div class="alert alert-info">
-                    <ul>
-                      <i class="fa fa-info-circle"></i> No existen registros para mostrar!
-                    </ul>
-                  </div>                
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert alert-info">
+                      <ul>
+                        <i class="fa fa-info-circle"></i> Ningún registro coincide con su criterio de busqueda!
+                      </ul>
+                    </div>
+                  </div>
                 @endif
-                  <div class="form-group pull-right">
+
+                <div class="form-group pull-right">
                     <div class="col-md-12 col-sm-12 col-xs-12 ">
                       <a href="{{URL::to('contracts')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                     </div>
-                  </div>
-                  <br/>
-                  <br/>                
+                </div>
                 </div>
                 <!-- /ibox-content- -->
+              
+              </div>
             </div>
         </div>
     </div>
@@ -119,98 +130,11 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
-<script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
-
-<!-- Select2 -->
-<script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>
-<script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>
-
-    <!-- Page-Level Scripts -->
-    <script>
-        path_str_language = "{{URL::asset('js/plugins/dataTables/es_ES.txt')}}";
-        $(document).ready(function(){
-            $('.dataTables-example').DataTable({
-              "oLanguage":{"sUrl":path_str_language},
-              "ordering": true,
-              "bLengthChange": true, //Habilitar o deshabilitar el nro de registros por paginacion
-              "bAutoWidth": false, // Disable the auto width calculation
-              "aoColumns": [
-                { "sWidth": "5%" },  // 1st column width 
-                { "sWidth": "15%", "sType": "date-uk" }, // 3nd column width
-                { "sWidth": "15%" }, // 4nd column width
-                { "sWidth": "30%" }, // 5nd column width
-                { "sWidth": "20%" }  // 6nd column width                
-              ],              
-              responsive: false,
-              paging: true,
-              dom: '<"html5buttons"B>lTfgitp',
-              buttons: [
-                {
-                  extend: "excel",
-                  text: '<i class="fa fa-file-excel-o"></i>',
-                  titleAttr: 'Exportar a Excel',
-                  //Titulo
-                  title: 'Pagos del Contrato Nro {!! $contract->number !!}',                  
-                  className: "btn-sm",
-                  exportOptions: {
-                    columns: [1, 2, 3, 4],
-                  }                                    
-                },
-                {
-                  extend: "pdf",
-                  text: '<i class="fa fa-file-pdf-o"></i>',
-                  pageSize: 'LETTER',
-                  titleAttr: 'Exportar a PDF',
-                  title: 'Pagos del Contrato Nro {!! $contract->number !!}',                  
-                  className: "btn-sm",
-                  //Sub titulo
-                  message: '',
-                  exportOptions: {
-                    columns: [1, 2, 3, 4],
-                  },
-                  customize: function ( doc ) {
-                    //Tamaño de la fuente del body
-                    doc.defaultStyle.fontSize = 8;
-                    //Tamaño de la fuente del header
-                    doc.styles.tableHeader.fontSize = 9;
-                    //Configuracion de margenes de la pagina
-                    doc.pageMargins = [30, 30, 30, 30 ];
-                    //Codigo para el footer
-                    var cols = [];
-                    doc['footer']=(function(page, pages) {
-                      cols[0] = {text: new Date().toLocaleString(), alignment: 'left', margin:[30] };
-                      cols[1] = {text: '© '+new Date().getFullYear()+' {{ Session::get('app_name') }} . Todos los derechos reservados.', alignment: 'center', bold:true, margin:[0, 0,0] };
-                      cols[2] = {text: 'Página '+page.toString()+ 'de'+pages.toString(), alignment: 'right', italics: true, margin:[0,0,30] };                    
-                    return {
-                      alignment:'center',
-                      fontSize: 7,
-                      columns: cols,
-                    }
-                    });
-                    //Codigo para el logo
-                    doc.content.splice( 0, 0, 
-                      {
-                        margin: [ 0, 0, 0, 2 ],
-                        alignment: 'center',
-                        fit: [100, 100],
-                        image: 'data:image/png;base64,{{ $company->logo }}'
-                      }                       
-                    );
-                    //Codigo para la leyenda del logo (Dirección del condominio)
-                    doc.content.splice( 1, 0, 
-                      {
-                        margin: [ 0, 0, 0, 10 ],
-                        fontSize: 7,
-                        alignment: 'center',
-                        text: '{{ $company->name }}',
-                      }                       
-                    );                    
-                  }
-                },
-              ]
-            });
-          });                      
-
-    </script>
+  <script>
+    $('#btn_print').on("click", function (e) { 
+        url = `{{URL::to('citizens.rpt_contract_payments/')}}/{{ $contract->id }}`;
+        $('#form').attr('action', url);
+        $('#form').submit();
+    });
+  </script>
 @endpush

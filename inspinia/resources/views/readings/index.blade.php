@@ -104,8 +104,7 @@
                         <th>Inspector</th>
                     </tr>
                     </tfoot>
-                    </table>
-                    
+                    </table>                    
                     <div class="text-right">
                       {{ $readings->links() }}
                     </div>
