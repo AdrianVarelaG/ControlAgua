@@ -1,8 +1,7 @@
 @extends('layouts.app')
 
 @push('stylesheets')
-  <!-- CSS Datatables -->
-  <link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
+
 @endpush
 
 @section('page-header')
@@ -35,20 +34,35 @@
                 </div>
                 <!-- /ibox-title -->
                                 
-          <!-- ibox-content- -->
-          <div class="ibox-content">
+        <!-- ibox-content- -->
+        <div class="ibox-content">
+          <div class="row">    
+              
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+              {{ Form::close() }} 
 
+              <div class="col-sm-8">
+              </div>
+                                        
+              <div class="col-sm-4">
+                  <div class="input-group m-b">
+                    <span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
+                      {!! Form::text('filter_name', Session::get('filter_name'), ['id'=>'filter_name', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Buscar por nombre' ,'maxlength'=>'100']) !!}
+                  </div>
+              </div>
+
+            
             @if($contracts->count())
+              <div class="col-md-12 col-sm-12 col-xs-12">                  
                 <div class="table-responsive">
-                    
-                    @include('partials.errors')
-
-                    <table class="table table-striped table-hover dataTables-example" >
+                  <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
                         <th></th>
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
+                        <th>RFC</th>
+                        <th>Dirección</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -62,8 +76,11 @@
                                         <li><a href="{{ route('contracts.activate', Crypt::encrypt($contract->id)) }}"><i class="fa fa-check"></i> Registrar Datos Iniciales y Activar</a></li>
                                     </ul>
                             </div>
+                        </td>
                         <td><strong>{{ $contract->number }}</strong></td>
                         <td>{{ $contract->citizen->name }}</td>
+                        <td>{{ $contract->citizen->RFC }}</td>
+                        <td>{{ $contract->citizen->address }}</td>
                     </tr>
                     @endif
                   @endforeach
@@ -76,12 +93,11 @@
                     </tr>
                     </tfoot>
                     </table>
-                    <br/>
-                    <br/>
-                    <br/>
-                    <br/>                    
-                    <br/>
+                    <div class="text-right">
+                      {{ $contracts->links() }}
+                    </div>
                 	</div>
+                </div>
                 @else
                   <div class="alert alert-info">
                     <ul>
@@ -89,8 +105,9 @@
                     </ul>
                   </div>                
                 @endif
-                </div>
-                <!-- /ibox-content- -->
+              </div>
+              <!-- /ibox-content- -->
+            </div>
           </div>
         </div>
     </div>
@@ -98,88 +115,30 @@
 @endsection
 
 @push('scripts')
-	<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
+  <script>        
+    
+    //Filter Name
+    var timerid;    
+    $("#filter_name").on("input",function(e){
+      var value = $(this).val().trim();;
+      if($(this).data("lastval")!= value){
 
-    <!-- Page-Level Scripts -->
-    <script>
-        path_str_language = "{{URL::asset('js/plugins/dataTables/es_ES.txt')}}";
-        $(document).ready(function(){
-            $('.dataTables-example').DataTable({
-              "oLanguage":{"sUrl":path_str_language},
-              "aaSorting": [[1, "asc"]],
-              "bAutoWidth": false, // Disable the auto width calculation
-              "aoColumns": [
-                { "sWidth": "5%" },  // 1st column width 
-                { "sWidth": "45%" }, // 2nd column width
-                { "sWidth": "50%" } // 3nd column width
-              ],              
-              responsive: false,              
-              dom: '<"html5buttons"B>lTfgitp',
-              buttons: [
-                {
-                  extend: "excel",
-                  text: '<i class="fa fa-file-excel-o"></i>',
-                  titleAttr: 'Exportar a Excel',
-                  //Titulo
-                  title: 'Contratos Desactivos sin Saldo Inicial',                  
-                  className: "btn-sm",
-                  exportOptions: {
-                    columns: [1, 2],
-                  }                                    
-                },
-                {
-                  extend: "pdf",
-                  text: '<i class="fa fa-file-pdf-o"></i>',
-                  pageSize: 'LETTER',
-                  titleAttr: 'Exportar a PDF',
-                  title: 'Contratos Desactivos sin Saldo Inicial',                  
-                  className: "btn-sm",
-                  //Sub titulo
-                  message: '',
-                  exportOptions: {
-                    columns: [1, 2],
-                  },
-                  customize: function ( doc ) {
-                    //Tamaño de la fuente del body
-                    doc.defaultStyle.fontSize = 8;
-                    //Tamaño de la fuente del header
-                    doc.styles.tableHeader.fontSize = 9;
-                    //Configuracion de margenes de la pagina
-                    doc.pageMargins = [30, 30, 30, 30 ];
-                    //Codigo para el footer
-                    var cols = [];
-                    doc['footer']=(function(page, pages) {
-                      cols[0] = {text: new Date().toLocaleString(), alignment: 'left', margin:[30] };
-                      cols[1] = {text: '© '+new Date().getFullYear()+' {{ Session::get('app_name') }} . Todos los derechos reservados.', alignment: 'center', bold:true, margin:[0, 0,0] };
-                      cols[2] = {text: 'Página '+page.toString()+ 'de'+pages.toString(), alignment: 'right', italics: true, margin:[0,0,30] };                    
-                    return {
-                      alignment:'center',
-                      fontSize: 7,
-                      columns: cols,
-                    }
-                    });
-                    //Codigo para el logo
-                    doc.content.splice( 0, 0, 
-                      {
-                        margin: [ 0, 0, 0, 2 ],
-                        alignment: 'center',
-                        fit: [100, 100],
-                        image: 'data:image/png;base64,{{ $company->logo }}'
-                      }                       
-                    );
-                    //Codigo para la leyenda del logo (Dirección del condominio)
-                    doc.content.splice( 1, 0, 
-                      {
-                        margin: [ 0, 0, 0, 10 ],
-                        fontSize: 7,
-                        alignment: 'center',
-                        text: '{{ $company->name }}',
-                      }                       
-                    );                    
-                  }
-                },
-              ]
-            });
-        });
-    </script>
+        $(this).data("lastval",value);        
+        clearTimeout(timerid);
+
+        timerid = setTimeout(function() {
+          //change action
+          if(value!=''){
+            url = `{{URL::to('initial_balance.filter/')}}/${e.target.value}`;
+          }else{
+            {{ Session::put('filter_name', '') }}
+            url = `{{URL::to('contracts.initial_balance')}}`;
+          }
+          $('#form').attr('action', url);
+          $('#form').submit();
+        },800);
+      };
+    });
+  
+  </script>
 @endpush

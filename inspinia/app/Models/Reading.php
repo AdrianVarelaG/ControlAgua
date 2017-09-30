@@ -26,10 +26,10 @@ class Reading extends Model
     }
 
     //*** Methods ***
-    public function exist($year, $month, $contract_id){
-        $reading = Reading::where('year', $year)
-                        ->where('month', $month)
-                        ->where('contract_id', $contract_id);
+    public function exist($contract_id, $year, $month){
+        $reading = Reading::where('contract_id', $contract_id)
+                            ->where('year', $year)
+                            ->where('month', $month);
         if($reading->count()>0){
             return true;
         }else{

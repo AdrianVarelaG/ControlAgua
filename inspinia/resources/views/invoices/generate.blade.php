@@ -208,6 +208,39 @@
         </div>
     </div>
 </div>
+
+            <!-- Modal advertencia para generar recibos-->
+            <div class="modal inmodal" id="myModal1" tabindex="-1" role="dialog"  aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content animated fadeIn">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"><i class="fa fa-exclamation-triangle"></i><strong> Atención!</strong></h4>
+                        </div>
+                        <div class="modal-body">
+                          <input type="hidden" name="hdd_lot_id" id="hdd_lot_id" value=""/>
+                          <div id="msj-before" style='display:solid'>
+                            <strong><p>Por favor, lea cuidadosamente las indicaciones.</p></strong>
+                            <ul>
+                                <li>La rutina de generación de recibos tardará entre 8 a 10 minutos.</li>
+                                <li>No recargue la página ni intente volver a ejecutar la rutina.</li>
+                                <li>Espere a que el sistema le informe cuando haya culminado la generación de recibos.</li>
+                            </ul>
+                          </div>
+                          <div id="msj-after" style='display:none'>
+                            <h3 class="text-center"><i class="fa fa-hand-paper-o" aria-hidden="true" style="font-size: 50px;color: #e5e5e5 "></i><strong> Generando Recibos... Por favor espere!</strong></h3>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="btn_submit" class="btn btn-sm btn-primary" data-dismiss="modal">Generar los recibos</button>
+                            <button type="button" id="btn_close" class="btn btn-sm btn-default" data-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal advertencia para reverso de ventas-->
+
 @endsection
 
 @push('scripts')   
@@ -290,7 +323,8 @@
                 {
                     var form = $(this);
                     // Submit form input
-                    form.submit();
+                    //form.submit();
+                    $("#myModal1").modal("show");
                 }
             }).validate({
                         errorPlacement: function (error, element)
@@ -381,6 +415,13 @@
         $('#iva').on('ifUnchecked', function(event){ 
             $('#apply_iva').val('N');
         });
+    
+  $('#btn_submit').on("click", function (e) { 
+      $('#msj-before').hide();
+      $('#msj-after').show();
+      $('#btn_submit').prop('disabled', true);
+      $('#form').submit();
+  });
     
     });
     </script>

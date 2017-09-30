@@ -22,7 +22,7 @@
                 border: 1px solid #ddd; /* Gray border */
                 border-radius: 4px;  /* Rounded border */
                 width: 110px; /* Set a small width */
-            }    
+            }            
             small {
                 font-size: smaller;
             }    

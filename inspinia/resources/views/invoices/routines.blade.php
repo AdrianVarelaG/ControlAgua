@@ -38,6 +38,12 @@
             <!-- ibox-content- -->
             <div class="ibox-content">
 
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+                {!! Form::hidden('hdd_year', null, ['id'=>'hdd_year']) !!}
+                {!! Form::hidden('hdd_month', null, ['id'=>'hdd_month']) !!}
+              {{ Form::close() }} 
+              
+
               @include('partials.errors')
                 
               <a href="{{ route('invoices.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Generar</a><br/><br/>
@@ -61,9 +67,7 @@
                     @foreach($routines_generated as $ruotine)
                     <tr class="gradeX">
                         <td class="text-center">                            
-                        <!-- Split button -->
-                            <a href="{{ route('invoices.reverse_routine', [Crypt::encrypt($ruotine->year), Crypt::encrypt($ruotine->month)] ) }}" class="btn btn-xs btn-default" onclick="return confirm('Desea reversar la rutina del mes {{ $ruotine->month_consume }} y el año {{ $ruotine->year_consume }}?')"><i class="fa fa-history" title="Reversar"></i></a>
-                        <!-- /Split button -->                        
+                          <a href="#" data-year="{{ $ruotine->year }}" data-month="{{ $ruotine->month }}" class="modal-class btn btn-xs btn-default" title="Reversar"><i class="fa fa-history"></i></a>
                         </td>                          
                         <td>{{ $ruotine->month}}/{{ $ruotine->year }}</td>
                         <td>{{ $ruotine->month_consume }}/{{ $ruotine->year_consume }}</td>
@@ -107,117 +111,77 @@
         </div>
     </div>
 </div>
+
+            <!-- Modal advertencia para reverso de ventas-->
+            <div class="modal inmodal" id="myModal1" tabindex="-1" role="dialog"  aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content animated fadeIn">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"><i class="fa fa-exclamation-triangle"></i><strong> Atención!</strong></h4>
+                        </div>
+                        <div class="modal-body">
+                          <input type="hidden" name="hdd_lot_id" id="hdd_lot_id" value=""/>
+                          <strong><p id="msj"></p></strong>
+                          <ul>
+                            <li>Se elimiminarán todos los recibos pendientes del período seleccionado. Esto podría afectar la deuda actual del ciudadano.</li>
+                            <li>Sólo se conservarán los recibos cancelados del período seleccionado.</li>
+                          </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="btn_reverse" class="btn btn-sm btn-primary" data-dismiss="modal">Reversar</button>
+                            <button type="button" id="btn_close" class="btn btn-sm btn-default" data-dismiss="modal">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal advertencia para reverso de ventas-->
+
+
 @endsection
 
 @push('scripts')
-	<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
-  <script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
 
 
-    <!-- Page-Level Scripts -->
-    <script>
-        path_str_language = "{{URL::asset('js/plugins/dataTables/es_ES.txt')}}";
-        $(document).ready(function(){
-            $('.dataTables-example').DataTable({
-              "oLanguage":{"sUrl":path_str_language},
-              "bAutoWidth": false, // Disable the auto width calculation
-              "aoColumns": [
-                { "sWidth": "5%" }, // 1st column width 
-                { "sWidth": "15%" }, // 2nd column width
-                { "sWidth": "15%" }, // 3nd column width
-                { "sWidth": "15%" }, // 3nd column width
-                { "sWidth": "10%" }, // 3nd column width
-                { "sWidth": "10%" }, // 4nd column width
-                { "sWidth": "15%" }, // 5nd column width
-                { "sWidth": "15%", "sType": "date-uk" } // 6nd column width
+  <!-- Page-Level Scripts -->
+  <script>
+        
+  $(function () {
+    $(".modal-class").click(function () {
+      $('#hdd_year').val($(this).data('year'));
+      $('#hdd_month').val($(this).data('month'));
+      $('#msj').html('Está seguro que desea reversar los recibos del período '+$(this).data('month')+'/'+$(this).data('year')+' ?');
+      $("#myModal1").modal("show");    
+    })
+  });
 
-              ],              
-              responsive: false,              
-              dom: '<"html5buttons"B>lTfgitp',
-              buttons: [
-                {
-                  extend: "excel",
-                  text: '<i class="fa fa-file-excel-o"></i>',
-                  titleAttr: 'Exportar a Excel',
-                  //Titulo
-                  title: 'Control de Recibos Generados',                  
-                  className: "btn-sm",
-                  exportOptions: {
-                    columns: [1, 2, 3, 4, 5],
-                  }                                    
-                },
-                {
-                  extend: "pdf",
-                  text: '<i class="fa fa-file-pdf-o"></i>',
-                  pageSize: 'LETTER',
-                  titleAttr: 'Exportar a PDF',
-                  title: 'Control de Recibos Generados',                  
-                  className: "btn-sm",
-                  //Sub titulo
-                  message: '',
-                  exportOptions: {
-                    columns: [1, 2, 3, 4, 5],
-                  },
-                  customize: function ( doc ) {
-                    //Tamaño de la fuente del body
-                    doc.defaultStyle.fontSize = 8;
-                    //Tamaño de la fuente del header
-                    doc.styles.tableHeader.fontSize = 9;
-                    //Configuracion de margenes de la pagina
-                    doc.pageMargins = [30, 30, 30, 30 ];
-                    //Codigo para el footer
-                    var cols = [];
-                    doc['footer']=(function(page, pages) {
-                      cols[0] = {text: new Date().toLocaleString(), alignment: 'left', margin:[30] };
-                      cols[1] = {text: '© '+new Date().getFullYear()+' {{ Session::get('app_name') }} . Todos los derechos reservados.', alignment: 'center', bold:true, margin:[0, 0,0] };
-                      cols[2] = {text: 'Página '+page.toString()+ 'de'+pages.toString(), alignment: 'right', italics: true, margin:[0,0,30] };                    
-                    return {
-                      alignment:'center',
-                      fontSize: 7,
-                      columns: cols,
-                    }
-                    });
-                    //Codigo para el logo
-                    doc.content.splice( 0, 0, 
-                      {
-                        margin: [ 0, 0, 0, 2 ],
-                        alignment: 'center',
-                        fit: [100, 100],
-                        image: 'data:image/png;base64,{{ $company->logo }}'
-                      }                       
-                    );
-                    //Codigo para la leyenda del logo (Dirección del condominio)
-                    doc.content.splice( 1, 0, 
-                      {
-                        margin: [ 0, 0, 0, 10 ],
-                        fontSize: 7,
-                        alignment: 'center',
-                        text: '{{ $company->name }}',
-                      }                       
-                    );                    
-                  }
-                },
-              ]
-            });
-            
-            //Notifications
-            setTimeout(function() {
-                toastr.options = {
-                    closeButton: true,
-                    progressBar: true,
-                    showMethod: 'slideDown',
-                    timeOut: 2000
-                };
-                if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
-                  toastr.success('Recibos generados exitosamente', '{{ Session::get('app_name') }}');
+  $('#btn_reverse').on("click", function (e) { 
+      var year = $('#hdd_year').val();
+      var month = $('#hdd_month').val();
+      url = `{{URL::to('invoices.reverse_routine/')}}/${year}/${month}`;
+      $('#form').attr('action', url);
+      $('#form').submit();
+  });
+
+  //Notifications
+  setTimeout(function() {
+    toastr.options = {
+      closeButton: true,
+      progressBar: true,
+      showMethod: 'slideDown',
+      timeOut: 2000
+    };
+    if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
+      toastr.success('Recibos generados exitosamente', '{{ Session::get('app_name') }}');
+    }
+    if('{{ Session::get('notity') }}'=='update' &&  '{{ Session::get('update_notification') }}'=='1'){
+      toastr.success('Registro actualizado exitosamente', '{{ Session::get('app_name') }}');
+    }
+    if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
+      toastr.success('Recibos reversados exitosamente', '{{ Session::get('app_name') }}');
                 }
-                if('{{ Session::get('notity') }}'=='update' &&  '{{ Session::get('update_notification') }}'=='1'){
-                  toastr.success('Registro actualizado exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
-                  toastr.success('Recibos reversados exitosamente', '{{ Session::get('app_name') }}');
-                }
-            }, 1300);        
-        });
+    }, 1300);        
+
     </script>
 @endpush

@@ -45,7 +45,7 @@ class InvoiceController extends Controller
 
         $invoices = Invoice::whereDate('date', '>=', Session::get('from'))
                             ->whereDate('date', '<=' , Session::get('to'))
-                            ->where('total', '>', 0)
+                            ->where('total', '>=', 0)
                             ->orderBy('date');
 
         $invoices_count = $invoices->count();
@@ -152,190 +152,259 @@ class InvoiceController extends Controller
      */
     public function store(InvoiceRequestStore $request)
     {        
-        $flat_rate = Rate::find(1);
+        
         $iva = Charge::find(1);
-        $amount_consume =0;
-        $i=0;
-        $start_invoice = 0;
-        $end_invoice = 0;
-        //Mes y Año de Consumo
+        $apply_iva = $request->input('apply_iva');
         $month_consume = substr($request->input('date_consume'),0,2);
         $year_consume = substr($request->input('date_consume'),3,4);
-        //Mes y Año de Facturación
         $month = substr($request->input('date'),3,2);
         $year = substr($request->input('date'),6,4);
+        $date = (new ToolController)->format_ymd($request->input('date'));
+        $date_limit = (new ToolController)->format_ymd($request->input('date_limit'));
+        $message = $request->input('message');
+        $rate_type = $request->input('type');
+        $charges_m = $request->input('charges_m');
+        $charges_p = $request->input('charges_p');
+        //Se verifica si la rutina existe
         if(!$this->routine_exist($year, $month)){
-            //Paso0. Se crea el registro de control, se hace de 1ro para evitar multiples submits
-            $routine = new Routine();
-            $routine->year = substr($request->input('date'),6,4);
-            $routine->month = substr($request->input('date'),3,2);
-            $routine->year_consume = $year_consume;
-            $routine->month_consume = $month_consume;
-            $routine->rate_type = $request->input('type');
-            $routine->start = 0;
-            $routine->end = 0;
-            $routine->created_by = Auth::user()->name;
-            $routine->save();            
-            //Paso 1. Hacer el ciclo con todos los contratos ACTIVOS
-            $contracts = Contract::where('status', 'A')->get();
-            foreach($contracts as $contract){            
-                //Crea el recibo si no existe uno previo CANCELADO para ese periodo, si el recibo existe PENDIENTE lo sobre escribe.
-                if(!$this->invoice_canceled_exist($contract, $year, $month)){
-                    $i++;
-                    $contract_initial_balance = $contract->balance;
-                    //Paso 2. Registrar los datos generales del recibo
-                    $invoice = new Invoice();
-                    $invoice->date = (new ToolController)->format_ymd($request->input('date'));
-                    $invoice->date_limit = (new ToolController)->format_ymd($request->input('date_limit'));
-                    $invoice->year = $year;
-                    $invoice->month = $month;                    
-                    $invoice->month_consume = $month_consume;
-                    $invoice->year_consume = $year_consume;
-                    $invoice->citizen_id = $contract->citizen->id;
-                    $invoice->contract_id = $contract->id;
-                    $invoice->message = $request->input('message');
-                    $invoice->status = 'P';
-                    $invoice->previous_debt = $invoice->contract->balance;
-                    $invoice->save();
-                    if($i == 1){
-                        $start_invoice = $invoice->id;
-                    }
-                    //Paso 3. Registrar el detalle del recibo
-            
-                    //Paso 3.1 Incluir Tarifas
-                    $invoice_detail = new InvoiceDetail();
-                    $invoice_detail->invoice_id = $invoice->id;              
-                    $invoice_detail->movement_type = 'CT';
-                    $invoice_detail->type = 'M';             
-                    $invoice_detail->description = 'Servicio de Agua '.$month.'/'.$year;            
-                    if ($request->input('type')=='F'){
-                        $invoice->rate = $flat_rate->amount;
-                        $invoice->rate_description = $flat_rate->name;
-                        $amount_consume =  $flat_rate->amount;
-                        $invoice_detail->sub_total = $amount_consume;
-                    }
-                    elseif($request->input('type')=='C'){
-                        //Si tiene lectura en ese mes calcula sino se coloca la tarifa fija
-                        //$reading = new Reading();
-                        $reading = $contract->readings()->where('year', $year_consume)
-                                                        ->where('month', $month_consume)->first();
-                        if($reading){
-                            $invoice->rate = $contract->rate->amount;
-                            $invoice->rate_description = $contract->rate->name;
-                            $invoice->reading_id = $reading->id;
-                            $amount_consume = $reading->consume*$contract->rate->amount; 
-                        }else{
-                            $invoice->rate = $flat_rate->amount;
-                            $invoice->rate_description = $flat_rate->name.' (Sin lectura)';
-                            $amount_consume = $flat_rate->amount;                    
-                        }
-                        $invoice_detail->sub_total = $amount_consume;
-                    }
-                    $invoice_detail->save();
-                    //Paso 3.2 Incluir cargos adicionales monto fijo
-                    if($request->input('charges_m')){
-                        foreach ($request->input('charges_m') as $charges_m) {
-                            $charge = Charge::find($charges_m);
-                            $invoice_detail = new InvoiceDetail();
-                            $invoice_detail->invoice_id = $invoice->id;              
-                            $invoice_detail->movement_type = $charge->movement_type;
-                            $invoice_detail->type = 'M';
-                            $invoice_detail->description = $charge->description;
-                            $invoice_detail->sub_total = $charge->amount;
-                            $invoice_detail->save();
-                        }
-                    }
-                    //Paso 3.3 Incluir cargos adicionales porcentuales
-                    if($request->input('charges_p')){
-                        foreach ($request->input('charges_p') as $charges_p) {
-                            $charge = Charge::find($charges_p);
-                            $invoice_detail = new InvoiceDetail();
-                            $invoice_detail->invoice_id = $invoice->id;              
-                            $invoice_detail->movement_type = $charge->movement_type;
-                            $invoice_detail->type = $charge->type;
-                            $invoice_detail->description = $charge->description;
-                            $invoice_detail->percent = $charge->percent;
-                            $invoice_detail->sub_total = $amount_consume*($charge->percent/100);
-                            $invoice_detail->save();
-                        }
-                    }
-                    //Paso4. Calcular el Impuesto
-                    if($request->input('apply_iva')=='Y'){
-                            $invoice_detail = new InvoiceDetail();
-                            $invoice_detail->invoice_id = $invoice->id;              
-                            $invoice_detail->movement_type = $iva->movement_type;
-                            $invoice_detail->type = $iva->type;
-                            $invoice_detail->description = $iva->description;
-                            $invoice_detail->percent = $iva->percent;
-                            $invoice_detail->sub_total = $invoice->total_calculated()*($iva->percent/100);
-                            $invoice_detail->save();
-                    }
-                    //Paso5. Actualizar el monto total del recibo en la tabla padre
-                    $invoice->total = $invoice->total_calculated();
-                    $invoice->save();
-                    //Paso6. Registrar el cargo en la tabla movimientos
-                    $movement = new Movement();
-                    $movement->date = $invoice->date;                    
-                    $movement->type = 'C';
-                    $movement->movement_type = 'C';
-                    $movement->description = 'Servicio de Agua '.$invoice->month.'/'.$invoice->year;
-                    $movement->citizen_id = $contract->citizen->id;
-                    $movement->contract_id = $contract->id;
-                    $movement->invoice_id = $invoice->id;
-                    $movement->amount = $invoice->total;
-                    $movement->save();
-                    //Paso7. Si el contrato tiene saldo a favor suficiente para cancelar el recibo
-                    if($contract_initial_balance < 0 && abs($contract_initial_balance) >= $invoice->total){
-                        //7.1 Se registra el pago
-                        $payment = new Payment();
-                        $payment->date= (new ToolController)->format_ymd($request->input('date'));
-                        $payment->citizen_id = $contract->citizen->id;
-                        $payment->contract_id = $contract->id;
-                        $payment->type= 'PA';
-                        $payment->description = 'Pago Automatico Servicio de Agua Mes '.$month.'/'.$year;
-                        $payment->observation = 'Pago Automatico. Se debita de su saldo a favor.'.abs($contract_initial_balance).' - '.$invoice->total.' Saldo final: '.(abs($contract_initial_balance) - $invoice->total);
-                        $payment->amount =$invoice->total;
-                        $payment->debt = $contract_initial_balance + $invoice->total;
-                        $payment->save();
-                        //7.2 Se registra el detalle del pago
-                        $payment_detail = new PaymentDetail();
-                        $payment_detail->payment_id = $payment->id;
-                        $payment_detail->type = 'C';
-                        $payment_detail->amount = $invoice->total;
-                        $payment_detail->description = 'Pago Automatico Servicio de Agua Mes '.$month.'/'.$year;
-                        $payment_detail->save();
-                        //7.3. Se registra el movimiento del pago
-                        $movement = new Movement();
-                        $movement->citizen_id = $contract->citizen->id;
-                        $movement->contract_id = $contract->id;
-                        $movement->movement_type = 'D';
-                        $movement->type = 'P';
-                        $movement->payment_id = $payment->id;
-                        $movement->date = $payment->date;
-                        $movement->amount =0;
-                        $movement->description = 'Pago Automatico Servicio de Agua Mes '.$month.'/'.$year. ' Se debita de su saldo a favor.';
-                        $movement->save();
-                        //7.4 Se cambia el estado del recibo a cancelado y se asocia el pago
-                        $invoice->payment_id = $payment->id;
-                        $invoice->status = 'C';
-                        $invoice->save();                    
-                    }
-
-                }//endif invoice exist
-                $end_invoice = $invoice->id;
-            }//foreach
-                
-            //Paso5. Actualizar el registro en la tabla control (routines)
-            $routine->start = $start_invoice;
-            $routine->end = $end_invoice;
-            $routine->save();
-        
+            //1. Se eliminan los recibos pendientes de ese Mes y Año
+            $this->delete_invoices_pending($year, $month);
+            //2. Se crea el registro de control, se hace de 1ro para evitar multiples submits
+            $this->create_routine_control($year, $month, $year_consume, $month_consume, $rate_type);
+            //3. Registrar datos generales del los contratos ACTIVOS
+            $this->register_invoices($date, $date_limit, $year, $month, $year_consume, $month_consume, $rate_type, $message, $charges_m, $charges_p, $apply_iva, $iva);
+                        
             return redirect()->route('invoices.routines')->with('notity', 'create');;
 
         }else{
             return redirect()->route('invoices.create')->withErrors(array('global' => "Ya existe una generación de recibos para el período de Facturación <strong>(".month_letter($month, 'lg')." ".$year. ")</strong>. Primero debe reversar la generación anterior para poder realizar una nueva en ese período."));
         }
     }
+
+
+    public function register_invoices($date, $date_limit, $year, $month, $year_consume, $month_consume, $rate_type, $message, $charges_m, $charges_p, $apply_iva, $iva){
+
+        $i = 0;
+        $start_invoice =0;
+        $flat_rate = Rate::find(1);
+        $contracts = Contract::where('status', 'A');
+
+        //Se registran en lotes de 200
+        $contracts->chunk(200, function($contracts) use (&$i, &$start_invoice, $flat_rate, $date, $date_limit, $year, $month, $year_consume, $month_consume, $rate_type, $message, $charges_m, $charges_p, $apply_iva, $iva)
+        {
+            $amount_consume = 0;
+
+            foreach ($contracts as $contract)
+            {
+                $contract_initial_balance = $contract->balance;
+                if(!$this->invoice_exist($contract->id, $year, $month)){
+                    $i++;
+                    $invoice = new Invoice();
+                    $invoice->date = $date;
+                    $invoice->date_limit = $date_limit;
+                    $invoice->month = $month;
+                    $invoice->year = $year;
+                    $invoice->month_consume = $month_consume;
+                    $invoice->year_consume = $year_consume;
+                    $invoice->contract_id = $contract->id;
+                    $invoice->citizen_id = $contract->citizen_id;
+                    $invoice->message = $message;
+                    $invoice->status = 'P';
+                    $invoice->previous_debt = $contract->balance;
+                    if ($rate_type == 'F'){
+                        $invoice->rate = $flat_rate->amount;
+                        $invoice->rate_description = $flat_rate->name;
+                        $amount_consume =  $flat_rate->amount;
+                    }
+                    elseif($rate_type == 'C'){
+                        $reading = Reading::where('contract_id', $contract->id)
+                                        ->where('year', $year_consume)
+                                        ->where('month', $month_consume)->first();
+                        if($reading){
+                            $rate = Rate::find($contract->rate_id);
+                            $invoice->rate = $rate->amount;
+                            $invoice->rate_description = $rate->name;
+                            $invoice->reading_id = $reading->id;
+                            $amount_consume = $reading->consume*$rate->amount; 
+                        }else{
+                            $invoice->rate = $flat_rate->amount;
+                            $invoice->rate_description = $flat_rate->name.' (Sin lectura)';
+                            $amount_consume =  $flat_rate->amount;                   
+                        }
+                    }
+                    $invoice->save();
+                    ($i == 1)?$start_invoice = $invoice->id:'';
+                    $this->register_consume($invoice, $amount_consume);                    
+                    if($charges_m){
+                        $this->register_charges($invoice, $charges_m, $amount_consume);
+                    }
+                    if($charges_p){
+                        $this->register_charges($invoice, $charges_p, $amount_consume);                        
+                    }
+                    if($apply_iva=='Y'){
+                        $this->register_iva($invoice, $iva);
+                    }
+                    $invoice->total = $invoice->total_calculated();
+                    $invoice->save();
+                    $this->register_movement_service($invoice);
+                    //Si el contrato tiene saldo a favor suficiente para cancelar el recibo
+                    if($contract_initial_balance < 0 && abs($contract_initial_balance) >= $invoice->total){
+                        $this->register_payment($invoice, $contract_initial_balance);
+                    }
+                } // end if
+            } // end for
+        }); // end chunk
+
+        $end_invoice = DB::table('invoices')->max('id');
+        $routine = Routine::where('year', $year)
+                            ->where('month', $month)->first();
+        $routine->start = $start_invoice;
+        $routine->end = $end_invoice;
+        $routine->save();            
+    }
+
+    public function invoice_exist($contract_id, $year, $month){
+
+       $exist = Invoice::where('contract_id', $contract_id)
+                        ->where('year', $year)
+                        ->where('month', $month)->exists(); 
+    
+       return $exist;
+    }
+    
+    public function register_consume($invoice, $amount_consume){
+        
+        $invoice_detail = new InvoiceDetail();
+        $invoice_detail->invoice_id = $invoice->id;              
+        $invoice_detail->movement_type = 'CT';
+        $invoice_detail->type = 'M';             
+        $invoice_detail->description = 'Servicio de Agua';
+        $invoice_detail->sub_total = $amount_consume;
+        $invoice_detail->save();           
+    }
+
+    public function register_charges($invoice, $charges_array, $amount_consume){
+
+        foreach ($charges_array as $charge_id) {
+            $charge = Charge::find($charge_id);
+            $invoice_detail = new InvoiceDetail();
+            $invoice_detail->invoice_id = $invoice->id;              
+            $invoice_detail->movement_type = $charge->movement_type;
+            $invoice_detail->type = $charge->type;
+            $invoice_detail->description = $charge->description;
+            if($charge->type == 'M'){
+                $invoice_detail->sub_total = $charge->amount;                
+            }elseif($charge->type == 'P'){
+                $invoice_detail->sub_total = $amount_consume*($charge->percent/100);
+            }
+            $invoice_detail->save();
+        }
+    }
+    
+    public function register_iva($invoice, $iva)
+    {
+        $invoice_detail = new InvoiceDetail();
+        $invoice_detail->invoice_id = $invoice->id;              
+        $invoice_detail->movement_type = $iva->movement_type;
+        $invoice_detail->type = $iva->type;
+        $invoice_detail->description = $iva->description;
+        $invoice_detail->percent = $iva->percent;
+        $invoice_detail->sub_total = $invoice->total_calculated()*($iva->percent/100);
+        $invoice_detail->save();
+    }
+    
+    public function register_movement_service($invoice){
+
+        $movement = new Movement();
+        $movement->date = $invoice->date;                    
+        $movement->type = 'C';
+        $movement->movement_type = 'C';
+        $movement->description = 'Servicio de Agua '.$invoice->month.'/'.$invoice->year;
+        $movement->citizen_id = $invoice->citizen_id;
+        $movement->contract_id = $invoice->contract_id;
+        $movement->invoice_id = $invoice->id;
+        $movement->amount = $invoice->total;
+        $movement->save();
+    }
+    
+    public function register_payment($invoice, $contract_initial_balance){
+        
+        $payment = new Payment();
+        $payment->date= $invoice->date;
+        $payment->citizen_id = $invoice->citizen_id;
+        $payment->contract_id = $invoice->contract_id;
+        $payment->type= 'PA';
+        $payment->description = 'Pago Automatico Servicio de Agua Mes '.$invoice->month.'/'.$invoice->year;
+        $payment->observation = 'Pago Automatico. Se debita de su saldo a favor.'.abs($contract_initial_balance).' - '.$invoice->total.' Saldo final: '.(abs($contract_initial_balance) - $invoice->total);
+        $payment->amount =$invoice->total;
+        $payment->debt = $contract_initial_balance + $invoice->total;
+        $payment->save();
+        //Se le asigna el pago al recibo y se coloca como cancelado
+        $invoice->payment_id = $payment->id;
+        $invoice->status = 'C';
+        $invoice->save();
+        $this->register_payment_detail($payment, $invoice);
+        $this->register_movement_payment($payment, $invoice);
+    }
+    
+    public function register_payment_detail($payment, $invoice){
+        
+        $payment_detail = new PaymentDetail();
+        $payment_detail->payment_id = $payment->id;
+        $payment_detail->type = 'C';
+        $payment_detail->amount = $invoice->total;
+        $payment_detail->description = 'Pago Automatico Servicio de Agua Mes '.$invoice->month.'/'.$invoice->year;
+        $payment_detail->save();
+    }
+    
+    public function register_movement_payment($payment, $invoice){
+                        
+        $movement = new Movement();
+        $movement->citizen_id = $payment->citizen_id;
+        $movement->contract_id = $payment->contract_id;
+        $movement->movement_type = 'D';
+        $movement->type = 'P';
+        $movement->payment_id = $payment->id;
+        $movement->date = $payment->date;
+        $movement->amount =0;
+        $movement->description = 'Pago Automatico Servicio de Agua Mes '.$invoice->month.'/'.$invoice->year. ' Se debita de su saldo a favor.';
+        $movement->save();
+    }
+    
+
+    public function create_routine_control($year, $month, $year_consume, $month_consume, $rate_type){
+        
+        $routine = new Routine();
+        $routine->year = $year;
+        $routine->month = $month;
+        $routine->year_consume = $year_consume;
+        $routine->month_consume = $month_consume;
+        $routine->rate_type = $rate_type;
+        $routine->start = 0;
+        $routine->end = 0;
+        $routine->created_by = Auth::user()->name;
+        $routine->save();            
+    }
+
+    public function delete_invoices_pending($year, $month){
+        
+        $invoices_pending = Invoice::where('year', $year)
+                                ->where('month', $month)
+                                ->where('status', 'P');
+        $invoices_pending->delete();
+    }
+    
+    public function routine_exist($year, $month){
+        $routine = Routine::where('year', $year)
+                        ->where('month', $month)->first();
+
+        if($routine){
+            return true;
+        }else{
+            return false;
+        } 
+    }
+
 
     /**
      * Display the specified resource.
@@ -382,14 +451,15 @@ class InvoiceController extends Controller
     public function reverse_routine($year, $month)
     {
         //Paso1. Se eliminan los recibos pendientes (no los cancelados)
-        $invoices = Invoice::where('year', Crypt::decrypt($year))
-                            ->where('month','=', Crypt::decrypt($month))
+        $invoices = Invoice::where('year', $year)
+                            ->where('month','=', $month)
                             ->where('status','P');
         $invoices->delete();
-        //Pas2. Se elimina el registro de la tabla control (routines)
-        $routine = Routine::where('year', Crypt::decrypt($year))
-                            ->where('month','=', Crypt::decrypt($month));
+        //Paso2. Se elimina el registro de la tabla control (routines)
+        $routine = Routine::where('year', $year)
+                            ->where('month','=', $month);
         $routine->delete();
+        
         return redirect()->route('invoices.routines')->with('notity', 'delete');   
     }
 
@@ -415,36 +485,6 @@ class InvoiceController extends Controller
         return redirect()->route('invoices.index', [Crypt::encrypt($year), Crypt::encrypt($month)])->withErrors('No se pueden elminar recibos que ya han sido cancelados.');
         }
     }
-
-    public function routine_exist($year, $month){
-        $routine = Routine::where('year', $year)
-                        ->where('month', $month);
-        if($routine->count()){
-            return true;
-        }else{
-            return false;
-        }
-
-    }
-
-    public function invoice_canceled_exist($contract, $year, $month){
-        //Chequea si existe el recibo CANCELADO
-        $invoice = $contract->invoices()->where('year', $year)
-                                        ->where('month', $month)
-                                        ->where('status', 'C')->first();
-        if($invoice){
-            return true;
-        }else{
-            //Si no hay recibos cancelados, elimina los posibles recibos pendientes
-            $invoice_pending = $contract->invoices()->where('year', $year)
-                                        ->where('month', $month)
-                                        ->where('status', 'P');
-            $invoice_pending->delete();            
-            return false;
-        }
-
-    }
-
 
     /*
      * Download file from DB  

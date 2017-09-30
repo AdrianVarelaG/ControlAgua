@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use Auth;
 use Session;
+use PDF;
 
 
 class ContractController extends Controller
@@ -36,12 +37,12 @@ class ContractController extends Controller
         $current_year = Carbon::now()->year;
 
         if(Session::get('filter_name')==''){
-            $contracts = Contract::all()->take(30);
+            $contracts = Contract::paginate(10);
         }else{
             $contracts = Contract::whereHas('Citizen', 
                                 function($q){
                                     $q->where('name', 'LIKE', '%'.Session::get('filter_name').'%');
-                                })->get();                
+                                })->paginate(10);                
         }
         
         return view('contracts.index')->with('contracts', $contracts)
@@ -55,12 +56,18 @@ class ContractController extends Controller
         return redirect()->route('contracts.index');
     }
     
+    public function initial_balance_filter($name){
+        
+        Session::put('filter_name', $name);
+        return redirect()->route('contracts.initial_balance');
+    }
+
     public function invoices($contract_id){
 
         $company = Company::first();        
         $contract = Contract::find(Crypt::decrypt($contract_id));        
         $invoices = $contract->invoices()->where('total', '>', 0)
-                                        ->orderBy('date', 'DESC')->get();
+                                        ->orderBy('date', 'DESC')->paginate(10);
             
         return view('contracts.invoices')->with('contract', $contract)
                                         ->with('invoices', $invoices)
@@ -71,8 +78,11 @@ class ContractController extends Controller
 
         $company = Company::first();        
         $contract = Contract::find(Crypt::decrypt($contract_id));        
+        $payments = $contract->payments()->orderBy('date', 'DESC')->paginate(10);
+
         return view('contracts.payments')->with('contract', $contract)
-                                    ->with('company', $company);
+                                        ->with('payments', $payments)
+                                        ->with('company', $company);
     }
     
 
@@ -84,7 +94,18 @@ class ContractController extends Controller
     public function initial_balance()
     {
         $company = Company::first();                  
-        $contracts = Contract::where('status', 'D')->get();  
+        $contracts = Contract::where('status', 'D')->paginate(10);  
+        
+        if(Session::get('filter_name')==''){
+            $contracts = Contract::where('status', 'D')->paginate(10); 
+        }else{
+            $contracts = Contract::where('status', 'D')
+                                ->whereHas('Citizen', 
+                                    function($q){
+                                        $q->where('name', 'LIKE', '%'.Session::get('filter_name').'%');
+                                    })->paginate(10);                
+        }
+        
         return view('contracts.initial_balance')->with('company', $company)
                                             ->with('contracts', $contracts); 
     }
@@ -375,4 +396,63 @@ class ContractController extends Controller
         $contract->save();
         return redirect()->route('contracts.index');
     }
+
+    public function rpt_contracts($filter)
+    {
+
+        $company = Company::first();
+        
+        $contracts = Contract::whereHas('Citizen', 
+                                function($q) use ($filter){
+                                    $q->where('name', 'LIKE', '%'.$filter.'%');
+                                })->orderBy('number')->get();
+        $data=[
+            'company' => $company,
+            'contracts' => $contracts,
+            'logo' => 'data:image/png;base64, '.$company->logo 
+        ];
+        $pdf = PDF::loadView('reports/rpt_contracts', $data);
+        
+        return $pdf->download('Ciudadanos.pdf');
+
+    }
+
+    public function rpt_contract_invoices($id)
+    {            
+            
+        $company = Company::first();
+
+        $contract = Contract::find($id);
+        $invoices = $contract->invoices()->where('total', '>', 0)
+                                        ->orderBy('date', 'DESC')->get();        
+        $data=[
+            'company' => $company,
+            'contract' => $contract,
+            'invoices' => $invoices,
+            'logo' => 'data:image/png;base64, '.$company->logo 
+        ];
+        $pdf = PDF::loadView('reports/rpt_contract_invoices', $data);
+        
+        return $pdf->download('Recibos del Contrato '.$contract->id.'.pdf');
+    }
+
+    public function rpt_contract_payments($id)
+    {            
+            
+        $company = Company::first();
+
+        $contract = Contract::find($id);
+        $payments = $contract->payments()->orderBy('date', 'DESC')->get();        
+        
+        $data=[
+            'company' => $company,
+            'contract' => $contract,
+            'payments' => $payments,
+            'logo' => 'data:image/png;base64, '.$company->logo 
+        ];
+        $pdf = PDF::loadView('reports/rpt_contract_payments', $data);
+        
+        return $pdf->download('Pagos del Contrato '.$contract->id.'.pdf');
+    }
+
 }

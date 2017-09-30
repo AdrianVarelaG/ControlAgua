@@ -1,8 +1,7 @@
 @extends('layouts.app')
 
 @push('stylesheets')
-  <!-- CSS Datatables -->
-  <link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
+
 @endpush
 
 @section('page-header')
@@ -35,20 +34,28 @@
                 </div>
                 <!-- /ibox-title -->
                     
-            <!-- ibox-content- -->
-            <div class="ibox-content">
+          <!-- ibox-content- -->
+          <div class="ibox-content">
+            <div class="row">
                 
-            @if($invoices->count())
-                <div class="table-responsive">
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+              {{ Form::close() }} 
+
+              @include('partials.errors')
               
-                @include('partials.errors')
-                    
-                <div class="col-sm-7">
-                    <h2>Contrato Nro <strong>{{ $contract->number }}</strong></h2>
-                    <h3>{{ $contract->citizen->name }}</h3><br/>
-                </div>                  
-                
-                <div class="col-md-12 col-sm-12 col-xs-12">                    
+              <div class="col-sm-8">
+                <h2>Contrato Nro <strong>{{ $contract->number }}</strong></h2>
+                <h3>{{ $contract->citizen->name }}</h3><br/>
+              </div>
+                                        
+              <div class="col-sm-4">
+                <button type="button" id="btn_print" class="btn btn-sm btn-default pull-right" title="Imprimir PDF"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
+              </div>
+            
+            @if($invoices->count())
+              <div class="col-md-12 col-sm-12 col-xs-12">                
+                <div class="table-responsive">                
+                  <div class="col-md-12 col-sm-12 col-xs-12">                    
                     <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
@@ -97,24 +104,36 @@
                     </tr>
                     </tfoot>
                     </table>
-                	</div>
+                    <div class="text-right">
+                      {{ $invoices->links() }}
+                    </div>                    
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                  </div>
                 </div>
+              </div>
                 @else
-                  <div class="alert alert-info">
-                    <ul>
-                      <i class="fa fa-info-circle"></i> No existen registros para mostrar!
-                    </ul>
-                  </div>                
-                @endif                
-                  <div class="form-group pull-right">
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert alert-info">
+                      <ul>
+                        <i class="fa fa-info-circle"></i> Ningún registro coincide con su criterio de busqueda!
+                      </ul>
+                    </div>
+                  </div>
+                @endif
+
+                <div class="form-group pull-right">
                     <div class="col-md-12 col-sm-12 col-xs-12 ">
                       <a href="{{URL::to('contracts')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                     </div>
-                  </div>
-                  <br/>
-                  <br/>
+                </div>
                 </div>
                 <!-- /ibox-content- -->
+              
+              </div>
             </div>
         </div>
     </div>
@@ -122,111 +141,33 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
-<script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
 
-
-    <!-- Page-Level Scripts -->
-    <script>
-        path_str_language = "{{URL::asset('js/plugins/dataTables/es_ES.txt')}}";
-        $(document).ready(function(){
-            $('.dataTables-example').DataTable({
-              "oLanguage":{"sUrl":path_str_language},
-              "bAutoWidth": false, // Disable the auto width calculation
-              "aoColumns": [
-                { "sWidth": "5%" },  // 1st column width 
-                { "sWidth": "15%" }, // 2nd column width
-                { "sWidth": "15%", "sType": "date-uk" }, // 3nd column width
-                { "sWidth": "15%" }, // 4nd column width
-                { "sWidth": "15%", "sType": "date-uk" }, // 5nd column width
-                { "sWidth": "20%" }  // 6nd column width
-              ],              
-              responsive: false,              
-              dom: '<"html5buttons"B>lTfgitp',
-              buttons: [
-                {
-                  extend: "excel",
-                  text: '<i class="fa fa-file-excel-o"></i>',
-                  titleAttr: 'Exportar a Excel',
-                  //Titulo
-                  title: 'Recibos del Contrato {{ $contract->number }}',                  
-                  className: "btn-sm",
-                  exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6],
-                  }                                    
-                },
-                {
-                  extend: "pdf",
-                  text: '<i class="fa fa-file-pdf-o"></i>',
-                  pageSize: 'LETTER',
-                  titleAttr: 'Exportar a PDF',
-                  title: 'Recibos del Contrato {{ $contract->number }}',                  
-                  className: "btn-sm",
-                  //Sub titulo
-                  message: '',
-                  exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6],
-                  },
-                  customize: function ( doc ) {
-                    //Tamaño de la fuente del body
-                    doc.defaultStyle.fontSize = 8;
-                    //Tamaño de la fuente del header
-                    doc.styles.tableHeader.fontSize = 9;
-                    //Configuracion de margenes de la pagina
-                    doc.pageMargins = [30, 30, 30, 30 ];
-                    //Codigo para el footer
-                    var cols = [];
-                    doc['footer']=(function(page, pages) {
-                      cols[0] = {text: new Date().toLocaleString(), alignment: 'left', margin:[30] };
-                      cols[1] = {text: '© '+new Date().getFullYear()+' {{ Session::get('app_name') }} . Todos los derechos reservados.', alignment: 'center', bold:true, margin:[0, 0,0] };
-                      cols[2] = {text: 'Página '+page.toString()+ 'de'+pages.toString(), alignment: 'right', italics: true, margin:[0,0,30] };                    
-                    return {
-                      alignment:'center',
-                      fontSize: 7,
-                      columns: cols,
-                    }
-                    });
-                    //Codigo para el logo
-                    doc.content.splice( 0, 0, 
-                      {
-                        margin: [ 0, 0, 0, 2 ],
-                        alignment: 'center',
-                        fit: [100, 100],
-                        image: 'data:image/png;base64,{{ $company->logo }}'
-                      }                       
-                    );
-                    //Codigo para la leyenda del logo (Dirección del condominio)
-                    doc.content.splice( 1, 0, 
-                      {
-                        margin: [ 0, 0, 0, 10 ],
-                        fontSize: 7,
-                        alignment: 'center',
-                        text: '{{ $company->name }}',
-                      }                       
-                    );                    
-                  }
-                },
-              ]
-            });
+  <script>
             
-            //Notifications
-            setTimeout(function() {
-                toastr.options = {
-                    closeButton: true,
-                    progressBar: true,
-                    showMethod: 'slideDown',
-                    timeOut: 2000
-                };
-                if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
-                  toastr.success('Registro añadido exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='update' &&  '{{ Session::get('update_notification') }}'=='1'){
-                  toastr.success('Registro actualizado exitosamente', '{{ Session::get('app_name') }}');
-                }
-                if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
-                  toastr.success('Registro eliminado exitosamente', '{{ Session::get('app_name') }}');
-                }
-            }, 1300);        
-        });
+    //Notifications
+    setTimeout(function() {
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            showMethod: 'slideDown',
+            timeOut: 2000
+        };
+        if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
+          toastr.success('Registro añadido exitosamente', '{{ Session::get('app_name') }}');
+        }
+        if('{{ Session::get('notity') }}'=='update' &&  '{{ Session::get('update_notification') }}'=='1'){
+          toastr.success('Registro actualizado exitosamente', '{{ Session::get('app_name') }}');
+        }
+        if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
+          toastr.success('Registro eliminado exitosamente', '{{ Session::get('app_name') }}');
+        }
+    }, 1300);        
+
+    $('#btn_print').on("click", function (e) { 
+        url = `{{URL::to('citizens.rpt_contract_invoices/')}}/{{ $contract->id }}`;
+        $('#form').attr('action', url);
+        $('#form').submit();
+    });
+    
     </script>
 @endpush

@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @push('stylesheets')
-
+  <!-- CSS Datatables -->
+  <link href="{{ URL::asset('css/plugins/dataTables/datatables.min.css') }}" rel="stylesheet">
 @endpush
 
 @section('page-header')
@@ -45,29 +46,26 @@
               </div>
                                         
               <div class="col-sm-4">
-                <div class="col-sm-10">
+                <div class="form-group">
                   <div class="input-group m-b">
                     <span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
                       {!! Form::text('filter_name', Session::get('filter_name'), ['id'=>'filter_name', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Buscar por nombre' ,'maxlength'=>'100']) !!}
                   </div>
                 </div>
-                <button type="button" id="btn_print" class="btn btn-sm btn-default" title="Imprimir PDF"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
-              </div>
-            
-              <div class="col-md-12 col-sm-12 col-xs-12">
-                @include('partials.errors')
               </div>
 
             @if($contracts->count())
               <div class="col-md-12 col-sm-12 col-xs-12">    
                 <div class="table-responsive">
-                  <table class="table table-striped table-hover dataTables-example" >
+                    
+                    @include('partials.errors')
+
+                    <table class="table table-striped table-hover dataTables-example" >
                     <thead>
                     <tr>
                         <th></th>
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
-                        <th>RFC</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
                         <th>Solvente hasta</th>
                         <th>Estatus</th>                        
@@ -127,7 +125,6 @@
                         <!-- /Split button -->
                         <td><strong>{{ $contract->number }}</strong></td>
                         <td>{{ $contract->citizen->name }}</td>
-                        <td>{{ $contract->citizen->RFC }}</td>
                         <td>
                           @if($contract->balance>=0)
                             {{ money_fmt($contract->balance) }}
@@ -149,16 +146,12 @@
                         <th></th>
                         <th>Nro Contrato</th>
                         <th>Ciudadano</th>
-                        <th>RFC</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
                         <th>Solvente hasta</th>
                         <th>Estatus</th>                        
                     </tr>
                     </tfoot>
                     </table>
-                    <div class="text-right">
-                      {{ $contracts->links() }}
-                    </div>
                     <br/>
                     <br/>
                     <br/>
@@ -183,67 +176,119 @@
         </div>
     </div>
 </div>
-
-            <!-- Modal advertencia para imprimir-->
-            <div class="modal inmodal" id="myModal1" tabindex="-1" role="dialog"  aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content animated fadeIn">
-                        <div class="modal-header">
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title"><i class="fa fa-exclamation-triangle"></i><strong> Atención!</strong></h4>
-                        </div>
-                        <div class="modal-body">
-                          <p>Debido a la gran cantidad de registros. Primero debe filtrar los registros para poder imprimirlos. Gracias!</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" id="btn_close" class="btn btn-sm btn-default" data-dismiss="modal">Cerrar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Modal advertencia para reverso de ventas-->
-
 @endsection
 
 @push('scripts')
-    
-  <script>        
-    
-    //Filter Name
-    var timerid;    
-    $("#filter_name").on("input",function(e){
-      var value = $(this).val().trim();;
-      if($(this).data("lastval")!= value){
+	<script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
 
-        $(this).data("lastval",value);        
-        clearTimeout(timerid);
+    <!-- Page-Level Scripts -->
+    <script>
+        path_str_language = "{{URL::asset('js/plugins/dataTables/es_ES.txt')}}";
+        $(document).ready(function(){
+            $('.dataTables-example').DataTable({
+              "oLanguage":{"sUrl":path_str_language},
+              "aaSorting": [[1, "asc"]],
+              "bAutoWidth": false, // Disable the auto width calculation
+              "aoColumns": [
+                { "sWidth": "5%" },  // 1st column width 
+                { "sWidth": "15%" }, // 2nd column width
+                { "sWidth": "30%" }, // 3nd column width
+                { "sWidth": "15%" }, // 4nd column width
+                { "sWidth": "20%" }, // 4nd column width 
+                { "sWidth": "15%" }  // 5nd column width                
+              ],              
+              responsive: false,              
+              dom: '<"html5buttons"B>lTfgitp',
+              buttons: [
+                {
+                  extend: "excel",
+                  text: '<i class="fa fa-file-excel-o"></i>',
+                  titleAttr: 'Exportar a Excel',
+                  //Titulo
+                  title: 'Contratos',                  
+                  className: "btn-sm",
+                  exportOptions: {
+                    columns: [1, 2, 3, 4],
+                  }                                    
+                },
+                {
+                  extend: "pdf",
+                  text: '<i class="fa fa-file-pdf-o"></i>',
+                  pageSize: 'LETTER',
+                  titleAttr: 'Exportar a PDF',
+                  title: 'Contratos',                  
+                  className: "btn-sm",
+                  //Sub titulo
+                  message: '',
+                  exportOptions: {
+                    columns: [1, 2, 3, 4],
+                  },
+                  customize: function ( doc ) {
+                    //Tamaño de la fuente del body
+                    doc.defaultStyle.fontSize = 8;
+                    //Tamaño de la fuente del header
+                    doc.styles.tableHeader.fontSize = 9;
+                    //Configuracion de margenes de la pagina
+                    doc.pageMargins = [30, 30, 30, 30 ];
+                    //Codigo para el footer
+                    var cols = [];
+                    doc['footer']=(function(page, pages) {
+                      cols[0] = {text: new Date().toLocaleString(), alignment: 'left', margin:[30] };
+                      cols[1] = {text: '© '+new Date().getFullYear()+' {{ Session::get('app_name') }} . Todos los derechos reservados.', alignment: 'center', bold:true, margin:[0, 0,0] };
+                      cols[2] = {text: 'Página '+page.toString()+ 'de'+pages.toString(), alignment: 'right', italics: true, margin:[0,0,30] };                    
+                    return {
+                      alignment:'center',
+                      fontSize: 7,
+                      columns: cols,
+                    }
+                    });
+                    //Codigo para el logo
+                    doc.content.splice( 0, 0, 
+                      {
+                        margin: [ 0, 0, 0, 2 ],
+                        alignment: 'center',
+                        fit: [100, 100],
+                        image: 'data:image/png;base64,{{ $company->logo }}'
+                      }                       
+                    );
+                    //Codigo para la leyenda del logo (Dirección del condominio)
+                    doc.content.splice( 1, 0, 
+                      {
+                        margin: [ 0, 0, 0, 10 ],
+                        fontSize: 7,
+                        alignment: 'center',
+                        text: '{{ $company->name }}',
+                      }                       
+                    );                    
+                  }
+                },
+              ]
+            });
+        
+            //Filter Name
+            var timerid;    
+            $("#filter_name").on("input",function(e){
+              var value = $(this).val();
+              if($(this).data("lastval")!= value){
 
-        timerid = setTimeout(function() {
-          //change action
-          if(value!=''){
-            url = `{{URL::to('contracts.filter/')}}/${e.target.value}`;
-          }else{
-            {{ Session::put('filter_name', '') }}
-            url = `{{URL::to('contracts')}}`;
-          }
-          $('#form').attr('action', url);
-          $('#form').submit();
-        },800);
-      };
-    });
-  
-    $('#btn_print').on("click", function (e) { 
-      filter = $("#filter_name").val().trim();
-      if(filter ==''){
-        $("#myModal1").modal("show"); 
-      }else{
-        url = `{{URL::to('contracts.rpt_contracts/')}}/${filter}`;
-        $('#form').attr('action', url);
-        $('#form').submit();
-      }
-    });
+                $(this).data("lastval",value);        
+                clearTimeout(timerid);
 
-  </script>
+                timerid = setTimeout(function() {
+                  //change action
+                  if(value!=''){
+                    url = `{{URL::to('contracts.filter/')}}/${e.target.value}`;
+                  }else{
+                    {{ Session::put('filter_name', '') }}
+                    url = `{{URL::to('contracts')}}`;
+                  }
+                  $('#form').attr('action', url);
+                  $('#form').submit();
+                },800);
+              };
+            });
 
+
+        });
+    </script>
 @endpush

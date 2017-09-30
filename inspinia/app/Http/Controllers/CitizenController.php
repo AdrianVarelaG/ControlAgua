@@ -22,6 +22,7 @@ use File;
 use DB;
 use Session;
 use Carbon\Carbon;
+use PDF;
 
 class CitizenController extends Controller
 {
@@ -33,18 +34,26 @@ class CitizenController extends Controller
     public function index()
     {        
         if(Session::get('citizens_view') == 'contact'){
-            $citizens = Citizen::paginate(5);            
+            
+            $citizens = Citizen::orderBy('name')->paginate(5);            
             $company = Company::first();
+            
             return view('citizens.index2')->with('citizens', $citizens)
-                                    ->with('company', $company);
+                                            ->with('company', $company);
         }else if(Session::get('citizens_view') == 'list'){
             if(Session::get('filter_name')==''){
-                $citizens = Citizen::all()->take(30);
+                
+                $citizens = Citizen::orderBy('name')
+                                    ->paginate(10);
             }else{
-                $citizens = Citizen::where('name', 'LIKE', '%'.Session::get('filter_name').'%')->orderBy('name')->get();                
+                
+                $citizens = Citizen::where('name', 'LIKE', '%'.Session::get('filter_name').'%')
+                                    ->orderBy('name')
+                                    ->paginate(10);                
             }
             
             $company = Company::first();
+            
             return view('citizens.index')->with('citizens', $citizens)
                                     ->with('company', $company);
         }
@@ -65,22 +74,23 @@ class CitizenController extends Controller
 
     public function invoices($citizen_id){
 
-        $company = Company::first();        
         $citizen = Citizen::find(Crypt::decrypt($citizen_id));
         $invoices = $citizen->invoices()->where('total', '>', 0)
-                                        ->orderBy('date', 'DESC')->get();        
+                                        ->orderBy('date', 'DESC')->paginate(10);        
         
         return view('citizens.invoices')->with('citizen', $citizen)
-                                        ->with('invoices', $invoices)
-                                    ->with('company', $company);
+                                        ->with('invoices', $invoices);
     }
     
     public function payments($citizen_id){
 
         $company = Company::first();        
         $citizen = Citizen::find(Crypt::decrypt($citizen_id));        
+        $payments = $citizen->payments()->orderBy('date', 'DESC')->paginate(10);        
+        
         return view('citizens.payments')->with('citizen', $citizen)
-                                    ->with('company', $company);
+                                        ->with('payments', $payments)
+                                        ->with('company', $company);
     }
 
     /**
@@ -298,6 +308,61 @@ class CitizenController extends Controller
         ($citizen->status == "A")?$citizen->status="D":$citizen->status= "A";  
         $citizen->save();
         return redirect()->route('citizens.index');
+    }
+
+    public function rpt_citizens($filter)
+    {            
+        $citizens = Citizen::where('name', 'LIKE', '%'.$filter.'%')
+                            ->orderBy('name')->get();
+            
+        $company = Company::first();
+
+        $data=[
+            'company' => $company,
+            'citizens' => $citizens,
+            'logo' => 'data:image/png;base64, '.$company->logo 
+        ];
+        $pdf = PDF::loadView('reports/rpt_citizens', $data);
+        
+        return $pdf->download('Ciudadanos.pdf');
+    }
+
+    public function rpt_citizen_invoices($id)
+    {            
+            
+        $company = Company::first();
+
+        $citizen = Citizen::find($id);
+        $invoices = $citizen->invoices()->where('total', '>', 0)
+                                        ->orderBy('date', 'DESC')->get();        
+        $data=[
+            'company' => $company,
+            'citizen' => $citizen,
+            'invoices' => $invoices,
+            'logo' => 'data:image/png;base64, '.$company->logo 
+        ];
+        $pdf = PDF::loadView('reports/rpt_citizen_invoices', $data);
+        
+        return $pdf->download('Recibos por Ciudadano.pdf');
+    }
+
+    public function rpt_citizen_payments($id)
+    {            
+            
+        $company = Company::first();
+
+        $citizen = Citizen::find($id);
+        $payments = $citizen->payments()->orderBy('date', 'DESC')->get();        
+        
+        $data=[
+            'company' => $company,
+            'citizen' => $citizen,
+            'payments' => $payments,
+            'logo' => 'data:image/png;base64, '.$company->logo 
+        ];
+        $pdf = PDF::loadView('reports/rpt_citizen_payments', $data);
+        
+        return $pdf->download('Pagos por Ciudadano.pdf');
     }
 
 }
