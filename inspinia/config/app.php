@@ -155,9 +155,9 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-	
+
 		Thomaswelton\LaravelGravatar\LaravelGravatarServiceProvider::class,
-        
+
 
         Collective\Html\HtmlServiceProvider::class,
 
@@ -184,8 +184,10 @@ return [
         /*
          * Provider para Import Export Excel Files
          */
-        Maatwebsite\Excel\ExcelServiceProvider::class
-    
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+
+        Barryvdh\Debugbar\ServiceProvider::class,
+
 
     ],
 
@@ -234,10 +236,10 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
 		'Gravatar' => Thomaswelton\LaravelGravatar\Facades\Gravatar::class,
-        
+
         'Form' => Collective\Html\FormFacade::class,
         'Html' => Collective\Html\HtmlFacade::class,
-        
+
         /*
          * Intervention Image Aliases...
          */
@@ -256,8 +258,10 @@ return [
         /*
          * DataTable Sisde Server Aliases...
          */
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class
-    
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        
+        'Debugbar' => Barryvdh\Debugbar\Facade::class,
+
     ],
 
 ];
