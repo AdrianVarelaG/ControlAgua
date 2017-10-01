@@ -16,22 +16,21 @@
 <div class="wrapper wrapper-content">
     @php
         //Recibos del Año
-        $sum_invoices_year = $invoices_year->sum('total');        
-        $count_invoices_year = $invoices_year->count();
-        
+        //$sum_invoices_year = $invoices_year->sum('total');
+        //$count_invoices_year = $invoices_year->count();
+
         $sum_invoices_year_pending = $invoices_year->where('status', 'P')->sum('total');
         $count_invoices_year_pending = $invoices_year->where('status', 'P')->count();
         $sum_invoices_year_canceled = $invoices_year->where('status', 'C')->sum('total');
         $count_invoices_year_canceled = $invoices_year->where('status', 'C')->count();
-        
-        //Recibos del Mes
-        $sum_invoices_month = $invoices_month->sum('total');        
-        $count_invoices_month = $invoices_month->count();
 
+        //Recibos del Mes
+        //$sum_invoices_month = $invoices_month->sum('total');
+        $count_invoices_month = $invoices_month->count();
         $sum_invoices_month_pending =  $invoices_month->where('status', 'P')->sum('total');
         $count_invoices_month_pending =  $invoices_month->where('status', 'P')->count();
-        $sum_invoices_month_canceled =  $invoices_month->where('status', 'C')->sum('total');
-        $count_invoices_month_canceled =  $invoices_month->where('status', 'C')->count();
+        //$sum_invoices_month_canceled =  $invoices_month->where('status', 'C')->sum('total');
+        //$count_invoices_month_canceled =  $invoices_month->where('status', 'C')->count();
 
         //Pagos del Año
         $sum_payments_year = $debits_year->where('type', 'P')->sum('amount');
@@ -84,8 +83,8 @@
         </div>
     </div>
     <!-- /Widgets -->
-    
-    
+
+
     <!-- Graph -->
     <div class="row">
         <div class="col-lg-12">
@@ -113,7 +112,7 @@
                                 <li>
                                     <h2 class="no-margins">{{ money_fmt($sum_discounts_year) }} {{ Session::get('coin') }}</h2>
                                     <small>Descuentos en {{ $current_year }}: <strong>{{ $count_discounts_year }}</strong></small>
-                                </li>                                        
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -146,11 +145,11 @@
             </div>
         </div>
     </div>
-    <!-- /Graph -->                
+    <!-- /Graph -->
 </div>
 @endsection
 
-@push('scripts')    
+@push('scripts')
     <!-- Flot -->
     <script src="js/plugins/flot/jquery.flot.js"></script>
     <script src="js/plugins/flot/jquery.flot.tooltip.min.js"></script>
@@ -180,7 +179,7 @@
 
     <script>
         $(document).ready(function() {
-            
+
 
             //Notifications
             setTimeout(function() {
@@ -244,14 +243,14 @@
     ];
 
     var ticks = [
-        [1, "Ene"], [2, "Feb"], [3, "Mar"], [4, "Abr"], [5, "May"], [6, "Jun"], 
+        [1, "Ene"], [2, "Feb"], [3, "Mar"], [4, "Abr"], [5, "May"], [6, "Jun"],
         [7, "Jul"], [8, "Ago"], [9, "Sep"], [10, "Oct"], [11, "Nov"], [12, "Dic"],
     ];
 
     var options = {
         xaxis: {
             ticks: ticks,
-            tickLength: 0,                    
+            tickLength: 0,
             axisLabelUseCanvas: true,
             axisLabelFontSizePixels: 12,
             axisLabelFontFamily: 'Arial',
@@ -284,7 +283,7 @@
             borderWidth: 0
         },
     };
-            
+
     $.plot($("#flot-dashboard-chart"), dataset, options);
     $("#flot-dashboard-chart").UseTooltip();
     // FIN Flot Chart Gestion de Cobro
@@ -337,7 +336,7 @@
     var options_neighborhood = {
         xaxis: {
             ticks: ticks_neighborhood,
-            tickLength: 0,                    
+            tickLength: 0,
             axisLabelUseCanvas: true,
             axisLabelFontSizePixels: 12,
             axisLabelFontFamily: 'Arial',
@@ -370,7 +369,7 @@
             borderWidth: 0
         },
     };
-            
+
     $.plot($("#flot-neighborhood"), dataset_neighborhood, options_neighborhood);
     $("#flot-neighborhood").UseTooltip();
     //Flot FIN Gestion de Cobro por Colonias
@@ -378,7 +377,7 @@
     });
 
 
-        
+
         var previousPoint = null, previousLabel = null;
 
         $.fn.UseTooltip = function () {
@@ -388,14 +387,14 @@
                         previousPoint = item.dataIndex;
                         previousLabel = item.series.label;
                         $("#tooltip").remove();
- 
+
                         var x = item.datapoint[0]-1;
                         var y = item.datapoint[1];
- 
+
                         var color = item.series.color;
- 
-                        //console.log(item.series.xaxis.ticks[x].label);                
- 
+
+                        //console.log(item.series.xaxis.ticks[x].label);
+
                         showTooltip(item.pageX,
                         item.pageY,
                         color,
@@ -407,7 +406,7 @@
                 }
             });
         };
- 
+
         function showTooltip(x, y, color, contents) {
             $('<div id="tooltip">' + contents + '</div>').css({
                 position: 'absolute',
@@ -425,5 +424,5 @@
         }
 
     </script>
-    
+
 @endpush

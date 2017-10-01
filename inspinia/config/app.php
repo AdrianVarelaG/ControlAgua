@@ -186,7 +186,7 @@ return [
          */
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
-        Barryvdh\Debugbar\ServiceProvider::class,
+        //Barryvdh\Debugbar\ServiceProvider::class,
 
 
     ],
@@ -259,8 +259,8 @@ return [
          * DataTable Sisde Server Aliases...
          */
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        
-        'Debugbar' => Barryvdh\Debugbar\Facade::class,
+
+        //'Debugbar' => Barryvdh\Debugbar\Facade::class,
 
     ],
 
