@@ -90,7 +90,7 @@
                                     <li><a href="{{ route('citizens.invoices', [Crypt::encrypt($citizen->id)]) }}"><i class="fa fa-file-text-o"></i> Recibos</a></li>
                                     <li><a href="{{ route('citizens.payments', [Crypt::encrypt($citizen->id)]) }}"><i class="fa fa-money"></i> Pagos</a></li>
                                     <li class="divider"></li>
-                                    @if(Session::get('user_role') == 'ADM') 
+                                    @if(Session::get('user_role') == 'ADM' || Session::get('user_role') == 'TES') 
                                       <li><a href="{{ route('citizens.edit', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-pencil"></i> Editar perfil</a></li>
                                       <li><a href="{{ route('citizens.status', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-ban"></i> Deshabilitar</a></li>
                                       <li class="divider"></li>

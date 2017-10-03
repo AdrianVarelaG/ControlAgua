@@ -45,7 +45,7 @@ class InvoiceController extends Controller
 
         $invoices = Invoice::whereDate('date', '>=', Session::get('from'))
                             ->whereDate('date', '<=' , Session::get('to'))
-                            ->where('total', '>=', 0)
+                            ->where('total', '>', 0)
                             ->orderBy('date');
 
         $invoices_count = $invoices->count();
