@@ -57,7 +57,7 @@
                         </tr>
                         <tr>
                             <td class="text-center well m-t"><strong>DATOS DE FACTURACION</strong></td>
-                            <td class="text-center well m-t"><strong>INFORMACION DE CONSUMO</strong></td>
+                            <td class="text-center well m-t"><strong>DETALLE DE FACTURACION MENSUAL</strong></td>
                         </tr>                        
                         <tr>
                             <td>
@@ -65,9 +65,47 @@
                                 <span><strong>Período de Consumo:</strong> {{ month_letter($invoice->month_consume, 'lg') }} {{ $invoice->year_consume }}</span>
                             </td>
                             <td class="text-right">
-                                <span><strong>Saldo Anterior {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->previous_debt) }}</span><br>
-                                <span><strong>Saldo Actual {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->total_calculated()) }}</span><br>
-                                <span><strong>Total Consumo {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->previous_debt + $invoice->total_calculated()) }}</span><br>
+                                <!-- /Invoice Details -->
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:left">Descripción</th>
+                                            <th align="right">Total {{ Session::get('coin') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $tot=0;
+                                            $details = $invoice->invoice_details()->where('movement_type', '!=', 'CI')->get();
+                                            $iva = $invoice->invoice_details()->where('movement_type', 'CI')->first();
+                                        @endphp
+                                        @foreach($details as $detail)
+                                            <tr>
+                                                <td style="text-align:left"><small>{{ $detail->description }}</small></td>
+                                                <td align="right">{{ money_fmt($detail->sub_total) }}</td>
+                                                @php($tot=$tot+$detail->sub_total)
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                <!-- /Invoice Details -->
+                    
+                                <table class="table table-condensed invoice-total" style="border:none">
+                                    @if($iva)                    
+                                    <tr>
+                                        <td align="right"><strong>Sub Total:</strong></td>
+                                        <td align="right">{{ money_fmt($tot) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td align="right"><strong>IVA ({{ $iva->percent }}%):</strong></td>
+                                        <td align="right">{{ money_fmt($iva->sub_total) }}</td>
+                                    </tr>                    
+                                    @endif
+                                    <tr>
+                                        <td align="right"><strong>TOTAL MES:</strong></td>
+                                        <td align="right">{{ money_fmt($invoice->total) }}</td>
+                                    </tr>                    
+                                </table>
                             </td>
                         </tr>
                     </tbody>
@@ -80,56 +118,15 @@
                 <tbody>
                     <tr>
                         <td class="text-center well m-t"><strong>HISTORIAL DE CONSUMO</strong></td>
-                        <td class="text-center well m-t"><strong>DETALLE DE FACTURACION</strong></td>
+                        <td class="text-center well m-t"><strong>INFORMACION DE CONSUMO</strong></td>
                     </tr>
                     <tr>
                         <td class="text-center">
                         </td>
-                        <td>
-        
-        <!-- /Invoice Details -->
-            <table class="table table-responsive invoice-table">
-                <thead>
-                    <tr>
-                        <th style="text-align:left">Descripción</th>
-                        <th align="right">Total {{ Session::get('coin') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $tot=0;
-                        $details = $invoice->invoice_details()->where('movement_type', '!=', 'CI')->get();
-                        $iva = $invoice->invoice_details()->where('movement_type', 'CI')->first();
-                    @endphp
-                    @foreach($details as $detail)
-                        <tr>
-                            <td style="text-align:left"><small>{{ $detail->description }}</small></td>
-                            <td align="right">{{ money_fmt($detail->sub_total) }}</td>
-                            @php($tot=$tot+$detail->sub_total)
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        <!-- /Invoice Details -->
-                       
-            <table class="table invoice-total" style="border:none">
-                    @if($iva)                    
-                        <tr>
-                            <td align="right"><strong>Sub Total:</strong></td>
-                            <td align="right">{{ money_fmt($tot) }}</td>
-                        </tr>
-                        <tr>
-                            <td align="right"><strong>IVA ({{ $iva->percent }}%):</strong></td>
-                            <td align="right">{{ money_fmt($iva->sub_total) }}</td>
-                        </tr>                    
-                    @endif
-                    <tr>
-                        <td align="right"><strong>TOTAL:</strong></td>
-                        <td align="right">{{ money_fmt($invoice->total) }}</td>
-                    </tr>                    
-            </table>
-
-
+                        <td class="text-right">
+                            <span><strong>Saldo Anterior {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->previous_debt) }}</span><br/>
+                            <span><strong>Cargo Mensual {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->total_calculated()) }}</span><br/><br/>
+                            <strong style="font-size:14px">TOTAL A PAGAR {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->previous_debt + $invoice->total_calculated()) }}
                         </td>
                     </tr>
                 </tbody>
@@ -137,8 +134,7 @@
         </div>        
 
         <!-- Message -->        
-        <div class="well m-t"><strong>Mensaje al ciudadano:</strong><br>
-            <small>{{ $invoice->message }}</small>
+        <div class="well m-t"><strong>Mensaje al ciudadano:</strong><small> {{ $invoice->message }}</small>
         </div>
         <!-- /Message -->
         

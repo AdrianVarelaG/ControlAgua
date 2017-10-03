@@ -17,7 +17,7 @@
 	<div class="row">
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
-                
+
                 <!-- ibox-title -->
                 <div class="ibox-title">
                     <h5><i class="fa fa-file-text-o" aria-hidden="true"></i> Consulta de Recibos</h5>
@@ -38,18 +38,18 @@
                     </div>
                 </div>
                 <!-- /ibox-title -->
-                    
+
         <!-- ibox-content- -->
         <div class="ibox-content">
           <div class="row">
-                
+
               <div class="col-sm-5">
                   <h4>Total Recibos: {{ $invoices_count }}</h4>
                   <h4>Total {{ Session::get('coin') }}: {{ money_fmt($invoices_total) }}</h4>
               </div>
-                
-              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}              
-              <div class="col-md-7">                
+
+              {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
+              <div class="col-md-7">
                 <div class="col-sm-5">
                   <div class="form-group" id="data_1">
                       <div class="input-group date">
@@ -69,14 +69,14 @@
                 <button type="button" id="btn_change" class="btn btn-sm btn-default" title="Refrescar"><i class="fa fa-refresh" aria-hidden="true"></i></button>
                 <button type="button" id="btn_print" class="btn btn-sm btn-default" title="Imprimir PDF"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
               </div>
-              {{ Form::close() }}           
+              {{ Form::close() }}
 
             @if($invoices->count())
-              <div class="col-md-12 col-sm-12 col-xs-12">                            
-                
+              <div class="col-md-12 col-sm-12 col-xs-12">
+
                 @include('partials.errors')
 
-                <div class="table-responsive">                    
+                <div class="table-responsive">
                     <table class="table table-striped table-hover" >
                     <thead>
                     <tr>
@@ -92,16 +92,17 @@
                     <tbody>
                     @foreach($invoices as $invoice)
                     <tr class="gradeX">
-                        <td class="text-center">                            
+                        <td class="text-center">
                         <!-- Split button -->
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
                                     <li><a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-eye"></i> Vista previa</a></li>
                                     <li><a href="{{ route('invoices.invoice_pdf', Crypt::encrypt($invoice->id)) }}"><i class="fa fa-print"></i> Imprimir Recibo</a></li>
+                                    @if(Session::get('user_role') == 'ADM' || Session::get('user_role') == 'TES')
                                     <li class="divider"></li>
                                     <li>
-                                        <!-- href para eliminar registro -->                            
+                                        <!-- href para eliminar registro -->
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Recibo #{{ $invoice->id }}?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
@@ -110,11 +111,11 @@
                                         </form>
                                         <br/><br/>
                                     </li>
-
+                                    @endif
                                 </ul>
                             </div>
-                        <!-- /Split button -->                          
-                        </td>                          
+                        <!-- /Split button -->
+                        </td>
                         <td class="text-center">
                           <a href="{{ route('invoices.show', Crypt::encrypt($invoice->id)) }}" class="client-link" title="Vista previa">{{ $invoice->id }}</a>
                         </td>
@@ -144,14 +145,14 @@
                     </tr>
                     </tfoot>
                     </table>
-                	 
+
                   <div class="text-right">
                       {{ $invoices->links() }}
                   </div>
-                  
+
                   </div>
                 </div>
-                                  
+
                 @else
                   <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="alert alert-info">
@@ -160,7 +161,7 @@
                       </ul>
                     </div>
                   </div>
-                @endif                
+                @endif
                   <div class="form-group pull-right">
                     <div class="col-md-12 col-sm-12 col-xs-12 ">
                       <a href="{{URL::to('invoices.index_group')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
@@ -170,7 +171,7 @@
                   <br/>
               </div> <!-- /row- -->
             </div> <!-- /ibox-content- -->
-                
+
             </div>
         </div>
     </div>
@@ -180,7 +181,7 @@
 @push('scripts')
 <script src="{{ asset('js/plugins/dataTables/datatables.min.js') }}"></script>
 <script src="{{ URL::asset('js/plugins/dataTables/sortDate.js') }}"></script>
-<!-- DatePicker --> 
+<!-- DatePicker -->
 <script src="{{ URL::asset('js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
 <script src="{{ URL::asset('js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
 
@@ -195,15 +196,15 @@
               "aaSorting": [[1, "asc"]],
               "bAutoWidth": false, // Disable the auto width calculation
               "aoColumns": [
-                { "sWidth": "5%" },  // 1st column width 
+                { "sWidth": "5%" },  // 1st column width
                 { "sWidth": "15%" }, // 2nd column width
                 { "sWidth": "20%" }, // 3nd column width
                 { "sWidth": "15%", "sType": "date-uk" }, // 4nd column width
                 { "sWidth": "15%" }, // 5nd column width
                 { "sWidth": "15%", "sType": "date-uk" }, // 6nd column width
                 { "sWidth": "15%" }  // 7nd column width
-              ],              
-              responsive: false,              
+              ],
+              responsive: false,
               dom: '<"html5buttons"B>lTfgitp',
               buttons: [
                 {
@@ -211,18 +212,18 @@
                   text: '<i class="fa fa-file-excel-o"></i>',
                   titleAttr: 'Exportar a Excel',
                   //Titulo
-                  title: 'Consulta de Recibos',                  
+                  title: 'Consulta de Recibos',
                   className: "btn-sm",
                   exportOptions: {
                     columns: [1, 2, 3, 4, 5],
-                  }                                    
+                  }
                 },
                 {
                   extend: "pdf",
                   text: '<i class="fa fa-file-pdf-o"></i>',
                   pageSize: 'LETTER',
                   titleAttr: 'Exportar a PDF',
-                  title: 'Consulta de Recibos',                  
+                  title: 'Consulta de Recibos',
                   className: "btn-sm",
                   //Sub titulo
                   message: '',
@@ -241,7 +242,7 @@
                     doc['footer']=(function(page, pages) {
                       cols[0] = {text: new Date().toLocaleString(), alignment: 'left', margin:[30] };
                       cols[1] = {text: '© '+new Date().getFullYear()+' {{ Session::get('app_name') }} . Todos los derechos reservados.', alignment: 'center', bold:true, margin:[0, 0,0] };
-                      cols[2] = {text: 'Página '+page.toString()+ 'de'+pages.toString(), alignment: 'right', italics: true, margin:[0,0,30] };                    
+                      cols[2] = {text: 'Página '+page.toString()+ 'de'+pages.toString(), alignment: 'right', italics: true, margin:[0,0,30] };
                     return {
                       alignment:'center',
                       fontSize: 7,
@@ -249,28 +250,28 @@
                     }
                     });
                     //Codigo para el logo
-                    doc.content.splice( 0, 0, 
+                    doc.content.splice( 0, 0,
                       {
                         margin: [ 0, 0, 0, 2 ],
                         alignment: 'center',
                         fit: [100, 100],
                         image: 'data:image/png;base64,{{ $company->logo }}'
-                      }                       
+                      }
                     );
                     //Codigo para la leyenda del logo (Dirección del condominio)
-                    doc.content.splice( 1, 0, 
+                    doc.content.splice( 1, 0,
                       {
                         margin: [ 0, 0, 0, 10 ],
                         fontSize: 7,
                         alignment: 'center',
                         text: '{{ $company->name }}',
-                      }                       
-                    );                    
+                      }
+                    );
                   }
                 },
               ]
             });
-            
+
             //Notifications
             setTimeout(function() {
                 toastr.options = {
@@ -288,9 +289,9 @@
                 if('{{ Session::get('notity') }}'=='delete' &&  '{{ Session::get('delete_notification') }}'=='1'){
                   toastr.success('Registro eliminado exitosamente', '{{ Session::get('app_name') }}');
                 }
-            }, 1300);        
+            }, 1300);
         });
-    
+
         //Datepicker fecha del contrato
         var date_input_1=$('#data_1 .input-group.date');
         date_input_1.datepicker({
@@ -309,13 +310,13 @@
             language: 'es',
         })
 
-      $('#btn_change').on("click", function (e) { 
+      $('#btn_change').on("click", function (e) {
         url = `{{URL::to('invoices.change_period')}}`;
         $('#form').attr('action', url);
         $('#form').submit();
       });
 
-      $('#btn_print').on("click", function (e) { 
+      $('#btn_print').on("click", function (e) {
         url = `{{URL::to('invoices.report_period')}}`;
         $('#form').attr('action', url);
         $('#form').submit();

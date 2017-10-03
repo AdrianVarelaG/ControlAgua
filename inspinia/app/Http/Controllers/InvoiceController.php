@@ -247,12 +247,12 @@ class InvoiceController extends Controller
                     $invoice->total = $invoice->total_calculated();
                     $invoice->save();
                     $this->register_movement_service($invoice);
-                    //Si el contrato tiene saldo a favor suficiente para cancelar el recibo
-                    if($contract_initial_balance < 0 && abs($contract_initial_balance) >= $invoice->total){
-                        $this->register_payment($invoice, $contract_initial_balance);
-                    }
-                } // end if
-            } // end for
+                    // *** Si el contrato tiene saldo a favor suficiente para cancelar el recibo *** 
+                    //if($contract_initial_balance < 0 && abs($contract_initial_balance) >= $invoice->total){
+                    //    $this->register_payment($invoice, $contract_initial_balance);
+                    //}
+                } // .end if
+            } // .end for
         }); // end chunk
 
         $end_invoice = DB::table('invoices')->max('id');

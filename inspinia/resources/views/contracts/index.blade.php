@@ -11,7 +11,7 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 	<div class="row">
-        <div class="col-lg-12">  
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
@@ -33,17 +33,17 @@
                     </div>
                 </div>
                 <!-- /ibox-title -->
-                                
+
           <!-- ibox-content- -->
           <div class="ibox-content">
-            <div class="row">    
-              
+            <div class="row">
+
               {{ Form::open(array('url' => '', 'id' => 'form', 'method' => 'get'), ['' ])}}
-              {{ Form::close() }} 
+              {{ Form::close() }}
 
               <div class="col-sm-8">
               </div>
-                                        
+
               <div class="col-sm-4">
                 <div class="col-sm-10">
                   <div class="input-group m-b">
@@ -53,13 +53,13 @@
                 </div>
                 <button type="button" id="btn_print" class="btn btn-sm btn-default" title="Imprimir PDF"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
               </div>
-            
+
               <div class="col-md-12 col-sm-12 col-xs-12">
                 @include('partials.errors')
               </div>
 
             @if($contracts->count())
-              <div class="col-md-12 col-sm-12 col-xs-12">    
+              <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="table-responsive">
                   <table class="table table-striped table-hover dataTables-example" >
                     <thead>
@@ -70,19 +70,19 @@
                         <th>RFC</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
                         <th>Solvente hasta</th>
-                        <th>Estatus</th>                        
+                        <th>Estatus</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($contracts as $contract)
                     <tr class="gradeX">
-                        <td class="text-center">                            
+                        <td class="text-center">
                         <!-- Split button -->
                           @if($contract->status == "A")
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
-                                  @if(Session::get('user_role') == 'ADM' || Session::get('user_role') == 'DDA')
+                                  @if(Session::get('user_role') == 'ADM' || Session::get('user_role') == 'TES')
                                     @if($contract->balance > 0)
                                       <!-- Si tiene deuda aparece el boton de pagar -->
                                       <li><a href="{{ route('payments.create', Crypt::encrypt($contract->id)) }}"><i class="fa fa-money"></i> Pagar</a></li>
@@ -98,11 +98,11 @@
                                     <li><a href="{{ route('contracts.invoices', [Crypt::encrypt($contract->id)]) }}"><i class="fa fa-file-text-o"></i> Recibos</a></li>
                                     <li><a href="{{ route('contracts.payments', [Crypt::encrypt($contract->id)]) }}"><i class="fa fa-money"></i> Pagos</a></li>
                                   @if(Session::get('user_role') == 'ADM')
-                                    <li class="divider"></li>                                               
+                                    <li class="divider"></li>
                                     <li><a href="{{ route('contracts.edit', Crypt::encrypt($contract->id)) }}"><i class="fa fa-pencil"></i> Editar</a></li>
                                     <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-ban"></i> Desactivar</a></li>
                                     <li>
-                                        <!-- href para eliminar registro -->                            
+                                        <!-- href para eliminar registro -->
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Contrato {{ $contract->number }} ?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
@@ -114,7 +114,7 @@
                                   @endif
                                 </ul>
                             </div>
-                          @else                              
+                          @else
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-danger dropdown-toggle" type="button" title="Desactivado"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                   @if(Session::get('user_role') == 'ADM')
@@ -137,7 +137,7 @@
                         </td>
                         <td>
                           {{ ($contract->last_invoice_canceled)?$contract->last_invoice_canceled->month.'/'.$contract->last_invoice_canceled->year:'Sin pagos' }}
-                        </td>                                                
+                        </td>
                         <td>
                           <p><span class="label {{ $contract->label_status }}">{{ $contract->status_description }}</span></p>
                         </td>
@@ -152,7 +152,7 @@
                         <th>RFC</th>
                         <th>Deuda {{ Session::get('coin') }}</th>
                         <th>Solvente hasta</th>
-                        <th>Estatus</th>                        
+                        <th>Estatus</th>
                     </tr>
                     </tfoot>
                     </table>
@@ -162,7 +162,7 @@
                     <br/>
                     <br/>
                     <br/>
-                    <br/>                    
+                    <br/>
                     <br/>
                 	</div>
                 </div>
@@ -175,10 +175,10 @@
                     </div>
                   </div>
                 @endif
-            
-              </div> <!-- /row- --> 
-            </div> <!-- /ibox-content- -->              
-          
+
+              </div> <!-- /row- -->
+            </div> <!-- /ibox-content- -->
+
           </div>
         </div>
     </div>
@@ -207,16 +207,16 @@
 @endsection
 
 @push('scripts')
-    
-  <script>        
-    
+
+  <script>
+
     //Filter Name
-    var timerid;    
+    var timerid;
     $("#filter_name").on("input",function(e){
       var value = $(this).val().trim();;
       if($(this).data("lastval")!= value){
 
-        $(this).data("lastval",value);        
+        $(this).data("lastval",value);
         clearTimeout(timerid);
 
         timerid = setTimeout(function() {
@@ -232,11 +232,11 @@
         },800);
       };
     });
-  
-    $('#btn_print').on("click", function (e) { 
+
+    $('#btn_print').on("click", function (e) {
       filter = $("#filter_name").val().trim();
       if(filter ==''){
-        $("#myModal1").modal("show"); 
+        $("#myModal1").modal("show");
       }else{
         url = `{{URL::to('contracts.rpt_contracts/')}}/${filter}`;
         $('#form').attr('action', url);

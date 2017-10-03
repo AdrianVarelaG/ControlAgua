@@ -17,9 +17,6 @@
         <table class="table" width="100%">
             <tbody>
                 <tr>
-                    <td class="text-left">
-                        <img alt="image" style="max-height:70px; max-width:70px;" src="{{ $logo }}"/>
-                    </td>
                     <td class="text-right">
                         <h2><strong>{{ $company->name }}</strong></h2>
                         <small>{{ $company->company_phone }}, {{ $company->company_email }}</small>
@@ -47,26 +44,14 @@
                     </tr>                    
                     <tr class="text-center">
                         <td class="well"><strong>DATOS DE FACTURACION</strong></td>
-                        <td class="well"><strong>INFORMACION DE CONSUMO</strong></td>
+                        <td class="well"><strong>DETALLE DE FACTURACION MENSUAL</strong></td>
                     </tr>                                            
                     <tr>
                         <td>
                             <strong>Vencimiento:</strong> {{ $invoice->date_limit->format('d/m/Y') }}<br/>
-                            <strong>Período de Consumo:</strong> {{ month_letter($invoice->month_consume, 'lg') }} {{ $invoice->year_consume }}<br/>
+                            <strong>Período de Consumo:</strong> {{ month_letter($invoice->month_consume, 'lg') }} {{ $invoice->year_consume }}
                         </td>
                         <td class="text-right">
-                            <strong>Lectura Anterior:</strong> {{ ($invoice->reading_id)?$invoice->reading->previous_reading:'00000' }}<br/>
-                            <strong>Lectura Actual:</strong> {{ ($invoice->reading_id)?$invoice->reading->current_reading:'00000' }}<br/>
-                            <strong>Consumo:</strong> {{ ($invoice->reading_id)?$invoice->reading->consume:'00000' }}</span><br/>
-                        </td>
-                    </tr>
-                    <tr class="text-center">
-                        <td class="well"><strong>HISTORIAL DE CONSUMO</strong></td>
-                        <td class="well"><strong>DETALLE DE FACTURACION</strong></td>
-                    </tr>
-                    <tr class="text-center">
-                        <td></td>
-                        <td>                        
                         <!-- Invoice Details -->
                             <table class="table" width="100%">
                                 <thead>
@@ -102,7 +87,7 @@
                                         </tr>                    
                                     @endif
                                     <tr>
-                                        <td align="right"><strong>TOTAL:</strong></td>
+                                        <td align="right"><strong>TOTAL MES:</strong></td>
                                         <td align="right"><strong>{{ money_fmt($invoice->total) }}</strong> {{ Session::get('coin') }}</td>
                                     </tr>                    
                                 </tfoot>
@@ -111,13 +96,24 @@
                         </div>    
                         <!-- Invoice Details -->
                         </td>
+                    </tr>
+                    <tr class="text-center">
+                        <td class="well"><strong>HISTORIAL DE CONSUMO</strong></td>
+                        <td class="well"><strong>INFORMACION DE CONSUMO</strong></td>
+                    </tr>
+                    <tr class="text-center">
+                        <td></td>
+                        <td class="text-right">                        
+                            <strong>Saldo Anterior {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->previous_debt) }}<br>
+                            <strong>Cargo Mensual {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->total_calculated()) }}<br/><br/>
+                            <span style="font-size:11px"><strong>TOTAL A PAGAR {{ Session::get('coin') }}:</strong> {{ money_fmt($invoice->previous_debt + $invoice->total_calculated()) }}</span>
+                        </td>
                     </tr>                                                                                       
                 </tbody>
         </table>
         <!-- /Body -->
         <!-- Message -->        
-        <div class="well"><strong>Mensaje al ciudadano:</strong><br/>
-            <small>{{ $invoice->message }}</small>
+        <div class="well"><strong>Mensaje al ciudadano:</strong><small> {{ $invoice->message }}</small>
         </div>
         <!-- /Message -->
 @endsection
