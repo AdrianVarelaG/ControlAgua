@@ -24,7 +24,7 @@ class InvoiceRequestPrint extends Request
      */
     public function rules()
     {
-        $max_invoice = strval(intval($this->request->get('invoice_from'))+49);
+        $max_invoice = strval(intval($this->request->get('invoice_from'))+499);
         
         return [
             'invoice_from' => 'required|numeric|min:0',
@@ -34,7 +34,7 @@ class InvoiceRequestPrint extends Request
 
     public function messages()
     {
-        $max_invoice = strval(intval($this->request->get('invoice_from'))+49);
+        $max_invoice = strval(intval($this->request->get('invoice_from'))+499);
 
         return [
             'invoice_from.required'  => 'El Nro de Recibo inicial es obligatorio.',

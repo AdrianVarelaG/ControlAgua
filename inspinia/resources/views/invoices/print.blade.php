@@ -30,7 +30,21 @@
 
                 <div class="row">
                     <div class="col-md-12 col-sm-12 col-xs-12">
-                        <i class="fa fa-info-circle"></i><small> Esta rutina permite generar hasta un <strong>máximo de 50 recibos</strong> en lote.</small><br/><br/>
+                        <i class="fa fa-exclamation-triangle"></i> ATENCION!
+                        <ul>
+                            <li>
+                               <small>Esta rutina permite generar hasta un <strong>máximo de 500 recibos</strong> en lote.</small> 
+                            </li>
+                            <li>
+                               <small>Si solicita <strong>50 o menos</strong> el sistema le generará <strong>un archivo PDF</strong>.</small> 
+                            </li>
+                            <li>
+                               <small>Si solicita <strong>más de 50</strong> el sistema le generará <strong>un archivo ZIP</strong>.</small> 
+                            </li>
+                            <li>
+                               <small>La rutina tarda aproximadamente <strong>1 min por cada 100 recibos generados</strong>.</small>
+                            </li>
+                        </ul><br/><br/>
                         <button type="button" id="btn_confirm" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal1">Consecutivo de recibos</button> 
                     </div>
 
@@ -44,7 +58,7 @@
                                     <label>Desde</label> <small>Introduzca el Nro de Recibo inicial</small>
                                     <div class="input-group m-b">
                                         <span class="input-group-addon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
-                                        {!! Form::text('invoice_from', null, ['id'=>'invoice_from', 'class'=>'form-control', 'type'=>'numeric', 'placeholder'=>'', 'min'=>'1', 'required']) !!}
+                                        {!! Form::number('invoice_from', null, ['id'=>'invoice_from', 'class'=>'form-control', 'type'=>'numeric', 'placeholder'=>'', 'step'=>'1', 'min'=>'1', 'required']) !!}
                                     </div>
                                 </div>
                             </div> 
@@ -53,7 +67,7 @@
                                     <label>Hasta</label> <small>Introduzca el Nro de Recibo final</small>
                                     <div class="input-group m-b">
                                         <span class="input-group-addon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
-                                        {!! Form::text('invoice_to', null, ['id'=>'invoice_to', 'class'=>'form-control', 'type'=>'numeric', 'placeholder'=>'', 'min'=>'1', 'required']) !!}
+                                        {!! Form::number('invoice_to', null, ['id'=>'invoice_to', 'class'=>'form-control', 'type'=>'numeric', 'placeholder'=>'', 'step'=>'1', 'min'=>'1', 'required']) !!}
                                     </div>
                                 </div>
                             </div>
