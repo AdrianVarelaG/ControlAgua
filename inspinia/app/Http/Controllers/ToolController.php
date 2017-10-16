@@ -7,6 +7,8 @@ use App\Http\Requests;
 use File;
 use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
+use App\Models\Citizen;
+use App\Models\Contract;
 
 
 class ToolController extends Controller
@@ -17,4 +19,26 @@ class ToolController extends Controller
         return $date_ymd;
     }
     
+    public function citizens_ajax(Request $request){
+       
+        $term = $request->term ?:'';
+        $tags = Citizen::where('name', 'like', '%'.$term.'%')->orderBy('name')->lists('name', 'id');
+        $valid_tags = [];
+        foreach ($tags as $id => $tag) {
+            $valid_tags[] = ['id' => $id, 'text' => $tag];
+        }
+        return \Response::json($valid_tags);
+    }
+
+    public function contracts_active_ajax(Request $request){
+       
+        $term = $request->term ?:'';
+        $tags = Contract::where('status', 'A')->where('number', 'like', '%'.$term.'%')->orderBy('number')->lists('number', 'id');
+        $valid_tags = [];
+        foreach ($tags as $id => $tag) {
+            $valid_tags[] = ['id' => $id, 'text' => $tag];
+        }
+        return \Response::json($valid_tags);
+    }
+
 }

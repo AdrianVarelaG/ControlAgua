@@ -20,7 +20,7 @@
             
             <!-- ibox-title -->
             <div class="ibox-title">
-                <h5>{{ ($contract->id) ? "Modificar Contrato" : "Nuevo Contrato" }} <small>Complete el formulario <b>(*) Campos obligatorios.</b></small></h5>
+                <h5>Registrar Nuevo Contrato <small>Complete el formulario <b>(*) Campos obligatorios.</b></small></h5>
                 <div class="ibox-tools">
                     <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-wrench"></i></a>
@@ -37,10 +37,19 @@
 
                 <div class="row">
                     
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert alert-info">
+                      <ul>
+                        <i class="fa fa-info-circle"></i> <b>Contratos Nuevos:</b> Contratos en condición de apertura.
+                        </ul>
+                    </div>
+                  </div>
+                    
                     <div class="col-md-12 col-sm-12 col-xs-12">
-                        <h3>{{ $contract->citizen->name }}</h3>
-
                         <form action="{{url('contracts/'.$contract->id)}}" id="form" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="hdd_status" value="A"/>
+                        <input type="hidden" name="hdd_contract_new" value="Y"/>
+                        {!! Form::hidden('apply_iva', 'Y', ['id'=>'apply_iva']) !!}
                         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
                         @if($contract->id)
                             {{ Form::hidden ('_method', 'PUT') }}
@@ -51,17 +60,14 @@
                         <!-- 1ra Columna -->
                         <div class="col-sm-4 b-r">
                             <div class="form-group">                            
+                                <label>Ciudadano *</label>
+                                {{ Form::select('citizen', [], null, ['id'=>'citizen', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
+                            </div>
+                            <div class="form-group">                            
                                 <label>Nro de Contrato *</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-barcode" aria-hidden="true"></i></span>
                                     {!! Form::text('number', $contract->number, ['id'=>'number', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 0005456328', 'maxlength'=>'25', 'required']) !!}
-                                </div>
-                            </div>                            
-                            <div class="form-group">
-                                <label>Estatus</label>
-                                <div class="input-group">
-                                    <span class="input-group-addon"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
-                                    {{ Form::select('status', ['A' => 'Activo', 'B' => 'Baja', 'D' => 'Desactivo', 'R'=>'Reparación'], ($contract->id)?$contract->status:'A', ['id'=>'status', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
                                 </div>
                             </div>
                             <div class="form-group">                            
@@ -75,7 +81,7 @@
                                 <label>Fecha de Contrato *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('date', $contract->date->format('d/m/Y'), ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
+                                    {{ Form::text ('date', $contract->date, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -151,9 +157,32 @@
                                 {!! Form::textarea('observation', $contract->observation, ['id'=>'observation', 'rows'=>'3', 'class'=>'form-control', 'placeholder'=>'Escriba aqui alguna observación', 'maxlength'=>'400']) !!}
                                 </div>
                             </div>                            
-                        </div>                  
-                    </div>
-                        
+                            <div class="form-group">    
+                                <div class="i-checks">
+                                    <label>{!! Form::checkbox('invoice', null,  true, ['id'=>'invoice']) !!} Generar Factura de Nuevo Contrato.</label>
+                                </div>
+                            </div>
+                            <div id='div_invoice' style='display:solid;'>
+                                <div class="form-group">
+                                    <label>Cargos a cobrar</label>
+                                    <!-- Solo cargos monto fijo -->
+                                    @if($charges->count())
+                                        @foreach($charges as $charge)
+                                            <div class="i-checks">
+                                                <p>{!! Form::checkbox('charges_m[]', $charge->id,  false, ['id'=>'charges_m', 'required']) !!} {{ $charge->description.' ( '.money_fmt($charge->amount).' '.Session::get('coin').' )' }}</p>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                    <!-- /Solo cargos monto fijo -->
+                                    <!-- IVA -->
+                                    <label>Impuesto</label>                                   
+                                        <div class="i-checks">
+                                            <p>{!! Form::checkbox('iva', $iva->id,  true, ['id'=>'iva', ($iva->status=='A'?'':'disabled')]) !!} {{ $iva->description.' ( '.$iva->percent.'%)' }}</p>
+                                        </div>
+                                    <!-- /IVA -->
+                                </div>                  
+                            </div>
+
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="form-group pull-right">
                                 <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Ok</button>
@@ -195,6 +224,42 @@
             }        
         });        
     
+    //Ajax para retornar los ciudadanos   
+    $('#citizen').select2({
+        language: "es",
+        placeholder: 'Seleccione un ciudadano',
+        width: '100%',
+        ajax: {
+          url: '/citizens-ajax',
+          dataType: 'json',
+          delay: 250,
+            data: function(params) {
+                    return {
+                        term: params.term
+                    }
+                },
+            processResults: function (data, page) {
+                  return {
+                    results: data
+                  };
+                },
+            cache: true
+        }
+    });    
+
+        //Metodo para completar inputs segun datos del ciudadano
+        $("#citizen").change( event => {
+          url = `{{URL::to('get_citizen/')}}/${event.target.value}`;                    
+          $.get(url, function(response){
+            $('#state').val(response.state_id).trigger('change');
+            $('#street').val(response.street);
+            $('#neighborhood').val(response.neighborhood);
+            $('#number_int').val(response.number_int);
+            $('#number_ext').val(response.number_ext);
+            $('#postal_code').val(response.postal_code);
+          });
+        });        
+
         //Datepicker fecha del contrato
         var date_input_1=$('#data_1 .input-group.date');
         date_input_1.datepicker({
@@ -203,15 +268,10 @@
             autoclose: true,
             language: 'es',
         })
+        if($('#data_1 .input-group.date').val() == ''){
+          $('#data_1 .input-group.date').datepicker("setDate", new Date());                
+        }            
                 
-        $("#status").select2({
-          language: "es",
-          placeholder: "Seleccione un estatus",
-          minimumResultsForSearch: 10,
-          allowClear: false,
-          width: '100%'
-        });
-        
         // Select2 
         $("#rate").select2({
           language: "es",
@@ -254,14 +314,6 @@
 
         $('#invoice').on('ifUnchecked', function(event){ 
           $('#div_invoice').hide();
-        });        
-
-        $('#chk_initial_balance').on('ifChecked', function(event){ 
-          $('#div_initial_balance').show();
-        });       
-
-        $('#chk_initial_balance').on('ifUnchecked', function(event){ 
-          $('#div_initial_balance').hide();
         });        
 
         // iCheck

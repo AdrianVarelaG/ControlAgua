@@ -30,6 +30,9 @@ Route::get('citizens.filter/{name}', ['as' => 'citizens.filter', 'uses' => 'Citi
 Route::get('citizens.rpt_citizens/{filter}', ['as' => 'citizens.rpt_citizens', 'uses' => 'CitizenController@rpt_citizens']);
 Route::get('citizens.rpt_citizen_invoices/{id}', ['as' => 'citizens.rpt_citizen_invoices', 'uses' => 'CitizenController@rpt_citizen_invoices']);
 Route::get('citizens.rpt_citizen_payments/{id}', ['as' => 'citizens.rpt_citizen_payments', 'uses' => 'CitizenController@rpt_citizen_payments']);
+Route::get('get_citizen/{id}', 'CitizenController@getCitizen');
+Route::get('get_citizen_by_contract_id/{id}', 'CitizenController@getCitizenByContractID');
+
 
 
 //Company
@@ -40,9 +43,11 @@ Route::get('get_municipalities/{id}', 'MunicipalityController@getMunicipalities'
 
 //Contract
 Route::resource("contracts","ContractController");
+Route::get('contracts.create_new', ['as' => 'contracts.create_new', 'uses' => 'ContractController@create_new']);
+Route::get('contracts.create_exist', ['as' => 'contracts.create_exist', 'uses' => 'ContractController@create_exist']);
 Route::get('contracts.invoices/{contract_id}', ['as' => 'contracts.invoices', 'uses' => 'ContractController@invoices']);
 Route::get('contracts.payments/{contract_id}', ['as' => 'contracts.payments', 'uses' => 'ContractController@payments']);
-Route::get('contracts.create/{id}', ['as' => 'contracts.create', 'uses' => 'ContractController@create']);
+//Route::get('contracts.create/{id}', ['as' => 'contracts.create', 'uses' => 'ContractController@create']);
 Route::get('contracts.status/{id}', ['as' => 'contracts.status', 'uses' => 'ContractController@status']);
 Route::get('contracts.citizen_contracts/{id}', ['as' => 'contracts.citizen_contracts', 'uses' => 'ContractController@citizen_contracts']);
 Route::get('contracts.balance/{id}/{period}', ['as' => 'contracts.balance', 'uses' => 'ContractController@balance']);
@@ -91,6 +96,10 @@ Route::get('inspectors.status/{id}', ['as' => 'inspectors.status', 'uses' => 'In
 
 //Invoice
 Route::resource("invoices","InvoiceController");
+Route::post('invoices.store_individual', ['as' => 'invoices.store_individual', 'uses' => 'InvoiceController@store_individual']);
+Route::get('invoices.create_lot', ['as' => 'invoices.create_lot', 'uses' => 'InvoiceController@create_lot']);
+Route::get('invoices.create_individual', ['as' => 'invoices.create_individual', 'uses' => 'InvoiceController@create_individual']);
+
 Route::get('invoices.change_period', ['as' => 'invoices.change_period', 'uses' => 'InvoiceController@change_period']);
 Route::get('invoices.report_period', ['as' => 'invoices.report_period', 'uses' => 'InvoiceController@report_period']);
 Route::get('invoices.print_invoices', ['as' => 'invoices.print_invoices', 'uses' => 'InvoiceController@print_invoices']);
@@ -145,6 +154,10 @@ Route::resource("settings","SettingController");
 //State
 Route::resource("states","StateController");
 Route::get('states.status/{id}', ['as' => 'states.status', 'uses' => 'StateController@status']);
+
+//Tool
+Route::get('citizens-ajax', 'ToolController@citizens_ajax');
+Route::get('contracts-active-ajax', 'ToolController@contracts_active_ajax');
 
 //UploadFile
 Route::get('uploadfile','UploadFileController@index');

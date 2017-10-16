@@ -15,7 +15,7 @@
             <div class="ibox float-e-margins">
                 <!-- ibox-title -->
                 <div class="ibox-title">
-                    <h5><i class="fa fa-tachometer" aria-hidden="true"></i> Contratos Desactivos sin Datos Iniciales</h5>
+                    <h5><i class="fa fa-tachometer" aria-hidden="true"></i> Contratos Inactivos</h5>
                     <div class="ibox-tools">
                     	<a class="collapse-link">
                         	<i class="fa fa-chevron-up"></i>
@@ -67,13 +67,26 @@
                     </thead>
                     <tbody>
                   @foreach($contracts as $contract)
-                    @if($contract->movements->count()==0)
                     <tr class="gradeX">
                         <td class="text-center">                            
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-danger dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     <ul class="dropdown-menu">
+                                      @if($contract->movements->count()==0)
                                         <li><a href="{{ route('contracts.activate', Crypt::encrypt($contract->id)) }}"><i class="fa fa-check"></i> Registrar Datos Iniciales y Activar</a></li>
+                                      @else
+                                        <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-check"></i>Activar</a></li>
+                                      @endif
+                                      <li>
+                                        <!-- href para eliminar registro -->                            
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Desea eliminar el Contrato {{ $contract->number }} ?')) { return true } else {return false };">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i>&nbsp;&nbsp;Eliminar</a>
+                                        </form>
+                                        <br/><br/>
+                                      </li>                                        
                                     </ul>
                             </div>
                         </td>
@@ -82,7 +95,6 @@
                         <td>{{ $contract->citizen->RFC }}</td>
                         <td>{{ $contract->citizen->address }}</td>
                     </tr>
-                    @endif
                   @endforeach
                     </tbody>
                     <tfoot>
@@ -96,6 +108,10 @@
                     <div class="text-right">
                       {{ $contracts->links() }}
                     </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>                    
                 	</div>
                 </div>
                 @else

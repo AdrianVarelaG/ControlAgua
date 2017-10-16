@@ -46,7 +46,7 @@
 
               @include('partials.errors')
                 
-              <a href="{{ route('invoices.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Generar</a><br/><br/>
+              <a href="{{ route('invoices.create_lot') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"></i> Generar</a><br/><br/>
 
             @if(count($routines_generated))
                 <div class="table-responsive">

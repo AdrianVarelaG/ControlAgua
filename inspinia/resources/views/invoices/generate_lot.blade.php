@@ -24,7 +24,7 @@
                 <div class="col-lg-12">
                     <div class="ibox">
                         <div class="ibox-title">
-                            <h5><i class="fa fa-magic" aria-hidden="true"></i> Generar Recibos de Pago</h5>
+                            <h5><i class="fa fa-magic" aria-hidden="true"></i> Generar Recibos de Pago en Lote</h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>

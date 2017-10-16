@@ -85,7 +85,6 @@
                             <div class="input-group-btn">
                                 <button data-toggle="dropdown" class="btn btn-xs btn-default dropdown-toggle" type="button" title="Aciones"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{{ route('contracts.citizen_contracts', Crypt::encrypt($citizen->id)) }}"><i class="fa fa-tachometer"></i> Contratos</a></li>
                                     <li><a href="{{ route('citizens.balance', [Crypt::encrypt($citizen->id), '3']) }}"><i class="fa fa-th-list"></i> Estado de Cuenta</a></li>
                                     <li><a href="{{ route('citizens.invoices', [Crypt::encrypt($citizen->id)]) }}"><i class="fa fa-file-text-o"></i> Recibos</a></li>
                                     <li><a href="{{ route('citizens.payments', [Crypt::encrypt($citizen->id)]) }}"><i class="fa fa-money"></i> Pagos</a></li>
@@ -149,7 +148,9 @@
                     </tfoot>
                     </table>
                     <div class="text-right">
-                      {{ $citizens->links() }}
+                      @if (class_basename($citizens) !== 'Collection')
+                          {{ $citizens->links() }}
+                      @endif
                     </div>                    
                     <br/>
                     <br/>

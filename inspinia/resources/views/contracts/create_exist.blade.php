@@ -20,7 +20,7 @@
             
             <!-- ibox-title -->
             <div class="ibox-title">
-                <h5>{{ ($contract->id) ? "Modificar Contrato" : "Nuevo Contrato" }} <small>Complete el formulario <b>(*) Campos obligatorios.</b></small></h5>
+                <h5>Registrar Contrato Existente <small>Complete el formulario <b>(*) Campos obligatorios.</b></small></h5>
                 <div class="ibox-tools">
                     <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-wrench"></i></a>
@@ -37,10 +37,18 @@
 
                 <div class="row">
                     
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="alert alert-info">
+                      <ul>
+                        <i class="fa fa-info-circle"></i> <b>Contratos Existentes:</b> Contratos que tienen saldo (a favor o en contra) pero que no han sido registrados en el sistema.
+                        </ul>
+                    </div>
+                  </div>
+                    
                     <div class="col-md-12 col-sm-12 col-xs-12">
-                        <h3>{{ $contract->citizen->name }}</h3>
-
                         <form action="{{url('contracts/'.$contract->id)}}" id="form" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="hdd_status" value="A"/>
+                        <input type="hidden" name="hdd_contract_new" value="N"/>
                         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
                         @if($contract->id)
                             {{ Form::hidden ('_method', 'PUT') }}
@@ -51,17 +59,14 @@
                         <!-- 1ra Columna -->
                         <div class="col-sm-4 b-r">
                             <div class="form-group">                            
+                                <label>Ciudadano *</label>
+                                {{ Form::select('citizen', [], null, ['id'=>'citizen', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
+                            </div>
+                            <div class="form-group">                            
                                 <label>Nro de Contrato *</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-barcode" aria-hidden="true"></i></span>
                                     {!! Form::text('number', $contract->number, ['id'=>'number', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 0005456328', 'maxlength'=>'25', 'required']) !!}
-                                </div>
-                            </div>                            
-                            <div class="form-group">
-                                <label>Estatus</label>
-                                <div class="input-group">
-                                    <span class="input-group-addon"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
-                                    {{ Form::select('status', ['A' => 'Activo', 'B' => 'Baja', 'D' => 'Desactivo', 'R'=>'Reparación'], ($contract->id)?$contract->status:'A', ['id'=>'status', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
                                 </div>
                             </div>
                             <div class="form-group">                            
@@ -75,7 +80,7 @@
                                 <label>Fecha de Contrato *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('date', $contract->date->format('d/m/Y'), ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
+                                    {{ Form::text ('date', $contract->date, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -85,11 +90,6 @@
                                     {{ Form::select('administration', $administrations, $contract->administration_id, ['id'=>'administration', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
                                 </div>
                             </div>                                                
-                        </div>
-                        <!-- /1ra Columna -->
-
-                        <!-- 2ra Columna -->
-                        <div class="col-sm-4 b-r">                                         
                             <div class="form-group">
                                 <label>Estado *</label>
                                 <div class="input-group">
@@ -103,7 +103,12 @@
                                     <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
                                     {!! Form::select('municipality', ['placeholder'=>'Seleccione un municipio'], null, ['id'=>'municipality', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required']) !!}
                                 </div>
-                            </div>                            
+                            </div>                        
+                        </div>
+                        <!-- /1ra Columna -->
+
+                        <!-- 2ra Columna -->
+                        <div class="col-sm-4 b-r">                                                                     
                             <div class="form-group">
                                 <label>Calle *</label>
                                 <div class="input-group m-b">
@@ -132,11 +137,6 @@
                                     {!! Form::text('number_int', ($contract->id)?$contract->number_int:'', ['id'=>'number_int', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #1500', 'maxlength'=>'25']) !!}
                                 </div>
                             </div>                        
-                        </div>
-                        <!-- /2d Columna -->
-                        
-                        <!-- 3ra Columna -->
-                        <div class="col-sm-4">                                                        
                             <div class="form-group">
                                 <label>Código Postal</label>
                                 <div class="input-group m-b">
@@ -150,10 +150,42 @@
                                 <span class="input-group-addon"><i class="fa fa-align-justify" aria-hidden="true"></i></span>
                                 {!! Form::textarea('observation', $contract->observation, ['id'=>'observation', 'rows'=>'3', 'class'=>'form-control', 'placeholder'=>'Escriba aqui alguna observación', 'maxlength'=>'400']) !!}
                                 </div>
-                            </div>                            
-                        </div>                  
-                    </div>
+                            </div>                        
+                        </div>
+                        <!-- /2d Columna -->
                         
+                        <!-- 3ra Columna -->
+                        <div class="col-sm-4">                                                              
+                            <div class="form-group" id="data_2">
+                                <label>Fecha del Saldo Inicial</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    {{ Form::text ('date_initial_balance', null, ['class'=>'form-control', 'type'=>'date_initial_balance', 'placeholder'=>'01/01/2017', 'required']) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Atención</label>
+                                <div class="input-group date">
+                                    <small>Saldo <strong>positivo (+)</strong> será considerado como <strong>saldo a favor</strong> del ciudadano.</small> <i class="fa fa-level-up" style="color:#1ab394"></i><br/>
+                                    <small>Saldo <strong>negativo (-)</strong> será considerado como <strong>deuda</strong> contraída por el ciudadano. <i class="fa fa-level-down" style="color:#ed5565"></i></small>
+                                </div>
+                            </div>                                                         
+                            <div class="form-group">                                
+                                <label>Saldo Inicial {{ Session::get('coin') }}</label><small class="hidden-xs"> Para decimales use punto (.).</small>
+                                <div class="input-group m-b">
+                                    <span class="input-group-addon"><i class="fa fa-dollar" aria-hidden="true"></i></span>
+                                    {!! Form::text('initial_balance', null, ['id'=>'initial_balance', 'class'=>'form-control', 'type'=>'text', 'number', 'placeholder'=>'Ej. 1000.00', 'required']) !!}
+                                </div>
+                            </div>                            
+                            <div class="form-group" id="data_3">
+                                <label>Fecha del Ultimo Pago efectuado</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    {{ Form::text ('date_last_payment', null, ['class'=>'form-control', 'type'=>'date_last_payment', 'placeholder'=>'01/01/2017', 'required']) }}
+                                </div>
+                            </div>                  
+                        </div>
+
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="form-group pull-right">
                                 <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Ok</button>
@@ -195,6 +227,42 @@
             }        
         });        
     
+    //Ajax para retornar los ciudadanos   
+    $('#citizen').select2({
+        language: "es",
+        placeholder: 'Seleccione un ciudadano',
+        width: '100%',
+        ajax: {
+          url: '/citizens-ajax',
+          dataType: 'json',
+          delay: 250,
+            data: function(params) {
+                    return {
+                        term: params.term
+                    }
+                },
+            processResults: function (data, page) {
+                  return {
+                    results: data
+                  };
+                },
+            cache: true
+        }
+    });    
+
+        //Metodo para completar inputs segun datos del ciudadano
+        $("#citizen").change( event => {
+          url = `{{URL::to('get_citizen/')}}/${event.target.value}`;                    
+          $.get(url, function(response){
+            $('#state').val(response.state_id).trigger('change');
+            $('#street').val(response.street);
+            $('#neighborhood').val(response.neighborhood);
+            $('#number_int').val(response.number_int);
+            $('#number_ext').val(response.number_ext);
+            $('#postal_code').val(response.postal_code);
+          });
+        });        
+
         //Datepicker fecha del contrato
         var date_input_1=$('#data_1 .input-group.date');
         date_input_1.datepicker({
@@ -203,15 +271,28 @@
             autoclose: true,
             language: 'es',
         })
+        if($('#data_1 .input-group.date').val() == ''){
+          $('#data_1 .input-group.date').datepicker("setDate", new Date());                
+        }            
                 
-        $("#status").select2({
-          language: "es",
-          placeholder: "Seleccione un estatus",
-          minimumResultsForSearch: 10,
-          allowClear: false,
-          width: '100%'
-        });
-        
+        //Datepicker fecha del saldo inicial
+        var date_input_1=$('#data_2 .input-group.date');
+        date_input_1.datepicker({
+            format: 'dd/mm/yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            language: 'es',
+        })
+
+        //Datepicker fecha del ultimo pago
+        var date_input_1=$('#data_3 .input-group.date');
+        date_input_1.datepicker({
+            format: 'dd/mm/yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            language: 'es',
+        })
+
         // Select2 
         $("#rate").select2({
           language: "es",

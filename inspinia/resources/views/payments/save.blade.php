@@ -55,7 +55,8 @@
                     <div class="col-md-12 col-sm-12 col-xs-12">                                                
                         <!-- 1 Column -->
                         <div class="col-sm-5">
-                            <h2>{{ $contract->citizen->name }}, Contrato # {{ $contract->number }}</h2>
+                            <h2>{{ $contract->citizen->name }}<br/> 
+                            Contrato # <b>{{ $contract->number }}</b></h2>
 
                             <div class="form-group" id="data_1">
                                 <label>Fecha del Pago *</label>

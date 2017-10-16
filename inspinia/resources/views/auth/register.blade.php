@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Sistema de Aguas</title>
+    <title>INSPINIA | Register</title>
 
     <!-- Bootstrap -->
     <link href="{{ asset("css/bootstrap.min.css") }}" rel="stylesheet">
@@ -31,7 +31,7 @@
             </div>
             <h3>Register to IN+</h3>
             <p>Create account to see it in action.</p>
-
+            
                     <!-- show erros -->
                     @if (count($errors) > 0)
                       <div class="alert alert-danger fade in">
@@ -61,7 +61,7 @@
                     <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm password" required="">
                 </div>
                 <div class="form-group">
-                    <div class="checkbox i-checks"><label>
+                    <div class="checkbox i-checks"><label> 
                         <input id="agree" required="required" name="agree" type="checkbox"><i></i> Agree the terms and policy </label>
                     </div>
                 </div>
@@ -75,7 +75,7 @@
     </div>
 
     <!-- jQuery -->
-    <script src="{{ asset("js/jquery-2.1.1.js") }}"></script>
+    <script src="{{ asset("js/jquery-2.1.1.js") }}"></script>    
     <!-- Bootstrap -->
     <script src="{{ asset("js/bootstrap.min.js") }}"></script>
     <!-- iCheck -->
@@ -83,23 +83,23 @@
     <!-- Jquery Validate -->
     <script src="{{ URL::asset('js/plugins/jquery-validation-1.16.0/jquery.validate.min.js') }}"></script>
     <script src="{{ URL::asset('js/plugins/jquery-validation-1.16.0/messages_es.js') }}"></script>
-
+    
     <script>
         $(document).ready(function(){
-
+            
             $('.i-checks').iCheck({
                 checkboxClass: 'icheckbox_square-green',
                 radioClass: 'iradio_square-green',
             });
-
+            
             // Validation
             $("#form").validate({
                 submitHandler: function(form) {
                     $("#btn_submit").attr("disabled",true);
                     form.submit();
-                }
+                }        
             });
-
+            
         });
     </script>
 </body>

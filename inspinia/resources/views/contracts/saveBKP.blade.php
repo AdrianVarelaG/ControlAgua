@@ -33,21 +33,20 @@
             <div class="ibox-content">
 
             @include('partials.errors')
-                
 
                 <div class="row">
-                    
                     <div class="col-md-12 col-sm-12 col-xs-12">
-                        <h3>{{ $contract->citizen->name }}</h3>
-
                         <form action="{{url('contracts/'.$contract->id)}}" id="form" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="hdd_citizen_id" value="{{ $citizen->id }}" />
+                        {!! Form::hidden('apply_iva', 'Y', ['id'=>'apply_iva']) !!}
                         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
                         @if($contract->id)
                             {{ Form::hidden ('_method', 'PUT') }}
                         @endif
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <h2></h2>
+                            <h2>{{ $citizen->name }}</h2>
                         </div>                        
+                    <div class="row">
                         <!-- 1ra Columna -->
                         <div class="col-sm-4 b-r">
                             <div class="form-group">                            
@@ -63,7 +62,7 @@
                                     <span class="input-group-addon"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
                                     {{ Form::select('status', ['A' => 'Activo', 'B' => 'Baja', 'D' => 'Desactivo', 'R'=>'Reparación'], ($contract->id)?$contract->status:'A', ['id'=>'status', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
                                 </div>
-                            </div>
+                            </div>                                                                                                      
                             <div class="form-group">                            
                                 <label>Tarifa *</label>
                                 <div class="input-group">
@@ -75,7 +74,7 @@
                                 <label>Fecha de Contrato *</label>
                                 <div class="input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    {{ Form::text ('date', $contract->date->format('d/m/Y'), ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
+                                    {{ Form::text ('date', $contract->date, ['class'=>'form-control', 'type'=>'date', 'placeholder'=>'01/01/2017', 'required']) }}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -84,17 +83,17 @@
                                     <span class="input-group-addon"><i class="fa fa-gavel" aria-hidden="true"></i></span>
                                     {{ Form::select('administration', $administrations, $contract->administration_id, ['id'=>'administration', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
                                 </div>
-                            </div>                                                
+                            </div>                        
                         </div>
                         <!-- /1ra Columna -->
 
                         <!-- 2ra Columna -->
-                        <div class="col-sm-4 b-r">                                         
+                        <div class="col-sm-4 b-r">                                                    
                             <div class="form-group">
                                 <label>Estado *</label>
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
-                                    {{ Form::select('state', $states, ($contract->id)?$contract->state_id:'', ['id'=>'state', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
+                                    {{ Form::select('state', $states, ($contract->id)?$contract->state_id:$citizen->state_id, ['id'=>'state', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
                                 </div>
                             </div>                             
                             <div class="form-group">
@@ -103,33 +102,19 @@
                                     <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
                                     {!! Form::select('municipality', ['placeholder'=>'Seleccione un municipio'], null, ['id'=>'municipality', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required']) !!}
                                 </div>
-                            </div>                            
+                            </div>                                                                                     
                             <div class="form-group">
                                 <label>Calle *</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
-                                    {!! Form::text('street', ($contract->id)?$contract->street:'', ['id'=>'street', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Juarez', 'maxlength'=>'25', 'required']) !!}
+                                    {!! Form::text('street', ($contract->id)?$contract->street:$citizen->street, ['id'=>'street', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Juarez', 'maxlength'=>'25', 'required']) !!}
                                 </div>
                             </div>                                                        
                             <div class="form-group">
                                 <label>Barrio o Colonia *</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
-                                    {!! Form::text('neighborhood', ($contract->id)?$contract->neighborhood:'', ['id'=>'neighborhood', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Cristo Rey', 'maxlength'=>'50', 'required']) !!}
-                                </div>
-                            </div>                        
-                            <div class="form-group">
-                                <label>Número externo *</label>
-                                <div class="input-group m-b">
-                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                    {!! Form::text('number_ext', ($contract->id)?$contract->number_ext:'', ['id'=>'number_ext', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #15', 'maxlength'=>'25', 'required']) !!}
-                                </div>
-                            </div>                            
-                            <div class="form-group">
-                                <label>Número interno</label>
-                                <div class="input-group m-b">
-                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
-                                    {!! Form::text('number_int', ($contract->id)?$contract->number_int:'', ['id'=>'number_int', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #1500', 'maxlength'=>'25']) !!}
+                                    {!! Form::text('neighborhood', ($contract->id)?$contract->neighborhood:$citizen->neighborhood, ['id'=>'neighborhood', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. Cristo Rey', 'maxlength'=>'50', 'required']) !!}
                                 </div>
                             </div>                        
                         </div>
@@ -138,10 +123,24 @@
                         <!-- 3ra Columna -->
                         <div class="col-sm-4">                                                        
                             <div class="form-group">
+                                <label>Número externo *</label>
+                                <div class="input-group m-b">
+                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
+                                    {!! Form::text('number_ext', ($contract->id)?$contract->number_ext:$citizen->number_ext, ['id'=>'number_ext', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #15', 'maxlength'=>'25', 'required']) !!}
+                                </div>
+                            </div>                            
+                            <div class="form-group">
+                                <label>Número interno</label>
+                                <div class="input-group m-b">
+                                    <span class="input-group-addon"><i class="fa fa-home" aria-hidden="true"></i></span>
+                                    {!! Form::text('number_int', ($contract->id)?$contract->number_int:$citizen->number_int, ['id'=>'number_int', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. #1500', 'maxlength'=>'25']) !!}
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label>Código Postal</label>
                                 <div class="input-group m-b">
                                     <span class="input-group-addon"><i class="fa fa-location-arrow" aria-hidden="true"></i></span>
-                                    {!! Form::text('postal_code', ($contract->id)?$contract->postal_code:'', ['id'=>'postal_code', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 21150', 'maxlength'=>'10', 'number']) !!}
+                                    {!! Form::text('postal_code', ($contract->id)?$contract->postal_code:$citizen->postal_code, ['id'=>'postal_code', 'class'=>'form-control', 'type'=>'text', 'placeholder'=>'Ej. 21150', 'maxlength'=>'10', 'number']) !!}
                                 </div>
                             </div>                            
                             <div class="form-group">
@@ -150,14 +149,45 @@
                                 <span class="input-group-addon"><i class="fa fa-align-justify" aria-hidden="true"></i></span>
                                 {!! Form::textarea('observation', $contract->observation, ['id'=>'observation', 'rows'=>'3', 'class'=>'form-control', 'placeholder'=>'Escriba aqui alguna observación', 'maxlength'=>'400']) !!}
                                 </div>
-                            </div>                            
-                        </div>                  
+                            </div>                        
+                        </div>
                     </div>
-                        
+                    <br/>                    
+                    <div class="row">
+                        <div class="col-sm-12">    
+                            <div class="i-checks">
+                                <label>{!! Form::checkbox('invoice', null,  true, ['id'=>'invoice']) !!} Generar Factura de Nuevo Contrato.</label>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <div id='div_invoice' style='display:solid;'>                            
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Cargos a cobrar</label>
+                                <!-- Solo cargos monto fijo -->
+                                @if($charges->count())
+                                    @foreach($charges as $charge)
+                                        <div class="i-checks">
+                                            <p>{!! Form::checkbox('charges_m[]', $charge->id,  false, ['id'=>'charges_m', 'required']) !!} {{ $charge->description.' ( '.money_fmt($charge->amount).' '.Session::get('coin').' )' }}</p>
+                                        </div>
+                                    @endforeach
+                                @endif
+                                <!-- /Solo cargos monto fijo -->
+                                <!-- IVA -->
+                                <label>Impuesto</label>                                   
+                                    <div class="i-checks">
+                                        <p>{!! Form::checkbox('iva', $iva->id,  true, ['id'=>'iva', ($iva->status=='A'?'':'disabled')]) !!} {{ $iva->description.' ( '.$iva->percent.'%)' }}</p>
+                                    </div>
+                                <!-- /IVA -->
+                            </div>
+                        </div>
+                    </div>
+
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="form-group pull-right">
                                 <button type="submit" id="btn_submit" class="btn btn-sm btn-primary">Ok</button>
-                                <a href="{{URL::to('contracts')}}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
+                                <a href="{{ route('contracts.citizen_contracts', Crypt::encrypt($citizen->id)) }}" class="btn btn-sm btn-default" title="Regresar"><i class="fa fa-hand-o-left"></i></a>
                             </div>
                         </div>                            
 
@@ -203,7 +233,11 @@
             autoclose: true,
             language: 'es',
         })
-                
+        if($('#data_1 .input-group.date').val() == ''){
+          $('#data_1 .input-group.date').datepicker("setDate", new Date());                
+        }            
+        
+        // Select2 
         $("#status").select2({
           language: "es",
           placeholder: "Seleccione un estatus",
@@ -300,7 +334,7 @@
         {
           url = `{{URL::to('get_municipalities/')}}/${state_id}`;
           var state_id = ''; 
-          municipality_id = "{{($contract->id)?$contract->municipality_id:''}}";
+          municipality_id = "{{($contract->id)?$contract->municipality_id:$citizen->municipality_id}}";
           $.get(url, function( response, state){
             $("#municipality").empty();
             response.forEach(element => {

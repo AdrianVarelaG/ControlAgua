@@ -24,7 +24,7 @@
                 <div class="col-lg-12">
                     <div class="ibox">
                         <div class="ibox-title">
-                            <h5><i class="fa fa-magic" aria-hidden="true"></i> Generar Recibos de Pago</h5>
+                            <h5><i class="fa fa-magic" aria-hidden="true"></i> Generar Recibo de Pago Individual</h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -52,14 +52,19 @@
                             <p>Por favor siga las instrucciones paso a paso. <strong>(*) Campos obligatorios.</strong></p>
 
                             
-                            {{ Form::open(array('url' => 'invoices/' . $invoice->id, 'id'=>'form'), ['class'=>'wizard-big'])}} 
+                            {{ Form::open(array('url' => 'invoices.store_individual', 'id'=>'form'), ['class'=>'wizard-big'])}} 
                             {!! Form::hidden('apply_iva', 'Y', ['id'=>'apply_iva']) !!}  
                                 <!-- Step1 -->
-                                <h1>Fechas</h1>
+                                <h1>Contrato y Fechas</h1>
                                 <fieldset>
-                                    <h2>Fechas del Recibo</h2>
-                                    <div class="row">
-                                        <div class="col-lg-6">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <h2 id="citizen_name"></h2>
+                                        <div class="form-group">                            
+                                        <label>Nro de Contrato *</label>
+                                        {{ Form::select('contract', [], null, ['id'=>'contract', 'class'=>'select2_single form-control', 'tabindex'=>'-1', 'placeholder'=>'', 'required'])}}
+                                        </div>
+                                        <h2>Fechas del Recibo</h2>
                                             <div class="form-group" id="data_1">
                                                 <label>Facturación *</label>
                                                 <div class="input-group date">
@@ -208,14 +213,15 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('scripts')   
-<!-- Steps -->
-<script src="{{ asset('js/plugins/staps/jquery.steps.js') }}"></script>
 <!-- Select2 -->
 <script src="{{ URL::asset('js/plugins/select2/dist/js/select2.full.min.js') }}"></script>
 <script src="{{ URL::asset('js/plugins/select2/dist/js/i18n/es.js') }}"></script>
+<!-- Steps -->
+<script src="{{ asset('js/plugins/staps/jquery.steps.js') }}"></script>
 <!-- iCheck -->
 <script src="{{ URL::asset('js/plugins/iCheck/icheck.min.js') }}"></script>
 <!-- DatePicker --> 
@@ -225,10 +231,11 @@
 
 <!-- Page-Level Scripts -->
 <script>
-      
+          
+
     $(document).ready(function() {
-                            
-        //Step
+                                        
+            //Step
             $("#form").steps({
                 bodyTag: "fieldset",
                 onStepChanging: function (event, currentIndex, newIndex)
@@ -291,7 +298,6 @@
                     var form = $(this);
                     // Submit form input
                     form.submit();
-                    $(this).steps("finish");
                 }
             }).validate({
                         errorPlacement: function (error, element)
@@ -360,6 +366,38 @@
         return(day+'/'+month+'/'+year);
       }
 
+        
+    //Ajax para retornar los Contratos   
+    $('#contract').select2({
+        language: "es",
+        placeholder: 'Seleccione un Nro de Contrato',
+        width: '100%',
+        ajax: {
+          url: '/contracts-active-ajax',
+          dataType: 'json',
+          delay: 250,
+            data: function(params) {
+                    return {
+                        term: params.term
+                    }
+                },
+            processResults: function (data, page) {
+                  return {
+                    results: data
+                  };
+                },
+            cache: true
+        }
+    });    
+
+        //Metodo para completar inputs segun datos del ciudadano
+        $("#contract").change( event => {
+          url = `{{URL::to('get_citizen_by_contract_id/')}}/${event.target.value}`;                    
+          $.get(url, function(response){
+            $('#citizen_name').html(response.name);
+          });
+        });        
+
         // Select2 
         $("#rate").select2({
           language: "es",
@@ -383,7 +421,28 @@
             $('#apply_iva').val('N');
         });
     
-    });
+  $('#btn_submit').on("click", function (e) { 
+      $('#msj-before').hide();
+      $('#msj-after').show();
+      $('#btn_submit').prop('disabled', true);
+      $('#form').submit();
+  });
+    
+
+    //Notifications
+    setTimeout(function() {
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            showMethod: 'slideDown',
+            timeOut: 2000
+        };
+        if('{{ Session::get('notity') }}'=='create' &&  '{{ Session::get('create_notification') }}'=='1'){
+            toastr.success('Recibo generado exitosamente', '{{ Session::get('app_name') }}');
+        }
+    }, 1300);
+
+});
     </script>
 
 @endpush

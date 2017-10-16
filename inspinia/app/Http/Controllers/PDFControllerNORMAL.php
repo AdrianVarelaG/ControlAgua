@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Crypt;
 use File;
 use PDF;
 use Session;
-use View;
-use App;
 
 
 class PDFController extends Controller
@@ -33,6 +31,8 @@ class PDFController extends Controller
             'logo' => 'data:image/png;base64, '.$company->logo 
         ];
         $pdf = PDF::loadView('reports/invoice', $data);
+        //setPaper(0,0, alto, ancho) en ptos 1 mm = 2.83465 ptos
+        $pdf->setPaper([0, 0, 420, 595], 'landscape');         
         return $pdf->download('Recibo Nro '.Crypt::decrypt($id).'.pdf');
 
     }
@@ -42,28 +42,22 @@ class PDFController extends Controller
     */ 
     public function invoices_pdf(InvoiceRequestPrint $request)
     {
-        $final_view='';
         $company = Company::first();
         $invoices = Invoice::where('id', '>=' , $request->input('invoice_from'))
                             ->where('id', '<=' , $request->input('invoice_to'))->get();
-        
-        foreach ($invoices as $invoice) {
-            
-            $data=[
-                'company' => $company,
-                'invoice' => $invoice,
-                'logo' => 'data:image/png;base64, '.$company->logo
-            ];
-
-            $invoice_view = View::make('reports/invoice', $data )->render();
-            
-            $final_view = $final_view."<div class='saltopagina'></div>".$invoice_view;
-        }
-
-        $pdf = App::make('dompdf.wrapper');
-        $pdf->loadHTML($final_view);
-        ini_set('max_execution_time', 300);
-        return $pdf->download('Recibos del Nro '.$request->input('invoice_from').' al Nro '.$request->input('invoice_to').'.pdf');
+        $data=[
+            'company' => $company,
+            'invoices' => $invoices,
+            'logo' => 'data:image/png;base64, '.$company->logo
+        ];
+        $pdf = PDF::loadView('reports/invoice_all', $data);
+        //setPaper(0,0, alto, ancho) en ptos 1 mm = 2.83465 ptos
+        $pdf->setPaper([0, 0, 420, 595], 'landscape'); 
+        $path = public_path();
+        $filename = 'Recibos del Nro '.$request->input('invoice_from').' al Nro '.$request->input('invoice_to').'.pdf';
+        $pdf->save($path.'/'.$filename);
+        return "Listo";
+        //return $pdf->download('Recibos del Nro '.$request->input('invoice_from').' al Nro '.$request->input('invoice_to').'.pdf');
 
     }
 
@@ -79,8 +73,21 @@ class PDFController extends Controller
             'payment' => $payment,
         ];
         $pdf = PDF::loadView('reports/voucher', $data);
-        return $pdf->download('Voucher.pdf');
+        //setPaper(0,0, alto, ancho) en ptos 1 mm = 2.83465 ptos
+        $pdf->setPaper([0, 0, 420, 595], 'landscape'); 
+        return $pdf->download('Comprobante #'.$payment->id.'.pdf');
 
+    }
+
+ 
+    public function user_manual($document)
+    {
+        $path = public_path('documents/'.$document);
+
+        return Response::make(file_get_contents($path), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$document.'"'
+        ]);
     }
 
 }

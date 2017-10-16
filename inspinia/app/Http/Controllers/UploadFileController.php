@@ -35,38 +35,36 @@ class UploadFileController extends Controller
    
    public function showUploadFile(Request $request){
       
-      /*
       //1. Se sube el archivo a la carpeta storage
-         $file = $request->file('file_xls');
-     	   $resource = fopen( $file->getRealPath(), 'r');
-		   Storage::put('PADRON.xls', $resource );
+         //$file = $request->file('file_xls');
+     	   //$resource = fopen( $file->getRealPath(), 'r');
+		   //Storage::put('PADRON.xls', $resource );
       //2. Se limpia la tabla padron
-         Padron::truncate();
+         //Padron::truncate();
       //3. Se importa la data a la tabla Padron de la BD      
-         $this->import_chunk();
+         //$this->import_chunk();
       //4. Se actualiza a estatus DESACTIVO registros que tengan ultimo_mes y adeudo null
-         Padron::where('ultimo_mes', null)
-               ->where('adeudo', null)
-               ->where('status', '')
-               ->update(['status' => 'DESACTIVO']);
+         //Padron::where('ultimo_mes', null)
+         //      ->where('adeudo', null)
+         //      ->where('status', '')
+         //      ->update(['status' => 'DESACTIVO']);
       //5. Se actualiza a estatus ACTIVO registros que tengan ultimo_mes y adeudo y estatus vacio 
-         Padron::where('ultimo_mes', '!=', null)
-               ->where('adeudo', '!=', null)
-               ->where('status', '')
-               ->update(['status' => 'ACTIVO']);
+         //Padron::where('ultimo_mes', '!=', null)
+         //      ->where('adeudo', '!=', null)
+         //      ->where('status', '')
+         //      ->update(['status' => 'ACTIVO']);
       //6. Se limpian las tablas antes de la insercion
-      */
+      //ini_set('max_execution_time', 500);
+      //DB::statement("SET foreign_key_checks=0");
+      //Invoice::truncate();
+      //InvoiceDetail::truncate();
+      //Payment::truncate();
+      //PaymentDetail::truncate();
+      //Movement::truncate();      
+      //Reading::truncate();
+      //Contract::truncate();
+      //Citizen::truncate();
       
-      ini_set('max_execution_time', 500);
-      DB::statement("SET foreign_key_checks=0");
-      Invoice::truncate();
-      InvoiceDetail::truncate();
-      Payment::truncate();
-      PaymentDetail::truncate();
-      Movement::truncate();      
-      Reading::truncate();
-      Contract::truncate();
-      Citizen::truncate();
       //7. Se recorre la tabla padron con la logica
       $ciudadanos = Padron::orderBy('nombre')->get();
       $ciudadano_anterior='';
@@ -280,7 +278,7 @@ class UploadFileController extends Controller
      Excel::filter('chunk')->load(storage_path().'/app/PADRON.xls')->chunk(250, function($rows){
     
          foreach ($rows as $row) {
-            
+                        
             if($row->ultimo_mes != null){
                $ultimo_mes = PHPExcel_Style_NumberFormat::toFormattedString($row->ultimo_mes,PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2);               
             }else{

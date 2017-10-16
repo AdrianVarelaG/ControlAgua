@@ -17,6 +17,7 @@ use App\Models\Rate;
 use App\Models\Routine;
 use App\Models\Charge;
 use App\Models\Movement;
+use App\Models\Padron;
 use App\Models\Payment;
 use App\Models\PaymentDetail;
 use Illuminate\Support\Facades\Crypt;
@@ -130,19 +131,113 @@ class InvoiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create_lot()
     {
         $invoice = new Invoice();
         $flat_rate = Rate::find(1);
         $iva = Charge::find(1);        
         $charges = Charge::where('id', '>', 1)->where('status', 'A')->get();
         $last_day_month = date("t/m/Y");
-        return view('invoices.generate')->with('charges', $charges)
+        return view('invoices.generate_lot')->with('charges', $charges)
                                         ->with('flat_rate', $flat_rate)
                                         ->with('iva', $iva)
                                         ->with('last_day_month', $last_day_month)
                                         ->with('invoice', $invoice);
     }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create_individual()
+    {
+        $invoice = new Invoice();
+        $flat_rate = Rate::find(1);
+        $iva = Charge::find(1);        
+        $charges = Charge::where('id', '>', 1)->where('status', 'A')->get();
+        $last_day_month = date("t/m/Y");
+        return view('invoices.generate_individual')->with('charges', $charges)
+                                        ->with('flat_rate', $flat_rate)
+                                        ->with('iva', $iva)
+                                        ->with('last_day_month', $last_day_month)
+                                        ->with('invoice', $invoice);
+    }
+    
+    public function store_individual(Request $request){
+
+        $iva = Charge::find(1);
+        $flat_rate = Rate::find(1);
+        $contract = Contract::find($request->input('contract'));
+        $apply_iva = $request->input('apply_iva');
+        $month_consume = substr($request->input('date_consume'),0,2);
+        $year_consume = substr($request->input('date_consume'),3,4);
+        $month = substr($request->input('date'),3,2);
+        $year = substr($request->input('date'),6,4);
+        $date = (new ToolController)->format_ymd($request->input('date'));
+        $date_limit = (new ToolController)->format_ymd($request->input('date_limit'));
+        $message = $request->input('message');
+        $rate_type = $request->input('type');
+        $charges_m = $request->input('charges_m');
+        $charges_p = $request->input('charges_p');
+        //Se verifica si existe un recibo para esa mes y Año
+        if(!$this->invoice_exist($contract->id, $year, $month)){
+                    
+            $invoice = new Invoice();
+            $invoice->date = $date;
+            $invoice->date_limit = $date_limit;
+            $invoice->month = $month;
+            $invoice->year = $year;
+            $invoice->month_consume = $month_consume;
+            $invoice->year_consume = $year_consume;
+            $invoice->contract_id = $contract->id;
+            $invoice->citizen_id = $contract->citizen_id;
+            $invoice->message = $message;
+            $invoice->status = 'P';
+            $invoice->previous_debt = $contract->balance;
+            if ($rate_type == 'F'){
+                $invoice->rate = $flat_rate->amount;
+                $invoice->rate_description = $flat_rate->name;
+                $amount_consume =  $flat_rate->amount;
+            }
+            elseif($rate_type == 'C'){
+                $reading = Reading::where('contract_id', $contract->id)
+                                ->where('year', $year_consume)
+                                ->where('month', $month_consume)->first();
+                if($reading){
+                    $rate = Rate::find($contract->rate_id);
+                    $invoice->rate = $rate->amount;
+                    $invoice->rate_description = $rate->name;
+                    $invoice->reading_id = $reading->id;
+                    $amount_consume = $reading->consume*$rate->amount; 
+                }else{
+                    $invoice->rate = $flat_rate->amount;
+                    $invoice->rate_description = $flat_rate->name.' (Sin lectura)';
+                    $amount_consume =  $flat_rate->amount;                   
+                }
+            }
+            $invoice->save();
+            $this->register_consume($invoice, $amount_consume);                    
+            if($charges_m){
+                $this->register_charges($invoice, $charges_m, $amount_consume);
+            }
+            if($charges_p){
+                $this->register_charges($invoice, $charges_p, $amount_consume);                        
+            }
+            if($apply_iva=='Y'){
+                $this->register_iva($invoice, $iva);
+            }
+            $invoice->total = $invoice->total_calculated();
+            $invoice->save();
+            $this->register_movement_service($invoice);
+
+            return redirect()->route('invoices.create_individual')->with('notity', 'create');
+
+        }else{
+            return redirect()->route('invoices.create_individual')->withErrors(array('global' => "Ya existe un recibo para el Contrato <strong>".$contract->number."</strong> en el período de Facturación <strong>(".month_letter($month, 'lg')." ".$year. ")</strong>."));
+        }
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -177,7 +272,7 @@ class InvoiceController extends Controller
             return redirect()->route('invoices.routines')->with('notity', 'create');;
 
         }else{
-            return redirect()->route('invoices.create')->withErrors(array('global' => "Ya existe una generación de recibos para el período de Facturación <strong>(".month_letter($month, 'lg')." ".$year. ")</strong>. Primero debe reversar la generación anterior para poder realizar una nueva en ese período."));
+            return redirect()->route('invoices.create_lot')->withErrors(array('global' => "Ya existe una generación de recibos para el período de Facturación <strong>(".month_letter($month, 'lg')." ".$year. ")</strong>. Primero debe reversar la generación anterior para poder realizar una nueva en ese período."));
         }
     }
 
@@ -395,6 +490,7 @@ class InvoiceController extends Controller
     }
     
     public function routine_exist($year, $month){
+
         $routine = Routine::where('year', $year)
                         ->where('month', $month)->first();
 

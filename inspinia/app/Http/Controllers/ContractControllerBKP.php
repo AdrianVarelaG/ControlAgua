@@ -40,9 +40,9 @@ class ContractController extends Controller
         $current_year = Carbon::now()->year;
 
         if(Session::get('filter_name')==''){
-            $contracts = Contract::where('status', '!=', 'D')->paginate(10);
+            $contracts = Contract::paginate(10);
         }else{
-            $contracts = Contract::where('status', '!=', 'D')->whereHas('Citizen', 
+            $contracts = Contract::whereHas('Citizen', 
                                 function($q){
                                     $q->where('name', 'LIKE', '%'.Session::get('filter_name').'%');
                                 })->paginate(10);                
@@ -88,6 +88,7 @@ class ContractController extends Controller
                                         ->with('company', $company);
     }
     
+
     /**
      * Display a listing of the resource.
      *
@@ -179,9 +180,10 @@ class ContractController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create_new()
+    public function create($citizen_id)
     {
         $contract = new Contract();
+        $citizen = Citizen::find(Crypt::decrypt($citizen_id));        
         $rates = Rate::where('status', 'A')->orderBy('name')->lists('name','id');
         $administrations = Administration::where('status', 'A')->orderBy('period')->lists('period','id');
         $states = State::where('status', 'A')->orderBy('name')->lists('name','id');
@@ -190,31 +192,8 @@ class ContractController extends Controller
                             ->where('type', 'M')
                             ->where('status', 'A')->get();
 
-        return view('contracts.create_new')->with('contract', $contract)
-                                    ->with('rates', $rates)
-                                    ->with('iva', $iva)
-                                    ->with('charges', $charges)
-                                    ->with('administrations', $administrations)
-                                    ->with('states', $states);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create_exist()
-    {
-        $contract = new Contract();
-        $rates = Rate::where('status', 'A')->orderBy('name')->lists('name','id');
-        $administrations = Administration::where('status', 'A')->orderBy('period')->lists('period','id');
-        $states = State::where('status', 'A')->orderBy('name')->lists('name','id');
-        $iva = Charge::find(1);
-        $charges = Charge::where('id', '>', 1)
-                            ->where('type', 'M')
-                            ->where('status', 'A')->get();
-
-        return view('contracts.create_exist')->with('contract', $contract)
+        return view('contracts.save')->with('contract', $contract)
+                                    ->with('citizen', $citizen)
                                     ->with('rates', $rates)
                                     ->with('iva', $iva)
                                     ->with('charges', $charges)
@@ -233,7 +212,7 @@ class ContractController extends Controller
         //1. Se registra el contrato
         $date = (new ToolController)->format_ymd($request->input('date'));         
         $contract = new Contract();
-        $contract->citizen_id= $request->input('citizen');
+        $contract->citizen_id= $request->input('hdd_citizen_id');
         $contract->number= $request->input('number');
         $contract->date= $date;       
         $contract->rate_id= $request->input('rate'); 
@@ -246,69 +225,43 @@ class ContractController extends Controller
         $contract->number_int= $request->input('number_int');
         $contract->postal_code= $request->input('postal_code');
         $contract->observation= $request->input('observation');
-        $contract->status= $request->input('hdd_status');
+        $contract->status= $request->input('status');
         $contract->save();
-        if($request->input('hdd_contract_new') == 'Y'){
-            if($request->input('invoice')){
-                //2. Se registra el recibo inicial
-                $month = substr($request->input('date'),3,2);
-                $year = substr($request->input('date'),6,4);            
-                $charges_m = $request->input('charges_m');
-                $iva = Charge::find(1);
-                $apply_iva = $request->input('apply_iva');
-                $invoice = new Invoice();
-                $invoice->date = $date;
-                $invoice->date_limit = $date;
-                $invoice->month = $month;
-                $invoice->year = $year;
-                $invoice->month_consume = $month;
-                $invoice->year_consume = $year;
-                $invoice->contract_id = $contract->id;
-                $invoice->citizen_id = $contract->citizen_id;
-                $invoice->message = 'Recibo por Nuevo Contrato';
-                $invoice->status = 'P';
-                $invoice->previous_debt = 0;
-                $invoice->save();
-                if($charges_m){
-                    $this->register_charges($invoice, $charges_m);
-                }
-                if($apply_iva=='Y'){
-                    $this->register_iva($invoice, $iva);
-                }
-                $invoice->total = $invoice->total_calculated();
-                $invoice->save();
-                $this->register_movement_new_contract($invoice);
+        if($request->input('invoice')){
+        //2. Se registra el recibo inicial
+            $month = substr($request->input('date'),3,2);
+            $year = substr($request->input('date'),6,4);            
+            $charges_m = $request->input('charges_m');
+            $iva = Charge::find(1);
+            $apply_iva = $request->input('apply_iva');
+            $invoice = new Invoice();
+            $invoice->date = $date;
+            $invoice->date_limit = $date;
+            $invoice->month = $month;
+            $invoice->year = $year;
+            $invoice->month_consume = $month;
+            $invoice->year_consume = $year;
+            $invoice->contract_id = $contract->id;
+            $invoice->citizen_id = $contract->citizen_id;
+            $invoice->message = 'Recibo por Nuevo Contrato';
+            $invoice->status = 'P';
+            $invoice->previous_debt = 0;
+            $invoice->save();
+            if($charges_m){
+                $this->register_charges($invoice, $charges_m);
+            }
+            if($apply_iva=='Y'){
+                $this->register_iva($invoice, $iva);
+            }
+            $invoice->total = $invoice->total_calculated();
+            $invoice->save();
+            $this->register_movement_new_contract($invoice);
 
-                return redirect()->route('payments.create', Crypt::encrypt($contract->id));
-            }
-        }else{
-            //2. Se registra en la tabla movimientos el saldo inicial        
-            $movement = new Movement();
-            $movement->date= (new ToolController)->format_ymd($request->input('date_initial_balance'));
-            $movement->contract_id = $contract->id;
-            $movement->citizen_id = $contract->citizen->id;
-            $movement->description = 'Saldo Inicial';
-            $movement->type = 'I';
-            $initial_balance = $request->input('initial_balance');
-            if ($initial_balance >= 0){
-                $movement->movement_type = 'D'; //Debito (saldo a favor del ciudadano)
-            }else if($initial_balance < 0 ){            
-                $movement->movement_type = 'C'; //Credito (deuda o cargo)
-            }
-            $movement->amount= abs($request->input('initial_balance'));
-            $movement->save();
-            //3. Se registra un pago inicial para guardar la fecha del ultimo pago
-            $payment = new Payment();
-            $payment->date= (new ToolController)->format_ymd($request->input('date_last_payment'));
-            $payment->citizen_id = $contract->citizen->id;
-            $payment->contract_id = $contract->id;
-            $payment->type= 'E';
-            $payment->observation = 'Ultimo Pago antes de arranque del Sistema';
-            $payment->amount =0;
-            $payment->save();
-            
-            return redirect()->route('contracts.index')->with('notity', 'create');
+            return redirect()->route('payments.create', Crypt::encrypt($contract->id));
         }
+
+
+        return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'create');
     }
 
     public function register_charges($invoice, $charges_array){
@@ -479,7 +432,7 @@ class ContractController extends Controller
         $contract->observation= $request->input('observation');
         $contract->status= $request->input('status');
         $contract->save();
-        return redirect()->route('contracts.index')->with('notity', 'update');
+        return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'update');
     }
 
     /**
@@ -498,7 +451,7 @@ class ContractController extends Controller
         if ($contract->invoices->count() == 0){            
             if($contract->readings->count()==0){
                 $contract->delete();
-                return redirect()->route('contracts.index', Crypt::encrypt($contract->citizen_id))->with('notity', 'delete');
+                return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->with('notity', 'delete');
             }else{
                 return redirect()->route('contracts.citizen_contracts', Crypt::encrypt($contract->citizen_id))->withErrors('No se puede eliminar el Contrato. Existen <strong>'.$contract->readings->count().'</strong> lecturas asociadas. Debe primero eliminar las lecturas asociadas. Gracias...');            
             }

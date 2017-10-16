@@ -10,6 +10,7 @@ use App\Http\Requests\Citizen\CitizenRequestUpdate;
 use Auth;
 use App\Models\Company;
 use App\Models\Citizen;
+use App\Models\Contract;
 use App\Models\State;
 use Illuminate\Support\Facades\Crypt;
 //Image
@@ -26,6 +27,22 @@ use PDF;
 
 class CitizenController extends Controller
 {
+    
+    public function getCitizen(Request $request, $id){
+
+        if ($request->ajax()){
+            $citizen = Citizen::find($id);
+            return response()->json($citizen);
+        }
+    }
+
+    public function getCitizenByContractID(Request $request, $id){
+
+        $contract = Contract::find($id);
+        $citizen = Citizen::find($contract->citizen_id);
+        return response()->json($citizen);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -48,8 +65,7 @@ class CitizenController extends Controller
             }else{
                 
                 $citizens = Citizen::where('name', 'LIKE', '%'.Session::get('filter_name').'%')
-                                    ->orderBy('name')
-                                    ->paginate(10);                
+                                    ->orderBy('name')->get();
             }
             
             $company = Company::first();
