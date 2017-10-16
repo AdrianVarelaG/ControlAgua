@@ -159,7 +159,7 @@
                             </div>                            
                             <div class="form-group">    
                                 <div class="i-checks">
-                                    <label>{!! Form::checkbox('invoice', null,  true, ['id'=>'invoice']) !!} Generar Factura de Nuevo Contrato.</label>
+                                    <label>{!! Form::checkbox('invoice', null,  true, ['id'=>'invoice']) !!} Generar Recibo de Nuevo Contrato.</label>
                                 </div>
                             </div>
                             <div id='div_invoice' style='display:solid;'>

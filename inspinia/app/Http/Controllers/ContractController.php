@@ -130,31 +130,70 @@ class ContractController extends Controller
      */
     public function update_activate(ContractRequestActivate $request, $id)
     {
-        $contract = Contract::find($id);
-        //1. Se registra en la tabla movimientos el saldo inicial        
+        $contract = Contract::find($id);        
+        $date = (new ToolController)->format_ymd($request->input('date'));
+        $date_last_payment = (new ToolController)->format_ymd($request->input('date_last_payment'));
+        $initial_balance = $request->input('initial_balance');        
+        //1. Se registra para todos el ultimo recibo cancelado solo para referencia de fechas
+        $invoice = new Invoice();
+        $invoice->date = $date;
+        $invoice->date_limit = date("Y-m-t", strtotime($date_last_payment));
+        $invoice->month = (new Carbon($date_last_payment))->month;                   
+        $invoice->year = (new Carbon($date_last_payment))->year;
+        $invoice->month_consume = (new Carbon($date_last_payment))->month;
+        $invoice->year_consume = (new Carbon($date_last_payment))->year;
+        $invoice->citizen_id = $contract->citizen_id;
+        $invoice->contract_id = $contract->id;
+        $invoice->message = 'Ultimo Recibo Cancelado';
+        $invoice->status = 'C';
+        $invoice->previous_debt = 0;
+        $invoice->save();
+        //2. Si el contrato tiene deuda se registra el recibo con la deuda con status P
+        if($initial_balance < 0){
+            $invoice = new Invoice();
+            $invoice->date = $date;
+            $invoice->date_limit = date("Y-m-t", strtotime($date));
+            $invoice->month = (new Carbon($date))->month;                   
+            $invoice->year = (new Carbon($date))->year;
+            $invoice->month_consume = (new Carbon($date))->month;
+            $invoice->year_consume = (new Carbon($date))->year;
+            $invoice->citizen_id = $contract->citizen_id;
+            $invoice->contract_id = $contract->id;
+            $invoice->message = 'Recibo Deuda Saldo Inicial';
+            $invoice->status = 'P';
+            $invoice->total = abs($initial_balance);
+            $invoice->previous_debt = 0;
+            $invoice->save();
+            //Detalle del Recibo
+            $invoice_detail = new InvoiceDetail();
+            $invoice_detail->invoice_id = $invoice->id;              
+            $invoice_detail->movement_type = 'CT';
+            $invoice_detail->type = 'M';
+            $invoice_detail->description = 'Recibo Deuda Saldo Inicial';
+            $invoice_detail->sub_total = abs($initial_balance);
+            $invoice_detail->save();
+        }
+        //3. Se registra en la tabla movimientos el saldo inicial        
         $movement = new Movement();
         $movement->date= (new ToolController)->format_ymd($request->input('date'));
         $movement->contract_id = $contract->id;
         $movement->citizen_id = $contract->citizen->id;
         $movement->description = 'Saldo Inicial';
-        $movement->type = 'I';
-        $initial_balance = $request->input('initial_balance');
         if ($initial_balance >= 0){
             $movement->movement_type = 'D'; //Debito (saldo a favor del ciudadano)
+            $movement->type = 'P';
+            $movement->invoice_id = null;                  
         }else if($initial_balance < 0 ){            
             $movement->movement_type = 'C'; //Credito (deuda o cargo)
+            $movement->type = 'C';
+            $movement->invoice_id = $invoice->id;
         }
         $movement->amount= abs($request->input('initial_balance'));
         $movement->save();
-        //2. Se registra un pago inicial para guardar la fecha del ultimo pago
-        $payment = new Payment();
-        $payment->date= (new ToolController)->format_ymd($request->input('date_last_payment'));
-        $payment->citizen_id = $contract->citizen->id;
-        $payment->contract_id = $contract->id;
-        $payment->type= 'E';
-        $payment->observation = 'Ultimo Pago antes de arranque del Sistema';
-        $payment->amount =0;
-        $payment->save();
+        //4. Se activa el contrato
+        $contract->status = 'A';
+        $contract->save();
+        
         return redirect()->route('contracts.initial_balance', Crypt::encrypt($contract->citizen_id))->with('notity', 'update');
 
     }
@@ -230,6 +269,7 @@ class ContractController extends Controller
      */
     public function store(ContractRequestStore $request)
     {
+        return "Entre";
         //1. Se registra el contrato
         $date = (new ToolController)->format_ymd($request->input('date'));         
         $contract = new Contract();
@@ -282,30 +322,66 @@ class ContractController extends Controller
                 return redirect()->route('payments.create', Crypt::encrypt($contract->id));
             }
         }else{
-            //2. Se registra en la tabla movimientos el saldo inicial        
+            //1. Se registra el ultimo recibo cancelado solo para referencia de fechas
+            $date_initial_balance = (new ToolController)->format_ymd($request->input('date_initial_balance'));
+            $date_last_payment = (new ToolController)->format_ymd($request->input('date_last_payment'));
+            $initial_balance = $request->input('initial_balance');
+
+            $invoice = new Invoice();
+            $invoice->date = $date_last_payment;
+            $invoice->date_limit = date("Y-m-t", strtotime($date_last_payment));
+            $invoice->month = (new Carbon($date_last_payment))->month;                   
+            $invoice->year = (new Carbon($date_last_payment))->year;
+            $invoice->month_consume = (new Carbon($date_last_payment))->month;
+            $invoice->year_consume = (new Carbon($date_last_payment))->year;
+            $invoice->citizen_id = $contract->citizen_id;
+            $invoice->contract_id = $contract->id;
+            $invoice->message = 'Ultimo Recibo Cancelado';
+            $invoice->status = 'C';
+            $invoice->previous_debt = 0;
+            $invoice->save();
+            //2. Si el contrato tiene deuda se registra el recibo con la deuda con status P
+            if($initial_balance < 0){
+                $invoice = new Invoice();
+                $invoice->date = $date_initial_balance;
+                $invoice->date_limit = date("Y-m-t", strtotime($date_initial_balance));
+                $invoice->month = (new Carbon($date_initial_balance))->month;                   
+                $invoice->year = (new Carbon($date_initial_balance))->year;
+                $invoice->month_consume = (new Carbon($date_initial_balance))->month;
+                $invoice->year_consume = (new Carbon($date_initial_balance))->year;
+                $invoice->citizen_id = $contract->citizen_id;
+                $invoice->contract_id = $contract->id;
+                $invoice->message = 'Recibo Deuda Saldo Inicial';
+                $invoice->status = 'P';
+                $invoice->total = abs($initial_balance);
+                $invoice->previous_debt = 0;
+                $invoice->save();
+                //Detalle del Recibo
+                $invoice_detail = new InvoiceDetail();
+                $invoice_detail->invoice_id = $invoice->id;              
+                $invoice_detail->movement_type = 'CT';
+                $invoice_detail->type = 'M';
+                $invoice_detail->description = 'Recibo Deuda Saldo Inicial';
+                $invoice_detail->sub_total = abs($initial_balance);
+                $invoice_detail->save();
+            }
+            //3. Se registra en la tabla movimientos el saldo inicial        
             $movement = new Movement();
-            $movement->date= (new ToolController)->format_ymd($request->input('date_initial_balance'));
+            $movement->date= (new ToolController)->format_ymd($request->input('date'));
             $movement->contract_id = $contract->id;
             $movement->citizen_id = $contract->citizen->id;
             $movement->description = 'Saldo Inicial';
-            $movement->type = 'I';
-            $initial_balance = $request->input('initial_balance');
             if ($initial_balance >= 0){
                 $movement->movement_type = 'D'; //Debito (saldo a favor del ciudadano)
+                $movement->type = 'P';
+                $movement->invoice_id = null;                  
             }else if($initial_balance < 0 ){            
                 $movement->movement_type = 'C'; //Credito (deuda o cargo)
+                $movement->type = 'C';
+                $movement->invoice_id = $invoice->id;
             }
             $movement->amount= abs($request->input('initial_balance'));
             $movement->save();
-            //3. Se registra un pago inicial para guardar la fecha del ultimo pago
-            $payment = new Payment();
-            $payment->date= (new ToolController)->format_ymd($request->input('date_last_payment'));
-            $payment->citizen_id = $contract->citizen->id;
-            $payment->contract_id = $contract->id;
-            $payment->type= 'E';
-            $payment->observation = 'Ultimo Pago antes de arranque del Sistema';
-            $payment->amount =0;
-            $payment->save();
             
             return redirect()->route('contracts.index')->with('notity', 'create');
         }

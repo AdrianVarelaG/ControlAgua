@@ -77,6 +77,7 @@
                                       @else
                                         <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-check"></i>Activar</a></li>
                                       @endif
+                                    @if(Session::get('user_role') == 'ADM' || Session::get('user_role') == 'TES')
                                       <li>
                                         <!-- href para eliminar registro -->                            
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -86,7 +87,8 @@
                                         <a href="#" onclick="$(this).closest('form').submit()" style="color:inherit"><i class="fa fa-trash-o"></i>&nbsp;&nbsp;Eliminar</a>
                                         </form>
                                         <br/><br/>
-                                      </li>                                        
+                                      </li>
+                                    @endif                                        
                                     </ul>
                             </div>
                         </td>

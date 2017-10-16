@@ -110,6 +110,9 @@
                                         <br/><br/>
                                     </li>
                                   @endif
+                                  @if(Session::get('user_role') == 'DDA')
+                                    <li><a href="{{ route('contracts.status', Crypt::encrypt($contract->id)) }}"><i class="fa fa-ban"></i> Desactivar</a></li>
+                                  @endif
                                 </ul>
                             </div>
                         <!-- /Split button -->

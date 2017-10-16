@@ -99,13 +99,13 @@
                             </div>                                
                             <div class="col-sm-7">
                                 <small>Detalle Cargos:
-                                     @foreach($credits->get() as $credit)
-                                        <ul>
-                                        @foreach($credit->invoice->invoice_details as $detail)
-                                            <li>{{ $detail->description }} {{ money_fmt($detail->sub_total) }} {{ Session::get('coin') }}</li>
+                                        @foreach($credits->get() as $credit)
+                                            <ul>
+                                            @foreach($credit->invoice->invoice_details as $detail)
+                                                <li>{{ $detail->description }} {{ money_fmt($detail->sub_total) }} {{ Session::get('coin') }}</li>
+                                            @endforeach
+                                            </ul>
                                         @endforeach
-                                        </ul>
-                                    @endforeach
                                 </small>
                             </div>
                         </div>

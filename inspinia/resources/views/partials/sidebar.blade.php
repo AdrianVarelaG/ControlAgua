@@ -132,10 +132,11 @@
                     <li class="{{ set_active(['settings']) }}">
                         <a href="{{URL::to('settings')}}">Datos Generales</a>
                     </li>
+                    <!--
                     <li class="{{ set_active(['uploadfile']) }}">
                         <a href="{{URL::to('uploadfile')}}">Subir Padrón</a>
                     </li>
-                    <!--
+                    
                     <li class="{{ set_active(['datatables']) }}">
                         <a href="{{URL::to('datatables')}}">Datatables Test</a>
                     </li>
@@ -155,7 +156,7 @@
                 <a href="{{URL::to('citizens')}}"><i class="fa fa-address-book-o"></i> <span class="nav-label">Ciudadanos</span></a>
             </li>
             <li class="{{ set_active(['contracts']) }}">
-                <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span></a>
+                <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos Activos</span></a>
             </li>                        
             <li class="{{ set_active(['readings']) }}">
                 <a href="{{URL::to('readings')}}"><i class="fa fa-pencil-square-o"></i> <span class="nav-label">Lecturas</span></a>
@@ -164,12 +165,12 @@
             <li class="{{ set_active(['charges.iva', 'rates.flat_rate', 'rates', 'charges', 'discounts', 'discounts.age', 'invoices.routines', 'invoices.index_group']) }}">
                 <a href="index.html"><i class="fa fa-file-text-o"></i> <span class="nav-label">Recibos</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['invoices.create_individual']) }}">
+                        <a href="{{URL::to('invoices.create_individual')}}">Generar recibo Individual</a>
+                    </li>                                        
                     <li class="{{ set_active(['invoices.routines']) }}">
-                        <a href="{{URL::to('invoices.routines')}}">Generar recibos</a>
+                        <a href="{{URL::to('invoices.routines')}}">Generar recibos en Lote</a>
                     </li>
-                    <li class="{{ set_active(['invoices.index_group']) }}">
-                        <a href="{{URL::to('invoices.index_group')}}">Consultar recibos</a>
-                    </li>                    
                     <li class="{{ set_active(['invoices.print_invoices']) }}">
                         <a href="{{URL::to('invoices.print_invoices')}}">Imprimir recibos</a>
                     </li>
@@ -217,8 +218,22 @@
             <li class="{{ set_active(['citizens']) }}">
                 <a href="{{URL::to('citizens')}}"><i class="fa fa-address-book-o"></i> <span class="nav-label">Ciudadanos</span></a>
             </li>
-            <li class="{{ set_active(['contracts']) }}">
-                <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span></a>
+            <li class="{{ set_active(['contracts', 'contracts.create', 'contracts.initial_balance']) }}">
+                <a href="index.html"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['contracts']) }}">
+                        <a href="{{URL::to('contracts')}}">Activos</a>
+                    </li>                                        
+                    <li class="{{ set_active(['contracts.create_new', 'contracts.create_exist']) }}">
+                        <a href="{{URL::to('contracts.create_new')}}">Registrar Contrato Nuevo</a>
+                    </li>                    
+                    <li class="{{ set_active(['contracts.create_exist']) }}">
+                        <a href="{{URL::to('contracts.create_exist')}}">Registrar Contrato Existente</a>
+                    </li>                                        
+                    <li class="{{ set_active(['contracts.initial_balance']) }}">
+                        <a href="{{URL::to('contracts.initial_balance')}}">Inactivos</a>
+                    </li>                    
+                </ul>
             </li>                        
             <li class="{{ set_active(['readings']) }}">
                 <a href="{{URL::to('readings')}}"><i class="fa fa-pencil-square-o"></i> <span class="nav-label">Lecturas</span></a>
@@ -227,6 +242,9 @@
             <li class="{{ set_active(['charges.iva', 'rates.flat_rate', 'rates', 'charges', 'discounts', 'discounts.age', 'invoices.routines']) }}">
                 <a href="index.html"><i class="fa fa-file-text-o"></i> <span class="nav-label">Recibos</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['invoices.create_individual']) }}">
+                        <a href="{{URL::to('invoices.create_individual')}}">Generar recibo Individual</a>
+                    </li>                                        
                     <li class="{{ set_active(['invoices.routines']) }}">
                         <a href="{{URL::to('invoices.routines')}}">Generar recibos en Lote</a>
                     </li>
@@ -258,9 +276,18 @@
             <li class="{{ set_active(['citizens']) }}">
                 <a href="{{URL::to('citizens')}}"><i class="fa fa-address-book-o"></i> <span class="nav-label">Ciudadanos</span></a>
             </li>
-            <li class="{{ set_active(['contracts']) }}">
-                <a href="{{URL::to('contracts')}}"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span></a>
-            </li>                                    
+            <li class="{{ set_active(['contracts', 'contracts.create', 'contracts.initial_balance']) }}">
+                <a href="index.html"><i class="fa fa-tachometer"></i> <span class="nav-label">Contratos</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ set_active(['contracts']) }}">
+                        <a href="{{URL::to('contracts')}}">Activos</a>
+                    </li>                                        
+                    <li class="{{ set_active(['contracts.initial_balance']) }}">
+                        <a href="{{URL::to('contracts.initial_balance')}}">Inactivos</a>
+                    </li>                    
+                </ul>
+            </li>                        
+                                    
             <li class="{{ set_active(['payments', 'invoices']) }}">
                 <a href="index.html"><i class="fa fa-bar-chart"></i> <span class="nav-label">Consultar</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
