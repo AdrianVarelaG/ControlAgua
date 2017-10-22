@@ -269,7 +269,6 @@ class ContractController extends Controller
      */
     public function store(ContractRequestStore $request)
     {
-        return "Entre";
         //1. Se registra el contrato
         $date = (new ToolController)->format_ymd($request->input('date'));         
         $contract = new Contract();
